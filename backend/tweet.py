@@ -1,5 +1,6 @@
 from flask import Blueprint
 import tweepy, os
+from app import db
 
 bp = Blueprint("tweet", __name__, url_prefix="/t")
 
@@ -16,5 +17,6 @@ def tweet(keyword):
     print(result.data)
     ret = ""
     for d in result.data:
+        db.save({'id':d.id, 'text':d.text})
         ret += "<h1>" + d.text + "</h1>"
     return ret
