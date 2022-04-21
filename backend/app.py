@@ -9,10 +9,16 @@ DB_PASSWORD = os.environ.get('DB_PASSWORD', None)
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
 # db setup
-couch = Server()
-couch.resource.credentials = (DB_USERNAME, DB_PASSWORD)
-db = couch['ccc']
-
+db_enable = True
+db = None
+try:
+    couch = Server()
+    couch.resource.credentials = (DB_USERNAME, DB_PASSWORD)
+    db = couch['ccc']
+except:
+    print("WARRING: database is not running\n")
+    db_enable = False
+# route
 @app.route("/")
 def hello_world():
     return "<p>Hello, World!</p>"
