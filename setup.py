@@ -20,6 +20,7 @@ if spec is None:
 
 os.environ['SECRET_KEY'] = secret.SECRET_KEY
 os.environ['BEARER_TOKEN'] = secret.BEARER_TOKEN
+os.environ['FLASK_ENV'] = "development"
 if dev:
     os.system('cd backend && flask run')
 else:
