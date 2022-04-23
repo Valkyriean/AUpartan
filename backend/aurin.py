@@ -47,15 +47,17 @@ def store_aurin():
 
 
 from flaskext.couchdb import Document
+import uuid
 # a data structue class for aurin data of payment
 class aurinpay(Document):
     doc_type='aurindata'
 
     sa3code=TextField()
-    1003rate=TextField()
-    0104rate=TextField()       
+    t1003rate=TextField()
+    t0104rate=TextField()       
 
-
-
-
+newaurin = aurinpay(sa3code='1000', t1003rate=1001, t0104rate=1004)
+newaurin.id = uuid.uuid4().hex
+#place the target database in ()of store()
+newaurin.store()
 
