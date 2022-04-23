@@ -19,7 +19,7 @@ def search(keyword):
     ret = ""
     for d in result.data:
         if db_enable:
-            db.save({'id':d.id, 'text':d.text})
+            db.save({'id':d.id, 'text':d.text, 'maintag': keyword})
         ret += "<h1>" + d.text + "</h1>"
     return ret
 
