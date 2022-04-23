@@ -1,5 +1,6 @@
 import json
 from flask import Blueprint
+from flask import Flask
 from app import db_enable, couch
 
 bp = Blueprint("aurin", __name__, url_prefix="/aurin")
@@ -45,8 +46,14 @@ def store_aurin():
     return ("Load Successful")
 
 
+from flaskext.couchdb import Document
+# a data structue class for aurin data of payment
+class aurinpay(Document):
+    doc_type='aurindata'
 
-        
+    sa3code=TextField()
+    1003rate=TextField()
+    0104rate=TextField()       
 
 
 
