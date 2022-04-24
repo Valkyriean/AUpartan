@@ -16,25 +16,14 @@ class aurinpay(Document):
     sa3code = TextField()
     value=ListField(TextField())
 
-different = ViewField("aurinpay", '''\
-    function(doc){
-        if(doc.doc_type=='aurinpay'){
-            doc.value.forEach(function(value){
-                emit(value,1);
-            });
-        };
-}
-''','''\
-    function (keys, values, rereduce) {
-        return (value[0]-value[1]);
-        }
-''', wrapper="Row", group=True)
+#emit(doc.sa3code, (parseFloat(doc.calue[0])-parseFloat(doc.value[1])))
+
 
 
 @bp.route("/")
 def store_aurin():
   
-    if db_enable:
+    if db_enable:#adding filter here,while writing in, to remove nan record, any nan will discard entire record.
         newaurin = aurinpay(sa3code = '1000', value=['1001','1004'])
         # place the target database in ()of store()
         newaurin.store(db)
@@ -71,3 +60,31 @@ def store_aurin():
                 db.save({'id_sa3': instance["sa3_code16"], "payroll_scenario": scenario, 'payroll': instance[timepoint]})'''
     
     return ("Load Successful")
+
+
+#this should return a key-object pair of sa3code and value pair,this requirement does not need reduce function
+
+#emit(doc.sa3code, (parseFloat(doc.calue[0])-parseFloat(doc.value[1])))
+#emit above might be able to generate key-object pair of sa3code and difference-of_value pair directly
+
+#in this case reduce might be able to used to find some in-total conclusion, like "how many of them are increasing" see below
+different = ViewField("aurinpay", '''\
+    function(doc){
+        if(doc.doc_type==='aurinpay'){
+                emit(doc.sa3code,doc.value);
+            });
+        };
+}
+''')
+#for  "how many of them are increasing", if emit(doc.sa3code, (parseFloat(doc.calue[0])-parseFloat(doc.value[1])))is used and functional
+# hopfully it will work
+'''function(keys, values, rereduce){
+        var increasing = [];
+        values.forEach(function(different){
+            if(different > 0){
+                increasing.push(different);
+            }
+        });
+        return sum(increasing);
+}
+'''
