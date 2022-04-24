@@ -1,8 +1,8 @@
 import json
 from flask import Blueprint
 from app import db_enable, couch
-from flaskext.couchdb import Document
-from couchdb.mapping import TextField
+from flaskext.couchdb import Document,ViewDefinition
+from couchdb.mapping import TextField,ListField,ViewField
 
 bp = Blueprint("aurin", __name__, url_prefix="/aurin")
 
@@ -12,16 +12,30 @@ except:
     db = couch.create('aurin')
 
 class aurinpay(Document):
-    doc_type = 'aurindata'
+    doc_type = 'aurinpay'
     sa3code = TextField()
-    t1003 = TextField()
-    t0104 = TextField()
+    value=ListField(TextField())
+
+different = ViewField("aurinpay", '''\
+    function(doc){
+        if(doc.doc_type=='aurinpay'){
+            doc.value.forEach(function(value){
+                emit(value,1);
+            });
+        };
+}
+''','''\
+    function (keys, values, rereduce) {
+        return (value[0]-value[1]);
+        }
+''', wrapper="Row", group=True)
+
 
 @bp.route("/")
 def store_aurin():
   
     if db_enable:
-        newaurin = aurinpay(sa3code = '1000', t1003 = '1001', t0104 = '1004')
+        newaurin = aurinpay(sa3code = '1000', value=['1001','1004'])
         # place the target database in ()of store()
         newaurin.store(db)
 
