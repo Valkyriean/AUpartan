@@ -4,6 +4,8 @@ from app import db_enable, couch
 from flaskext.couchdb import Document
 from couchdb.mapping import TextField, ListField, ViewField
 from couchdb.design import ViewDefinition
+import sys
+import inflection
 
 bp = Blueprint("aurin", __name__, url_prefix="/aurin")
 
@@ -90,14 +92,12 @@ different = ViewField("aurinpay", '''\
 }
 '''
 
-docs_aurin = ViewDefinition('aurinpay', 'by_id', 
-                            'function(doc) {emit(doc.aurinpay, doc);}')
+view = ViewDefinition('aurinpay', 'all', '''function(doc) {
+    emit(doc._id, sa3code);
+}''')
 
 @bp.route("/retrieve")
 def retrieve_aurin():
-    docs = []
-    for row in docs_aurin(db):
-        docs.append(row)
-    
-    print(docs)
+    test = view.sync(db)
+    print(test)
     return("test")
