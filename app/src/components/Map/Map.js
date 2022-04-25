@@ -1,6 +1,8 @@
-import './App.css';
 import React from 'react';
+import './Map.css'
 import mapboxgl from 'mapbox-gl';
+
+import Navbar from '../Navbar/Navbar';
 
 mapboxgl.accessToken = 'pk.eyJ1IjoieWFudGluZ211IiwiYSI6ImNsMmJob2EzczA3ZTMzZGw2bWFvaHRrd2IifQ.qOLO45RtuWppsIRM1pxqiw';
 
@@ -41,7 +43,8 @@ export default class App extends React.PureComponent {
   render() {
     return (
       <div>
-      <div ref={this.mapContainer} className="map-container" />
+        <Navbar map={'active'}/>
+        <div ref={this.mapContainer} className="map-container" />
       </div>
     );
   }
