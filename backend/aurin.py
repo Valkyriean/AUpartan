@@ -1,8 +1,9 @@
 import json
 from flask import Blueprint
 from app import db_enable, couch
-from flaskext.couchdb import Document,ViewDefinition
-from couchdb.mapping import TextField,ListField,ViewField
+from flaskext.couchdb import Document
+from couchdb.mapping import TextField, ListField, ViewField
+from couchdb.design import ViewDefinition
 
 bp = Blueprint("aurin", __name__, url_prefix="/aurin")
 
@@ -14,7 +15,7 @@ except:
 class aurinpay(Document):
     doc_type = 'aurinpay'
     sa3code = TextField()
-    value=ListField(TextField())
+    value = ListField(TextField())
 
 #emit(doc.sa3code, (parseFloat(doc.calue[0])-parseFloat(doc.value[1])))
 
@@ -88,3 +89,15 @@ different = ViewField("aurinpay", '''\
         return sum(increasing);
 }
 '''
+
+docs_aurin = ViewDefinition('aurinpay', 'by_id', 
+                            'function(doc) {emit(doc.aurinpay, doc);}')
+
+@bp.route("/retrieve")
+def retrieve_aurin():
+    docs = []
+    for row in docs_aurin(db):
+        docs.append(row)
+    
+    print(docs)
+    return("test")
