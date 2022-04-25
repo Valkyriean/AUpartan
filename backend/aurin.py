@@ -1,11 +1,10 @@
 import json
-from flask import Blueprint
+from pickle import TRUE
+from flask import Blueprint, g, request
 from app import db_enable, couch
-from flaskext.couchdb import Document
-from couchdb.mapping import TextField, ListField, ViewField
+from flaskext.couchdb import Document, CouchDBManager
+from couchdb.mapping import TextField, ListField, ViewField, BooleanField
 from couchdb.design import ViewDefinition
-import sys
-import inflection
 
 bp = Blueprint("aurin", __name__, url_prefix="/aurin")
 
@@ -14,22 +13,32 @@ try:
 except:
     db = couch.create('aurin')
 
+manager = CouchDBManager()
+
 class aurinpay(Document):
     doc_type = 'aurinpay'
     sa3code = TextField()
     value = ListField(TextField())
+    active = BooleanField()
 
-#emit(doc.sa3code, (parseFloat(doc.calue[0])-parseFloat(doc.value[1])))
+view = ViewDefinition("aurinpay", 'value', '''
+    function(doc){
+        if (doc.sa3code == '1000'){
+            emit(doc.sa3code, doc.value);
+        };
+    }''')
 
-
+manager.add_document(aurinpay)
 
 @bp.route("/")
 def store_aurin():
   
     if db_enable:#adding filter here,while writing in, to remove nan record, any nan will discard entire record.
-        newaurin = aurinpay(sa3code = '1000', value=['1001','1004'])
+        newaurin = aurinpay(sa3code = '1000', value=['1001','1004'], active = TRUE)
+        newaurin_1 = aurinpay(sa3code = '1001', value=['1000','1004'], active = TRUE)
         # place the target database in ()of store()
         newaurin.store(db)
+        newaurin_1.store(db)
 
     '''
     # Payroll data load in CouchDB
@@ -64,40 +73,9 @@ def store_aurin():
     
     return ("Load Successful")
 
-
-#this should return a key-object pair of sa3code and value pair,this requirement does not need reduce function
-
-#emit(doc.sa3code, (parseFloat(doc.calue[0])-parseFloat(doc.value[1])))
-#emit above might be able to generate key-object pair of sa3code and difference-of_value pair directly
-
-#in this case reduce might be able to used to find some in-total conclusion, like "how many of them are increasing" see below
-different = ViewField("aurinpay", '''\
-    function(doc){
-        if(doc.doc_type==='aurinpay'){
-                emit(doc.sa3code,doc.value);
-            });
-        };
-}
-''')
-#for  "how many of them are increasing", if emit(doc.sa3code, (parseFloat(doc.calue[0])-parseFloat(doc.value[1])))is used and functional
-# hopfully it will work
-'''function(keys, values, rereduce){
-        var increasing = [];
-        values.forEach(function(different){
-            if(different > 0){
-                increasing.push(different);
-            }
-        });
-        return sum(increasing);
-}
-'''
-
-view = ViewDefinition('aurinpay', 'all', '''function(doc) {
-    emit(doc._id, sa3code);
-}''')
-
 @bp.route("/retrieve")
 def retrieve_aurin():
-    test = view.sync(db)
-    print(test)
-    return("test")
+    view.sync(db)
+    for row in view(db):
+        print(row.value)
+    return ("docs")
