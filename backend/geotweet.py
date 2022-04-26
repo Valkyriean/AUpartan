@@ -40,7 +40,7 @@ class tweet(Document):
 manager.add_document(tweet)
 
 # Setup api key and api key secret for using tweepy (elevated version is required)
-auth = tweepy.OAuthHandler(os.environ.get('KEY', None), os.environ.get('KEYSECRET', None))
+auth = tweepy.OAuthHandler(os.environ.get('API_KEY', None), os.environ.get('API_KEY_SECRET', None))
 api = tweepy.API(auth, wait_on_rate_limit=True)
 
 # Collect the target information from twitter with inserted keyword and store it / them into couchdb in a designed structure
