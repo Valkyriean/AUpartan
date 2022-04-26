@@ -30,6 +30,6 @@ os.environ['DB_USERNAME'] = secret.DB_USERNAME
 os.environ['DB_PASSWORD'] = secret.DB_PASSWORD
 if dev:
     os.environ['FLASK_ENV'] = "development"
-    os.system('cd backend && flask run')
+    os.system('cd backend && python3 -m flask run --host=0.0.0.0')
 else:
-    os.system('cd backend && gunicorn app:app')
+    os.system('cd backend && python3 -m gunicorn app:app')
