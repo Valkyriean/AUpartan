@@ -1,12 +1,14 @@
 import os
 from flask import Flask
 from couchdb import Server
+from flask_cors import CORS
 
 SECRET_KEY = os.environ.get('SECRET_KEY', None)
 DB_USERNAME = os.environ.get('DB_USERNAME', None)
 DB_PASSWORD = os.environ.get('DB_PASSWORD', None)
 # app setup
 app = Flask(__name__)
+CORS(app)
 app.secret_key = SECRET_KEY
 # db setup
 db_enable = True
