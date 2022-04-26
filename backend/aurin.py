@@ -1,9 +1,8 @@
-import json
 from pickle import TRUE
-from flask import Blueprint, g, request
+from flask import Blueprint
 from app import db_enable, couch
 from flaskext.couchdb import Document, CouchDBManager
-from couchdb.mapping import TextField, ListField, ViewField, BooleanField
+from couchdb.mapping import TextField, ListField, BooleanField
 from couchdb.design import ViewDefinition
 
 bp = Blueprint("aurin", __name__, url_prefix="/aurin")

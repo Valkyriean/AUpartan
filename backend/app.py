@@ -33,3 +33,6 @@ app.register_blueprint(tweet.bp)
 
 import aurin
 app.register_blueprint(aurin.bp)
+
+import geotweet
+app.register_blueprint(geotweet.bp)
