@@ -6,7 +6,7 @@ import Map from './components/Map/Map';
 import Navbar from './components/Navbar/Navbar';
 import Home from './components/Home/Home'
 import reportWebVitals from './reportWebVitals';
-
+//import axios from 'axios';
 import {BrowserRouter, Routes, Route,} from "react-router-dom";
 
 
@@ -21,11 +21,3 @@ root.render(
 );
 
 reportWebVitals();
-
-
-/*
-  <React.StrictMode>
-    <Navbar />
-    <Home />
-  </React.StrictMode>
-*/

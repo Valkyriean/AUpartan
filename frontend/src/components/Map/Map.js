@@ -1,11 +1,10 @@
 import React from 'react';
 import './Map.css'
 import mapboxgl from 'mapbox-gl';
-
 import Navbar from '../Navbar/Navbar';
 
 mapboxgl.accessToken = 'pk.eyJ1IjoieWFudGluZ211IiwiYSI6ImNsMmJob2EzczA3ZTMzZGw2bWFvaHRrd2IifQ.qOLO45RtuWppsIRM1pxqiw';
-
+const baseURL = "http://127.0.0.1:5000"
 export default class App extends React.PureComponent {
   constructor(props){
     super(props);
