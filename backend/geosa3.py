@@ -5,7 +5,7 @@ from shapely.geometry import Point
 from flask import Blueprint
 from app import db_enable, couch
 from flaskext.couchdb import Document, CouchDBManager
-from couchdb.mapping import TextField, ListField, BooleanField
+from couchdb.mapping import TextField
 from couchdb.design import ViewDefinition
 
 bp = Blueprint("geosa3", __name__, url_prefix="/geosa3")
@@ -61,7 +61,6 @@ def store_sa3geo():
 
             # Record the SA3 names
             sa3_name = (sa3_data_row["SA3_NAME21"].tolist())[0]
-            print((sa3_name))
 
             # Calculate centroid of each polygon
             sa3_centroid = sa3_data_row["geometry"].centroid

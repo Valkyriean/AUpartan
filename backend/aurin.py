@@ -77,4 +77,5 @@ def retrieve_aurin():
     view.sync(db)
     for row in view(db):
         print(row.value)
+        print(row.key)
     return ("docs")
