@@ -29,8 +29,8 @@ os.environ['SECRET_KEY'] = secret.SECRET_KEY
 os.environ['BEARER_TOKEN'] = secret.BEARER_TOKEN
 os.environ['DB_USERNAME'] = secret.DB_USERNAME
 os.environ['DB_PASSWORD'] = secret.DB_PASSWORD
-os.environ['API_KEY']=secret.KEY
-os.environ['API_KEY_SECRET']=secret.KEYSECRET
+os.environ['API_KEY']=secret.API_KEY
+os.environ['API_KEY_SECRET']=secret.API_KEY_SECRET
 
 if dev:
     os.environ['FLASK_ENV'] = "development"
