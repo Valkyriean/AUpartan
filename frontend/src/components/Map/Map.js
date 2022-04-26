@@ -5,12 +5,14 @@ import Navbar from '../Navbar/Navbar';
 
 mapboxgl.accessToken = 'pk.eyJ1IjoieWFudGluZ211IiwiYSI6ImNsMmJob2EzczA3ZTMzZGw2bWFvaHRrd2IifQ.qOLO45RtuWppsIRM1pxqiw';
 const baseURL = "http://127.0.0.1:5000"
-export default class App extends React.PureComponent {
+
+export default class App extends React.Component {
   constructor(props){
     super(props);
     this.state = {
       lng: 144.96,
       lat: -37.81,
+      text: '',
       zoom: 9
     };
     this.mapContainer = React.createRef();
@@ -25,11 +27,26 @@ export default class App extends React.PureComponent {
     zoom: zoom
     });
     let Markers = [];
-    map.on('click', (e) => {
+    map.on('click', async (e) => {
+      await fetch("http://127.0.0.1:5000/map", {
+        method: "POST",
+        headers: {'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          'lat': e.lngLat["lat"],
+          'lng': e.lngLat["lng"],
+        })
+      })
+      .then(response => response.json())
+      .then(response => {
+        this.state.text = response.sum;
+        //console.log(response.sum);
+      });
+
+      console.log(this.state.text);
       Markers.forEach((marker) => marker.remove())
       Markers = [];
       var popup = new mapboxgl.Popup({closeButton:false})
-        .setText("a ba a ba a ba")
+        .setText(this.state.text)
         .addTo(map);
       var marker = new mapboxgl.Marker()
         .setLngLat([e.lngLat["lng"], e.lngLat["lat"]])
