@@ -1,5 +1,4 @@
-import tweepy
-import secret
+import tweepy,os
 import re
 from flask import Blueprint
 from app import db_enable, couch
@@ -41,7 +40,7 @@ class tweet(Document):
 manager.add_document(tweet)
 
 # Setup api key and api key secret for using tweepy (elevated version is required)
-auth = tweepy.OAuthHandler(secret.key, secret.keysecret)
+auth = tweepy.OAuthHandler(os.environ.get('KEY', None), os.environ.get('KEYSECRETS', None))
 api = tweepy.API(auth, wait_on_rate_limit=True)
 
 # Collect the target information from twitter with inserted keyword and store it / them into couchdb in a designed structure

@@ -1,8 +1,8 @@
 from tweepy import StreamingClient, Tweet, StreamRule
 
-import secret
+import os
 
-bearer_token = secret.BEARER_TOKEN
+bearer_token = os.environ.get('BEARER_TOKEN', None)
 
 
 class TweetListener(StreamingClient):
