@@ -38,3 +38,6 @@ app.register_blueprint(aurin.bp)
 
 import geotweet
 app.register_blueprint(geotweet.bp)
+
+import geosa3
+app.register_blueprint(geosa3.bp)
