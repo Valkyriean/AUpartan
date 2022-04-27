@@ -68,6 +68,6 @@ def harvest_tweet(select_topic):
                     new_tweet = tweet(_id = str(i.id), topic = select_topic, text = new_text, location_id = row.key, time = i.created_at)
                     new_tweet.store(db)
                     #add the line to read the user of this tweet
-                    new_user = tweetuser(userid=row.user['id_str'], name=row.user['name'])
+                    new_user = tweetuser(userid=i.user.id_str, name=i.user.name)
 
     return ("done")
