@@ -1,9 +1,8 @@
-from pickle import TRUE
+import json
 from flask import Blueprint
 from app import db_enable, couch
 from flaskext.couchdb import Document, CouchDBManager
-from couchdb.mapping import TextField, ListField, BooleanField
-from couchdb.design import ViewDefinition
+from couchdb.mapping import TextField, FloatField, ListField
 
 bp = Blueprint("aurin", __name__, url_prefix="/aurin")
 
@@ -14,68 +13,50 @@ except:
 
 manager = CouchDBManager()
 
-class aurinpay(Document):
-    doc_type = 'aurinpay'
-    sa3code = TextField()
-    value = ListField(TextField())
-    active = BooleanField()
+class aurinwealth(Document):
+    doc_type = 'aurinwealth'
+    _id = TextField()
+    income_value = FloatField()
+    payroll_value = ListField(FloatField())
 
-view = ViewDefinition("aurinpay", 'value', '''
-    function(doc){
-        if (doc.sa3code == '1000'){
-            emit(doc.sa3code, doc.value);
-        };
-    }''')
-
-manager.add_document(aurinpay)
+manager.add_document(aurinwealth)
 
 @bp.route("/")
 def store_aurin():
   
-    if db_enable:#adding filter here,while writing in, to remove nan record, any nan will discard entire record.
-        newaurin = aurinpay(sa3code = '1000', value=['1001','1004'], active = TRUE)
-        newaurin_1 = aurinpay(sa3code = '1001', value=['1000','1004'], active = TRUE)
-        # place the target database in ()of store()
-        newaurin.store(db)
-        newaurin_1.store(db)
+    if db_enable:
+ 
+        # Wealth data in SA3 regions load into CouchDB
+        scenario = "wealth"
+        
+        # Pre-store income information in each SA3 regions
+        income_level = "median_aud_2017_18"
+        file_income = "../Data/Aurin/income.json"
+        sa3 = "sa3_code"
+        income_list = {}
+        with open(file_income, 'r') as f:
+            objects = json.load(f)
 
-    '''
-    # Payroll data load in CouchDB
-    scenario = "payroll_covid"
-    timepoint_before = "wk_end_2020_01_04"
-    timepoint_after = "wk_end_2020_10_03"
-    filename = "../Data/Aurin/abs_weekly_payroll_jobs_pc_sa3_2020_oct-870542151270269027.json"
+            for i in objects["features"]:
+                instance = i["properties"]
+                if instance[sa3] not in income_list:
+                    income_list[str(instance[sa3])] = (float(instance[income_level]))
 
-    with open(filename, 'r') as f:
-        objects = json.load(f)
+        # Read in payroll data and store income & payroll data in each SA3 regions into couchdb together
+        file_payroll = "../Data/Aurin/payroll.json"
+        payroll_level_before = "wk_end_2020_01_04"
+        payroll_level_later = "wk_end_2020_10_03"
+        sa3_name = "sa3_code16"
+        with open(file_payroll, 'r') as f:
+            objects = json.load(f)
 
-        for i in objects["features"]:
-            instance = i["properties"]
+            for i in objects["features"]:
+                instance = i["properties"]
+                sa3_code = str(instance[sa3_name])
+                
+                # Store the wealth information in each SA3 regions into couch db
+                if (sa3_code) not in db:
+                    new_wealth = aurinwealth(_id = sa3_code, income_value = income_list[sa3_code], payroll_value = [instance[payroll_level_before], instance[payroll_level_later]])
+                    new_wealth.store(db)
 
-            if db_enable:
-                if str(instance["sa3_code16"]) not in db:
-                    db.save({'_id': str(instance["sa3_code16"]), "payroll_scenario": scenario, timepoint_before: instance[timepoint_before], timepoint_after: instance[timepoint_after]})
-    
-    # Payroll data load in CouchDB
-    scenario = "payroll_afterCovid"
-    timepoint = "wk_end_2020_01_04"
-    filename = "../Data/Aurin/2020-1.json"
-
-    with open(filename, 'r') as f:
-        objects = json.load(f)
-
-        for i in objects["features"]:
-            instance = i["properties"]
-
-            if db_enable:
-                db.save({'id_sa3': instance["sa3_code16"], "payroll_scenario": scenario, 'payroll': instance[timepoint]})'''
-    
     return ("Load Successful")
-
-@bp.route("/retrieve")
-def retrieve_aurin():
-    view.sync(db)
-    for row in view(db):
-        print(row.value)
-        print(row.key)
-    return ("docs")
