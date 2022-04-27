@@ -60,4 +60,4 @@ for i in range(sf_len):
 
 # Save SA3 geo-information as csv for further usage
 df = pd.DataFrame(list(zip(SA3_codes, SA3_names, SA3_coords, SA3_coorstr)), columns = ["SA3_CODE", "SA3_NAME", "SA3_COORDS", "SA3_GEOINFO"])
-df.to_csv("../Data/Aurin/sa3_geoinfo.csv", index = False)
+df.to_csv("../Data/Geo/sa3_geoinfo.csv", index = False)
