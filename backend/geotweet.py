@@ -45,8 +45,8 @@ class tweetuser(Document):
     userid = TextField()
     name = TextField()
 
-
 manager.add_document(tweet)
+manager.add_document(tweetuser)
 
 # Setup api key and api key secret for using tweepy (elevated version is required)
 auth = tweepy.OAuthHandler(os.environ.get('API_KEY', None), os.environ.get('API_KEY_SECRET', None))
