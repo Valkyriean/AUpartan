@@ -1,6 +1,6 @@
 from flask import Blueprint
 import tweepy, os
-from app import db, db_enable
+import app
 
 bp = Blueprint("tweet", __name__, url_prefix="/t")
 BEARER_TOKEN = os.environ.get('BEARER_TOKEN', None)
@@ -18,8 +18,8 @@ def search(keyword):
     print(result.data)
     ret = ""
     for d in result.data:
-        if db_enable:
-            db.save({'id':d.id, 'text':d.text, 'maintag': keyword})
+        if app.db_enable:
+            app.db.save({'id':d.id, 'text':d.text, 'maintag': keyword})
         ret += "<h1>" + d.text + "</h1>"
     return ret
 

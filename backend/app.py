@@ -16,15 +16,14 @@ db = None
 try:
     couch = Server()
     couch.resource.credentials = (DB_USERNAME, DB_PASSWORD)
-except:
-    print("WARRING: database is not running\n")
-    db_enable = False
-    
-else:
     try:
         db = couch['ccc']
     except:
         db = couch.create('ccc')
+except:
+    print("WARRING: database is not running\n")
+    db_enable = False
+
 # route
 @app.route("/")
 def hello_world():

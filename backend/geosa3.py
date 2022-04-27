@@ -11,10 +11,11 @@ from couchdb.design import ViewDefinition
 bp = Blueprint("geosa3", __name__, url_prefix="/geosa3")
 
 # Setup database in couchdb for stroing tweet information
-try:
-    db = couch['geodata']
-except:
-    db = couch.create('geodata')
+if db_enable:
+    try:
+        db = couch['geodata']
+    except:
+        db = couch.create('geodata')
 
 manager = CouchDBManager()
 

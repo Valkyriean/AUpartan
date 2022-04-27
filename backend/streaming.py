@@ -2,8 +2,9 @@ from tweepy import StreamingClient, Tweet, StreamRule
 
 import os
 
-bearer_token = os.environ.get('BEARER_TOKEN', None)
+BEARER_TOKEN= "AAAAAAAAAAAAAAAAAAAAAIHFbAEAAAAA0oBVG5orLLErnyAqw2po3fOae5w%3D4lgZWoMOyGG496F2aNACoKOdDCaDnxqret6oFPLToE244O6Tx6"
 
+bearer_token = BEARER_TOKEN
 
 class TweetListener(StreamingClient):
 
@@ -19,7 +20,7 @@ class TweetListener(StreamingClient):
 client = TweetListener(bearer_token)
 
 rules = [
-    StreamRule(value="Melbourne lang:en")
+    StreamRule(value="election melbourne lang:en")
     # StreamRule(value=""),
     # StreamRule(value="bounding_box:[144.3896 -38.5084 145.5459 -37.3127]")
     

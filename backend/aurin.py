@@ -6,10 +6,11 @@ from couchdb.mapping import TextField, FloatField, ListField
 
 bp = Blueprint("aurin", __name__, url_prefix="/aurin")
 
-try:
-    db = couch['aurin']
-except:
-    db = couch.create('aurin')
+if db_enable:
+    try:
+        db = couch['aurin']
+    except:
+        db = couch.create('aurin')
 
 manager = CouchDBManager()
 

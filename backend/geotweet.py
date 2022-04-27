@@ -9,15 +9,17 @@ from couchdb.design import ViewDefinition
 bp = Blueprint("geotweet", __name__, url_prefix="/geotweet")
 
 # Setup database in couchdb for stroing tweet information
-try:
-    db = couch['tweet']
-except:
-    db = couch.create('tweet')
 
-try:
-    db_geo = couch["geodata"]
-except:
-    db = couch.create("geodata")
+if db_enable:
+    try:
+        db = couch['tweet']
+    except:
+        db = couch.create('tweet')
+
+    try:
+        db_geo = couch["geodata"]
+    except:
+        db = couch.create("geodata")
 
 manager = CouchDBManager()
 

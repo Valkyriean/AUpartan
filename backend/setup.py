@@ -35,11 +35,11 @@ os.environ['API_KEY_SECRET']=secret.API_KEY_SECRET
 if dev:
     os.environ['FLASK_ENV'] = "development"
     if platform.system() == "Windows":
-        os.system('cd backend && flask run --host=0.0.0.0 --port=5001')
+        os.system('flask run --host=0.0.0.0 --port=5001')
     else:
-        os.system('cd backend && python3 -m flask run --host=0.0.0.0 --port=5001')
+        os.system('python3 -m flask run --host=0.0.0.0 --port=5001')
 else:
     if platform.system() == "Windows":
-        os.system('cd backend && gunicorn app:app')
+        os.system('gunicorn app:app')
     else:
-        os.system('cd backend && python3 -m gunicorn app:app')
+        os.system('python3 -m gunicorn app:app')
