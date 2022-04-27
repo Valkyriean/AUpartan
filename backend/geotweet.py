@@ -37,6 +37,13 @@ class tweet(Document):
     location_id = TextField()
     time = TextField()
 
+#establish the user class, retweet class, like class may be needed
+class tweetuser(Document):
+    doc_type = 'tweetuser'
+    userid = TextField()
+    name = TextField()
+
+
 manager.add_document(tweet)
 
 # Setup api key and api key secret for using tweepy (elevated version is required)
@@ -60,5 +67,7 @@ def harvest_tweet(select_topic):
                     new_text = re.sub('http://\S+|https://\S+', '', text)
                     new_tweet = tweet(_id = str(i.id), topic = select_topic, text = new_text, location_id = row.key, time = i.created_at)
                     new_tweet.store(db)
+                    #add the line to read the user of this tweet
+                    new_user = tweetuser(userid=row.user['id_str'], name=row.user['name'])
 
     return ("done")
