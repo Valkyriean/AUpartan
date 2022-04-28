@@ -3,9 +3,7 @@ import nltk
 nltk.download('vader_lexicon')
 
 from nltk.sentiment import SentimentIntensityAnalyzer
-import re
-import pickle
-from emot.emo_unicode import UNICODE_EMOJI, EMOTICONS_EMO
+from emot.emo_unicode import UNICODE_EMOJI
 
 
 def convert_emojis(text):
