@@ -5,7 +5,7 @@
 # Common vars
 availability_zone: melbourne-qh2-uom
 instance_image: 356ff1ed-5960-4ac2-96a1-0c0198e6a999
-instance_key_name: dev
+instance_key_name: key
 instance_flavor: uom.mse.1c4g
 
 # Volume

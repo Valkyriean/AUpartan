@@ -1,7 +1,8 @@
+---
 - hosts: instances 
   vars_files: 
-    - host_vars/config.yaml
+    - host_vars/instance_setup.yaml
   gather_facts: true 
 
-roles: 
+  roles: 
   - role: clone-github

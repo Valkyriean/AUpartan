@@ -50,7 +50,7 @@
 - name: Record ips to Inventory
   ansible.builtin.lineinfile: 
     path: "inventory/host.ini"
-    line: "{{ item.openstack.public_v4 }}"
+    line: "ubuntu@{{ item.openstack.public_v4 }}"
   loop: '{{ os_instance.results }}'
   when: item.openstack is defined
 
