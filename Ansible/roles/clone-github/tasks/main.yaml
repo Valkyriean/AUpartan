@@ -1,0 +1,47 @@
+# Modified from http://wiki.ruanbekker.com/index.php/Git_with_Ansible
+#- name: create .ssh directory 
+#  file: 
+#    path: /home/ubuntu/.ssh
+#    state: directory 
+#    owner: ubuntu
+#    group: ubuntu
+#    mode: 0600
+
+- name: places keys in path
+  become: yes
+  copy:
+    src: id_rsa
+    dest: git_key
+    mode: 0644
+    owner: ubuntu
+    group: ubuntu
+# Copy private GitHub key to MRC
+
+# Modified from https://www.jeffgeerling.com/blog/2018/cloning-private-github-repositories-ansible-on-remote-server-through-ssh
+- name: create .ssh directory 
+  become: yes
+  file: 
+    path: CCCA2
+    state: directory 
+    owner: ubuntu
+    group: ubuntu
+    mode: 0644
+
+- name: add ssh git_key 
+  shell: ssh-add git_key
+
+- name: clone to path.
+  git:
+    repo: https://github.com/Valkyriean/CCCA2
+    dest: CCCA2
+    accept_hostkey: yes
+    key_file: git_key
+    update: yes 
+    force: yes
+  become: yes
+# git clone https://github.com/Valkyriean/CCCA2
+
+- name: delete deploy key
+  file:
+    path: git_key
+    state: absent

@@ -38,6 +38,23 @@
   loop: '{{ os_instance.results }}'
   when: item.openstack is defined
 
+# Follow https://docs.ansible.com/ansible/latest/collections/ansible/builtin/copy_module.html
+# Create an inventory file for later use 
+- name: Create an inventory file 
+  ansible.builtin.copy:
+    dest: "inventory/host.ini"
+    content: "[instances]\n"
+
+# Follow https://docs.ansible.com/ansible/latest/collections/ansible/builtin/lineinfile_module.html
+# Save ips of different instances into an inventory file 
+- name: Record ips to Inventory
+  ansible.builtin.lineinfile: 
+    path: "inventory/host.ini"
+    line: "{{ item.openstack.public_v4 }}"
+  loop: '{{ os_instance.results }}'
+  when: item.openstack is defined
+
+
 # From https://docs.ansible.com/ansible/latest/user_guide/playbooks_vars_facts.html
 # Retreve facts about the instance 
 - name: Print all available facts
