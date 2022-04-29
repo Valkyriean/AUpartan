@@ -25,6 +25,8 @@ SA3_codes = []
 SA3_names = []
 SA3_coords = []
 SA3_radius = []
+SA3_lon_range = []
+SA3_lat_range = []
 SA3_coorstr = []
 
 for i in range(sf_len):
@@ -47,11 +49,16 @@ for i in range(sf_len):
     # Calculate bounding box of each polygon
     sa3_centroid = sa3_info["geometry"].centroid
     list_coor = Point(sa3_centroid.y, sa3_centroid.x)
+
     lat_up = round(list_coor.x + sa3_a / 222, 6)
     lat_down = round(list_coor.x - sa3_a / 222, 6)
-    lon_left = round(list_coor.y - sa3_a / math.cos(39), 6)
-    log_right = round(list_coor.y + sa3_a / math.cos(39), 6)
-    four_corner = [lon_left, lat_down, log_right, lat_up]
+    SA3_lat_range.append([lat_down, lat_up])
+
+    lon_left = round(list_coor.y - sa3_a / (222 * math.cos(39)), 6)
+    lon_right = round(list_coor.y + sa3_a / (222 * math.cos(39)), 6)
+    SA3_lon_range.append([lon_left, lon_right])
+
+    four_corner = [lon_left, lat_down, lon_right, lat_up]
     SA3_coords.append(four_corner)
     
     # Deliver coordinates and radius inforation for further usage of twitter harvesting
@@ -59,5 +66,5 @@ for i in range(sf_len):
     SA3_coorstr.append(coor_info)
 
 # Save SA3 geo-information as csv for further usage
-df = pd.DataFrame(list(zip(SA3_codes, SA3_names, SA3_coords, SA3_coorstr)), columns = ["SA3_CODE", "SA3_NAME", "SA3_COORDS", "SA3_GEOINFO"])
+df = pd.DataFrame(list(zip(SA3_codes, SA3_names, SA3_lon_range, SA3_lat_range, SA3_coords, SA3_coorstr)),columns = ["SA3_CODE", "SA3_NAME", "SA3_LON", "SA3_LAT", "SA3_COORDS", "SA3_GEOINFO"])
 df.to_csv("../Data/Geo/sa3_geoinfo.csv", index = False)
