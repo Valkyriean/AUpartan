@@ -1,4 +1,5 @@
-import tweepy,os
+import tweepy
+import os
 import re
 from flask import Blueprint
 from app import db_enable, couch
@@ -31,7 +32,7 @@ viewgeo = ViewDefinition("geodata", 'value', '''
         };
     }''')
 
-class tweet(Document):
+class Tweet(Document):
     doc_type = 'tweet'
     _id = TextField()
     topic = TextField()
@@ -40,13 +41,13 @@ class tweet(Document):
     time = TextField()
 
 #establish the user class, retweet class, like class may be needed
-class tweetuser(Document):
+class Tweetuser(Document):
     doc_type = 'tweetuser'
     userid = TextField()
     name = TextField()
 
-manager.add_document(tweet)
-manager.add_document(tweetuser)
+manager.add_document(Tweet)
+manager.add_document(Tweetuser)
 
 # Setup api key and api key secret for using tweepy (elevated version is required)
 auth = tweepy.OAuthHandler(os.environ.get('API_KEY', None), os.environ.get('API_KEY_SECRET', None))
@@ -67,9 +68,9 @@ def harvest_tweet(select_topic):
                 if str(i.id) not in db:
                     text = i.full_text
                     new_text = re.sub('http://\S+|https://\S+', '', text)
-                    new_tweet = tweet(_id = str(i.id), topic = select_topic, text = new_text, location_id = row.key, time = i.created_at)
+                    new_tweet = Tweet(_id = str(i.id), topic = select_topic, text = new_text, location_id = row.key, time = i.created_at)
                     new_tweet.store(db)
                     #add the line to read the user of this tweet
-                    new_user = tweetuser(userid=i.user.id_str, name=i.user.name)
+                    new_user = Tweetuser(userid=i.user.id_str, name=i.user.name)
 
     return ("done")
