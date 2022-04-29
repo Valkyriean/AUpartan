@@ -29,9 +29,9 @@ bp = Blueprint("historic", __name__, url_prefix="/historic")
 
 if db_enable:
     try:
-        db = couch['test']
+        db = couch['historic']
     except:
-        db = couch.create('test')
+        db = couch.create('historic')
 
 manager = CouchDBManager()
 
