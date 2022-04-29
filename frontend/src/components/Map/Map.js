@@ -38,11 +38,9 @@ export default class App extends React.Component {
       })
       .then(response => response.json())
       .then(response => {
-        this.state.text = response.sum;
-        //console.log(response.sum);
+        this.state.text = response.sum;     // replace with reading standard json
       });
 
-      console.log(this.state.text);
       Markers.forEach((marker) => marker.remove())
       Markers = [];
       var popup = new mapboxgl.Popup({closeButton:false})

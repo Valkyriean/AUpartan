@@ -8,7 +8,7 @@ export default class Navbar extends React.PureComponent {
       <ul>
         <li><a class={this.props.home} href="/">Home</a></li>
         <li><a class={this.props.map} href="/Map">Map</a></li>
-        <li><a href="/foobar">foobar</a></li>
+        <li><a class={this.props.plot} href="/Plot">Plot</a></li>
       </ul>
     );
   }

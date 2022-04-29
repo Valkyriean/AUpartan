@@ -8,5 +8,5 @@ CORS(app)
 @app.route('/map', methods = ['GET', 'POST'])
 def get_map_string():
     json_data = request.json
-    sumCoord = json_data["lng"] + json_data["lat"]
-    return jsonify({"sum" : str(sumCoord)})
+    sumCoord = json_data["lng"] + json_data["lat"]      # replace with true result
+    return jsonify({"sum" : str(json_data["lng"]) + "   " + str(json_data["lat"])})             # replace with standard json
