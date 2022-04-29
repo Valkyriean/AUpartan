@@ -32,11 +32,14 @@ def hello_world():
 # import tweet
 # app.register_blueprint(tweet.bp)
 
-# import aurin
-# app.register_blueprint(aurin.bp)
+import aurin
+app.register_blueprint(aurin.bp)
 
 # import geotweet
 # app.register_blueprint(geotweet.bp)
 
 # import geosa3
 # app.register_blueprint(geosa3.bp)
+
+import historic
+app.register_blueprint(historic.bp)
