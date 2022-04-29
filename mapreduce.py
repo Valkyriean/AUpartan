@@ -7,7 +7,7 @@ average = ViewDefnition('doc name here','average','''/
     }''','''function(keys, values, rereduce){
             return sum(values);
     }
-    '''
+    ''',group=45
 )
 #this should return the total number of record.
 lengthoftweets = ViewDefnition('doc name here','totalnumber','''/
@@ -16,5 +16,5 @@ lengthoftweets = ViewDefnition('doc name here','totalnumber','''/
     }''','''function(keys, values, rereduce){
             return sum(values);
     }
-    '''
+    ''',group=45
 )
