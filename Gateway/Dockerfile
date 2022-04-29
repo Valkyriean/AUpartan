@@ -13,4 +13,4 @@ COPY . .
 # CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0", "--port=3000"]
 
 CMD ["gunicorn","--bind","0.0.0.0:3000","--workers=2","app:app"]
-# gunicorn --bind localhost:3000 --workers=2 app:app
+# gunicorn --bind 0.0.0.0:3000 --workers=2 app:app

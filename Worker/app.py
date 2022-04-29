@@ -3,15 +3,17 @@ import requests
 import json 
 
 # Initialise
-
+REQUEST_GAP = 10
+GATEWAY_IP = "0.0.0.0"
+GATEWAY_PORT = 3000
+ID=1
+print("Initialized")
 # Main loop
 
 
 
-REQUEST_GAP = 10
-GATEWAY_IP = "172.26.128.147"
-GATEWAY_PORT = 5000
-ID=1
+
+
 
 while True:
     # Request task from main node
