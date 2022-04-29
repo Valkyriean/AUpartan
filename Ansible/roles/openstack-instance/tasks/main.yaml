@@ -54,6 +54,12 @@
   loop: '{{ os_instance.results }}'
   when: item.openstack is defined
 
+- name: Record ips seperately to Inventory 
+  ansible.builtin.lineinfile: 
+    path: "inventory/host.ini"
+    line: "[{{ item.openstack.name }}]\nubuntu@{{ item.openstack.public_v4 }}\n"
+  loop: '{{ os_instance.results }}'
+  when: item.openstack is defined
 
 # From https://docs.ansible.com/ansible/latest/user_guide/playbooks_vars_facts.html
 # Retreve facts about the instance 

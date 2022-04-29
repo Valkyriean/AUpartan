@@ -17,6 +17,7 @@
 
 # Follows https://www.digitalocean.com/community/tutorials/how-to-use-ansible-to-install-and-set-up-docker-on-ubuntu-20-04
 # In order to prepare for docker
+
 - name: Install dependencies
   become: yes
   ansible.builtin.apt:

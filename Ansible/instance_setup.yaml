@@ -7,4 +7,9 @@
   roles: 
   - role: install-instance-requirements
   - role: clone-github
+  - role: install-docker
+
   
+
+
+
