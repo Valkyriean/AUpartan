@@ -30,7 +30,7 @@ viewgeo = ViewDefinition("geodata", 'value', '''
         };
     }''')
 
-class sandtweet(Document):
+class Sandtweet(Document):
     doc_type = 'sandtweet'
     _id = TextField()
     topic = TextField()
@@ -38,7 +38,7 @@ class sandtweet(Document):
     location_id = TextField()
     time = TextField()
 
-manager.add_document(sandtweet)
+manager.add_document(Sandtweet)
 
 # Setup api key and api key secret for using tweepy (elevated & sandbox version is required)
 auth = tweepy.OAuthHandler(os.environ.get('API_KEY', None), os.environ.get('API_KEY_SECRET', None))
@@ -67,7 +67,7 @@ def harvest_sandtweet(select_topic):
                 if str(i.id) not in db:
                     text = i.full_text
                     new_text = re.sub('http://\S+|https://\S+', '', text)
-                    new_tweet = tweet(_id = str(i.id), topic = select_topic, text = new_text, location_id = row.key, time = i.created_at)
+                    new_tweet = Sandtweet(_id = str(i.id), topic = select_topic, text = new_text, location_id = row.key, time = i.created_at)
                     new_tweet.store(db)
 
     return ("done")
