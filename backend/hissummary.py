@@ -8,6 +8,7 @@ from flaskext.couchdb import Document, CouchDBManager
 from couchdb.mapping import TextField, IntegerField, ListField, FloatField
 from couchdb.design import ViewDefinition
 from flaskext.couchdb import Row
+import functools, threading
 
 bp = Blueprint("hissummary", __name__, url_prefix="/hissummary")
 
@@ -31,21 +32,21 @@ emopos = ViewDefinition('HisSummary','positive','''\
     function(doc){
         emit(doc.sa3_id, doc.nlpvalue[0]);
     }''', '''function(keys, values, rereduce){
-            return sum(values);
+            return (sum(values) / values.length);
     }''', wrapper = Row, group = True)
 
 emoneg = ViewDefinition('HisSummary','negative','''\
     function(doc){
         emit(doc.sa3_id, doc.nlpvalue[1]);
     }''', '''function(keys, values, rereduce){
-            return sum(values);
+            return (sum(values) / values.length);
     }''', wrapper = Row, group = True)
 
 emo = ViewDefinition('HisSummary','emotion','''\
     function(doc){
         emit(doc.sa3_id, doc.nlpvalue[2]);
     }''', '''function(keys, values, rereduce){
-            return sum(values);
+            return (sum(values) / values.length);
     }''', wrapper = Row, group = True)
 
 emocount = ViewDefinition('HisSummary','count','''\
@@ -56,6 +57,7 @@ emocount = ViewDefinition('HisSummary','count','''\
     }''', wrapper = Row, group = True)
 
 
+# @synchronized
 @bp.route("/")
 def process_data():
 
@@ -69,14 +71,28 @@ def process_data():
     emo_list = []
     emocount_list = []
 
-    for row in emopos(db):
+    emopos_dict = emopos(db)
+    emoneg_dict = emoneg(db)
+    emo_dict = emo(db)
+    emocount_dict = emocount(db)
+
+    for row in emopos_dict:
         emopos_list.append(row.value)
-    for row in emoneg(db):
+    for row in emoneg_dict:
         emoneg_list.append(row.value)
-    for row in emo(db):
+    for row in emo_dict:
         emo_list.append(row.value)
-    for row in emocount(db):
+    for row in emocount_dict:
         emocount_list.append(row.value)
+
+    #for row in emopo:
+     #   emopos_list.append(row.value)
+    #for row in emoneg(db):
+     #   emoneg_list.append(row.value)
+    #for row in emo(db):
+     #   emo_list.append(row.value)
+    #for row in emocount(db):
+     #   emocount_list.append(row.value)
 
     print(emopos_list)
     print(emoneg_list)
