@@ -1,6 +1,6 @@
 ---
 # Create an instance on NeCTAR
-- name: Create an instance
+- name: Create instances
   openstack.cloud.server:
     name: '{{ item.name }}'
     image: '{{ instance_image }}'
@@ -50,7 +50,7 @@
 - name: Record ips to Inventory
   ansible.builtin.lineinfile: 
     path: "inventory/host.ini"
-    line: "ubuntu@{{ item.openstack.public_v4 }}"
+    line: "ubuntu@{{ item.openstack.public_v4 }}\n"
   loop: '{{ os_instance.results }}'
   when: item.openstack is defined
 
