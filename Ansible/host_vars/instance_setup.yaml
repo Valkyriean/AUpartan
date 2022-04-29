@@ -4,6 +4,8 @@ remote_folder: /home/ubuntu/CCCA2
 python: /usr/bin/python3 
 git_private_key: /home/ubuntu/.ssh/git_key
 ansible_ssh_private_key_file: keys/key.pem
+
+# required from https://docs.ansible.com/ansible/latest/collections/ansible/builtin/git_module.html
 ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
 
 

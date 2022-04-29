@@ -1,42 +1,35 @@
-# Modified from http://wiki.ruanbekker.com/index.php/Git_with_Ansible
-#- name: create .ssh directory 
-#  file: 
-#    path: /home/ubuntu/.ssh
-#    state: directory 
-#    owner: ubuntu
-#    group: ubuntu
-#    mode: 0600
-
-- name: Creates main directory
-  file:
-    path: '{{ remote_folder }}'
-    state: directory
-
-- name: places keys in path
+# Modified from https://gist.github.com/devynspencer/effa29af449c46477ac71213210e7043
+- name: places key in path
   become: yes
-  copy:
-    src: id_rsa
+  ansible.builtin.copy:
+    src: 'keys/id_rsa'
     dest: '{{ git_private_key }}'
     mode: 0644
-    owner: ubuntu
-    group: ubuntu
-# Copy private GitHub key to MRC
+    owner: '{{ user }}'
+    group: '{{ user }}'
 
-# - name: add ssh git_key 
-#  shell: ssh-add git_key
+- name: configure ssh to use ansible key for github 
+  ansible.builtin.template: 
+    src: 'templates/ssh_config.j2'
+    dest: /home/ubuntu/.ssh/config
+    owner: '{{ user }}'
+    group: '{{ user }}'
+    mode: 0644
 
-- name: clone to path.
-  git:
-    repo: https://github.com/Valkyriean/CCCA2
+# Followed by https://docs.ansible.com/ansible/latest/collections/ansible/builtin/shell_module.html
+- name: clone private repo to path
+  ansible.builtin.git:
+    repo: git@github.com:Valkyriean/CCCA2.git
     dest: CCCA2
     accept_hostkey: yes
-    key_file: git_key
+    key_file: '{{ git_private_key }}'
     update: yes 
     force: yes
   become: yes
 # git clone https://github.com/Valkyriean/CCCA2
 
+# Delete github key from MRC after cloning to ensure secruity 
 - name: delete deploy key
-  file:
+  ansible.builtin.file:
     path: '{{ git_private_key }}'
     state: absent
