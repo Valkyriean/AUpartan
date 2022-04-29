@@ -43,3 +43,6 @@ app.register_blueprint(aurin.bp)
 
 import historic
 app.register_blueprint(historic.bp)
+
+import hissummary
+app.register_blueprint(hissummary.bp)
