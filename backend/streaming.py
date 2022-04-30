@@ -49,6 +49,7 @@ bearer_token = BEARER_TOKEN
 auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
 api = tweepy.API(auth, wait_on_rate_limit=True)
 
+
 @bp.route("/<city_name>/")
 def citylang(city_name):
 
@@ -100,3 +101,16 @@ def citylang(city_name):
         client.disconnect()
 
     return ('Done')
+
+
+#use to extract english using rate for streaming data, with mapreduce
+"""
+@bp.route("/")
+def process_data():
+    englishRate.sync(db)
+    enrate_s = englishRate(db)
+
+    for row in enrate_s:
+        print(row.value)
+    return ("rate calcluatd")
+"""
