@@ -10,7 +10,7 @@ from couchdb.design import ViewDefinition
 from flaskext.couchdb import Row
 
 
-bp = Blueprint("citylang", __name__, url_prefix="/citylang")
+bp = Blueprint("streaming", __name__, url_prefix="/streaming")
 
 if db_enable:
     try:

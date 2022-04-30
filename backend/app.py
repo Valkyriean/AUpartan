@@ -46,3 +46,6 @@ app.register_blueprint(historic.bp)
 
 import hissummary
 app.register_blueprint(hissummary.bp)
+
+import streaming
+app.register_blueprint(streaming.bp)
