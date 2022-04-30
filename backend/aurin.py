@@ -14,16 +14,24 @@ if db_enable:
 
 manager = CouchDBManager()
 
-class aurinwealth(Document):
-    doc_type = 'aurinwealth'
+class Aurinwealth(Document):
+    doc_type = 'Aurinwealth'
     _id = TextField()
     income_value = FloatField()
     payroll_value = ListField(FloatField())
 
-manager.add_document(aurinwealth)
+manager.add_document(Aurinwealth)
+
+class ImmiRate(Document):
+    doc_type = "ImmiRate"
+    GCCSA_code = TextField()
+    immi_rate = FloatField()
+
+manager.add_document(ImmiRate)
+
 
 @bp.route("/")
-def store_aurin():
+def store_aurin_wealth():
   
     if db_enable:
  
@@ -36,9 +44,9 @@ def store_aurin():
         sa3 = "sa3_code"
         income_list = {}
         with open(file_income, 'r') as f:
-            objects = json.load(f)
+            income = json.load(f)
 
-            for i in objects["features"]:
+            for i in income["features"]:
                 instance = i["properties"]
                 if instance[sa3] not in income_list:
                     income_list[str(instance[sa3])] = (float(instance[income_level]))
@@ -49,15 +57,33 @@ def store_aurin():
         payroll_level_later = "wk_end_2020_10_03"
         sa3_name = "sa3_code16"
         with open(file_payroll, 'r') as f:
-            objects = json.load(f)
+            payroll = json.load(f)
 
-            for i in objects["features"]:
+            for i in payroll["features"]:
                 instance = i["properties"]
                 sa3_code = str(instance[sa3_name])
                 
                 # Store the wealth information in each SA3 regions into couch db
                 if (sa3_code) not in db:
-                    new_wealth = aurinwealth(_id = sa3_code, income_value = income_list[sa3_code], payroll_value = [instance[payroll_level_before], instance[payroll_level_later]])
+                    new_wealth = Aurinwealth(_id = sa3_code, income_value = income_list[sa3_code], payroll_value = [instance[payroll_level_before], instance[payroll_level_later]])
                     new_wealth.store(db)
 
     return ("Load Successful")
+
+
+file_immi = "Data/Aurin/immirate.json"
+
+def store_aurin_immi(file_immi):
+    if db_enable:
+        scenario = "immirate"
+        record = {}
+        with open(file_immi, 'r') as f:
+            immiRecord = json.load(f)    
+            for element in immiRecord:
+                record[element['properties']['gccsa_code_2016']] = element['properties']['ctznshp_stts_prsns_brn_ovrss_cnss_astrln_ctzn_pc']
+        
+        for key in record.keys():
+            new_immi = ImmiRate(GCCSA_code=key, immi_rate=record[key])
+            new_immi.store(db)
+    return ("Load Successful")
+

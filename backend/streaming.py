@@ -49,7 +49,7 @@ def citylang():
         def on_tweet(self, tweet: Tweet):
             text = api.get_status(tweet.id, tweet_mode = "extended")
 
-            if (text.user.followers_count < 3000):
+            if (text.user.followers_count < follower_limit):
 
                 if (text.id not in db):
                     new_lang = CityLang(_id = text.id, city_name = "Melbourne", lang_type = tweet.lang, tweet_text = tweet.text)
