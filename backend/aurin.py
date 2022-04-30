@@ -8,9 +8,15 @@ bp = Blueprint("aurin", __name__, url_prefix="/aurin")
 
 if db_enable:
     try:
-        db = couch['aurin']
+        dbw = couch['aurin_wealth']
     except:
-        db = couch.create('aurin')
+        dbw = couch.create('aurin_wealth')
+
+if db_enable:
+    try:
+        dbi = couch['aurin_immi']
+    except:
+        dbi = couch.create('aurin_immi')
 
 manager = CouchDBManager()
 
@@ -23,7 +29,7 @@ class Aurinwealth(Document):
 manager.add_document(Aurinwealth)
 
 class ImmiRate(Document):
-    doc_type = "ImmiRate"
+    doc_type = 'ImmiRate'
     GCCSA_code = TextField()
     immi_rate = FloatField()
 
@@ -64,16 +70,16 @@ def store_aurin_wealth():
                 sa3_code = str(instance[sa3_name])
                 
                 # Store the wealth information in each SA3 regions into couch db
-                if (sa3_code) not in db:
+                if (sa3_code) not in dbw:
                     new_wealth = Aurinwealth(_id = sa3_code, income_value = income_list[sa3_code], payroll_value = [instance[payroll_level_before], instance[payroll_level_later]])
-                    new_wealth.store(db)
+                    new_wealth.store(dbw)
 
     return ("Load Successful")
 
 
-file_immi = "Data/Aurin/immirate.json"
 
-def store_aurin_immi(file_immi):
+def store_aurin_immi():
+    file_immi = "Data/Aurin/immirate.json"
     if db_enable:
         scenario = "immirate"
         record = {}
@@ -84,6 +90,6 @@ def store_aurin_immi(file_immi):
         
         for key in record.keys():
             new_immi = ImmiRate(GCCSA_code=key, immi_rate=record[key])
-            new_immi.store(db)
+            new_immi.store(dbi)
     return ("Load Successful")
 

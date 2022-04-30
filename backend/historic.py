@@ -93,39 +93,31 @@ def record_historic():
             try:
                 record_dict = json.loads(new_line)
 
-                # Only analyse and collect the tweet sent in English
-                if (record_dict["doc"]["lang"] == "en"):
 
-                    # Exclude the retweet
-                    if (record_dict["doc"]["retweeted"] == False):
-
-                        # Only include the tweet which is sent by the account with less than 3000 followers (exclude the Official Account)
-                        if (record_dict["doc"]["user"]["followers_count"] <= public_account):
-                            
-
-                            # Exclude the tweet without coordinates' information
-                            if (record_dict["doc"]["coordinates"] != None):
+                if ((record_dict["doc"]["coordinates"] != None) and # Exclude the tweet without coordinates' information # Only analyse and collect the tweet sent in English
+                (record_dict["doc"]["user"]["followers_count"] <= public_account) and # Only include the tweet which is sent by the account with less than certain followers (exclude the Official Account)
+                (record_dict["doc"]["lang"] == "en") and # Only analyse and collect the tweet sent in English
+                (record_dict["doc"]["retweeted"] == False)):# Exclude the retweet# Only analyse and collect the tweet sent in English
+                    # Allocate tweet into specific SA3 region with its coordinate
+                    tweet_coor = record_dict["doc"]["coordinates"]["coordinates"]
+                    for j in range(len(lon_list)):
+                        if ((tweet_coor[0] > lon_list[j][0] and tweet_coor[0] < lon_list[j][1]) and
+                        (tweet_coor[1] > lat_list[j][0] and tweet_coor[1] < lat_list[j][1])):
+                            sa3_num = sa3_list[j]
+                            break
                                 
-                                # Allocate tweet into specific SA3 region with its coordinate
-                                tweet_coor = record_dict["doc"]["coordinates"]["coordinates"]
-                                for j in range(len(lon_list)):
-                                    if tweet_coor[0] > lon_list[j][0] and tweet_coor[0] < lon_list[j][1]:
-                                        if tweet_coor[1] > lat_list[j][0] and tweet_coor[1] < lat_list[j][1]:
-                                            sa3_num = sa3_list[j]
-                                            break
-                                
-                                # Store tweet_id for duplication checking in couchdb
-                                tweet_id = record_dict["doc"]["_id"]
+                    # Store tweet_id for duplication checking in couchdb
+                    tweet_id = record_dict["doc"]["_id"]
 
-                                # Store NLP sentimental score into couchdb
-                                text = convert_emojis(record_dict["doc"]["text"])
-                                text = re.sub('http://\S+|https://\S+', '', text)
-                                nlp_result = [sia.polarity_scores(text)["neg"], sia.polarity_scores(text)["pos"], sia.polarity_scores(text)["compound"]]
+                    # Store NLP sentimental score into couchdb
+                    text = convert_emojis(record_dict["doc"]["text"])
+                    text = re.sub('http://\S+|https://\S+', '', text)
+                    nlp_result = [sia.polarity_scores(text)["neg"], sia.polarity_scores(text)["pos"], sia.polarity_scores(text)["compound"]]
 
-                                # Store historic data's information into couchdb as document without duplication
-                                if tweet_id not in db:
-                                    new_historic = Historic(_id = tweet_id, sa3_id = sa3_num, nlpvalue = nlp_result)
-                                    new_historic.store(db)
+                    # Store historic data's information into couchdb as document without duplication
+                    if tweet_id not in db:
+                        new_historic = Historic(_id = tweet_id, sa3_id = sa3_num, nlpvalue = nlp_result)
+                        new_historic.store(db)
 
             except Exception as e:
                 pass
