@@ -38,17 +38,19 @@ api = tweepy.API(auth, wait_on_rate_limit=True)
 def harvest_sandtweet(select_topic):
     geo_data = pd.read_csv("../Data/Geo/sa3_geoinfo.csv")
     test = geo_data["SA3_GEOINFO"][0]
-    print(test)
+    #print(test)
     
-    '''
-    query_string = str(select_topic) + " lang:en point_ratius:[" + test + "]"
+    
+    query_string = str(select_topic) + " lang:en point_radius:" + test
+    print(query_string)
+    
     tweets = api.search_full_archive(label = "Relax", query = query_string, fromDate = 202001040000, toDate = 202010040000) 
 
     for i in tweets:
         id = (i.id)
         test = api.get_status(id, tweet_mode="extended")
-        print(test.full_text)
-    '''
+        print(test.user.id)#this will return id as int, if want string, using".id_str"
+        break
     '''
     for i in tweets:
         if db_enable:
