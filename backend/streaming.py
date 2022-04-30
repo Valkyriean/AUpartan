@@ -49,12 +49,14 @@ bearer_token = BEARER_TOKEN
 auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
 api = tweepy.API(auth, wait_on_rate_limit=True)
 
-follower_limit = 3000
-city = 'Melbourne'
 
 
 @bp.route("/")
 def citylang():
+
+    follower_limit = 3000
+    city = 'Melbourne'
+
     class TweetListener(StreamingClient):
 
         def on_tweet(self, tweet: Tweet):
