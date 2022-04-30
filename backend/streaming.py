@@ -19,7 +19,7 @@ bearer_token = BEARER_TOKEN
 class TweetListener(StreamingClient):
 
     def on_tweet(self, tweet: Tweet):
-        print(tweet)
+        print(tweet.__repr__)
         
     def on_request_error(self, status_code):
         print(status_code)
@@ -60,9 +60,9 @@ except KeyboardInterrupt:
 # Store the city voice information
 if db_enable:
     try:
-        db = couch['historic']
+        db = couch['cityvoice']
     except:
-        db = couch.create('historic')
+        db = couch.create('cityvoice')
 
 manager = CouchDBManager()
 
