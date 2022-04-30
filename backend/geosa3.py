@@ -1,7 +1,7 @@
 import math
 import json
 import pandas as pd
-import geopandas as gpd 
+import geopandas as gpd
 from shapely.geometry import Point
 
 # Extract valid SA3 Code from AURIN dataset
@@ -62,7 +62,7 @@ for i in range(sf_len):
     SA3_coords.append(four_corner)
     
     # Deliver coordinates and radius inforation for further usage of twitter harvesting
-    coor_info = str(round(list_coor.x, 5)) + "," + str(round(list_coor.y, 5)) + "," + str(sa3_radius) + "km"
+    coor_info = "[" + str(round(list_coor.y, 5)) + " " + str(round(list_coor.x, 5)) + " " + str(sa3_radius) + "km]"
     SA3_coorstr.append(coor_info)
 
 # Save SA3 geo-information as csv for further usage
