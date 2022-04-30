@@ -2,7 +2,7 @@ from tweepy import StreamingClient, Tweet, StreamRule
 import tweepy
 from tokenize import group
 import tweepy
-from flask import Blueprint
+from flask import Blueprint,request
 from app import db_enable, couch
 from flaskext.couchdb import Document, CouchDBManager
 from couchdb.mapping import TextField
@@ -50,17 +50,20 @@ auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
 api = tweepy.API(auth, wait_on_rate_limit=True)
 
 
+#@bp.route('/Sydney/', endpoint='Sydney', methods=["POST", "GET"])
+#@bp.route('/Melbourne/', endpoint='Melbourne', methods=["POST", "GET"])
 @bp.route("/<city_name>/")
 def citylang(city_name):
-
-    follower_limit = 3000
     city = city_name
+    follower_limit = 3000
+    
 
     class TweetListener(StreamingClient):
 
         def on_tweet(self, tweet: Tweet):
             text = api.get_status(tweet.id, tweet_mode = "extended")
-            if ((text.user.followers_count < follower_limit) and (str(text.id) not in db)):
+            if ((text.user.followers_count < follower_limit) and (str(text.id) not in db) and (text.lang != "und")):
+                #not full text
                 new_lang = CityLang(_id = text.id, city_name = city, lang_type = text.lang, tweet_text = text.full_text)
                 new_lang.store(db)
                 
@@ -71,7 +74,7 @@ def citylang(city_name):
             self.disconnect
                 
     client = TweetListener(bearer_token)
-    keywords = city_name
+    keywords = city
     rules = [
         StreamRule(value = keywords)
         # StreamRule(value=""),
@@ -105,7 +108,7 @@ def citylang(city_name):
 
 #use to extract english using rate for streaming data, with mapreduce
 """
-@bp.route("/")
+@bp.route("/immirate/")
 def process_data():
     englishRate.sync(db)
     enrate_s = englishRate(db)
