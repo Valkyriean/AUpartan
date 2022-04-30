@@ -60,7 +60,7 @@ def citylang(city_name):
         def on_tweet(self, tweet: Tweet):
             text = api.get_status(tweet.id, tweet_mode = "extended")
             if ((text.user.followers_count < follower_limit) and (str(text.id) not in db)):
-                new_lang = CityLang(_id = text.id, city_name = city, lang_type = tweet.lang, tweet_text = tweet.text)
+                new_lang = CityLang(_id = text.id, city_name = city, lang_type = text.lang, tweet_text = text.full_text)
                 new_lang.store(db)
                 
         def on_request_error(self, status_code):
