@@ -1,23 +1,25 @@
 import tweepy
 import os
+from tweepy import StreamingClient, Tweet, StreamRule
+import re
+from tokenize import group
+import tweepy
+from flask import Blueprint
+from app import db_enable, couch
+from flaskext.couchdb import Document, CouchDBManager
+from couchdb.mapping import TextField, IntegerField, ListField, FloatField
+from couchdb.design import ViewDefinition
+from flaskext.couchdb import Row
+import functools, threading
 
 BEARER_TOKEN = "AAAAAAAAAAAAAAAAAAAAAIHFbAEAAAAA0oBVG5orLLErnyAqw2po3fOae5w%3D4lgZWoMOyGG496F2aNACoKOdDCaDnxqret6oFPLToE244O6Tx6"
 
 bearer_token = BEARER_TOKEN
-token='931264431505358849-YzavFd1tCYRkkyrmbRuRkVAkmigYdWy'
-token_secret='n4NFnvIsRN3aSoeHsUGs82CNcxJIV6B4zASDjkFxno65O'
-
-stream = tweepy.Stream("K4leUSXBdJwHytayPXdFzEzJN", "bpyL6MhIsNKRoWDrHj0ou9wHwib7tCm4ob5p3SZam51iDZyqv4", token, token_secret)
-
-test = stream.filter(languages = ["en"], track="Melbourne", locations=[144.852581, -37.83339, 145.044056, -37.782334])
-
-print(test)
-
 
 class TweetListener(StreamingClient):
 
     def on_tweet(self, tweet: Tweet):
-        print(tweet.__repr__())
+        print(tweet)
         
     def on_request_error(self, status_code):
         print(status_code)
@@ -33,14 +35,12 @@ rules = [
     # StreamRule(value="bounding_box:[144.3896 -38.5084 145.5459 -37.3127]")
 ]
 
-
 resp = client.get_rules()
 if resp and resp.data:
     rule_ids = []
     for rule in resp.data:
         rule_ids.append(rule.id)
     client.delete_rules(rule_ids)
-    
     
 resp = client.add_rules(rules, dry_run= True)
 if resp.errors:
@@ -56,3 +56,21 @@ try:
     client.filter()
 except KeyboardInterrupt:
     client.disconnect()
+
+# Store the city voice information
+if db_enable:
+    try:
+        db = couch['historic']
+    except:
+        db = couch.create('historic')
+
+manager = CouchDBManager()
+
+class CityVoice(Document):
+    doc_type = 'CityVoice'
+    _id = TextField()
+    city_id = TextField()
+    tweet_topic = TextField()
+    tweet_content = TextField()
+
+manager.add_document(CityVoice)
