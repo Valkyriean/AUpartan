@@ -49,13 +49,11 @@ bearer_token = BEARER_TOKEN
 auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
 api = tweepy.API(auth, wait_on_rate_limit=True)
 
-
-
-@bp.route("/")
-def citylang():
+@bp.route("/<city_name>/")
+def citylang(city_name):
 
     follower_limit = 3000
-    city = 'Melbourne'
+    city = city_name
 
     class TweetListener(StreamingClient):
 
@@ -72,7 +70,7 @@ def citylang():
             self.disconnect
                 
     client = TweetListener(bearer_token)
-    keywords = "Melbourne"
+    keywords = city_name
     rules = [
         StreamRule(value = keywords)
         # StreamRule(value=""),
@@ -100,4 +98,5 @@ def citylang():
         client.filter()
     except KeyboardInterrupt:
         client.disconnect()
+
     return ('Done')
