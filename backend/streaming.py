@@ -37,7 +37,7 @@ englishRate = ViewDefinition('CityLang', 'enRate', '''\
             emit(doc.city_name, 0);
         }
     }''','''function(keys, values, rereduce){
-              return sum(values) / values.length;
+              return (sum(values) / values.length);
     }
     ''', wrapper = Row, group = True)
 
@@ -61,8 +61,7 @@ def citylang():
 
         def on_tweet(self, tweet: Tweet):
             text = api.get_status(tweet.id, tweet_mode = "extended")
-
-            if ((text.user.followers_count < follower_limit) and (text.id not in db)):
+            if ((text.user.followers_count < follower_limit) and (str(text.id) not in db)):
                 new_lang = CityLang(_id = text.id, city_name = city, lang_type = tweet.lang, tweet_text = tweet.text)
                 new_lang.store(db)
                 
@@ -101,3 +100,4 @@ def citylang():
         client.filter()
     except KeyboardInterrupt:
         client.disconnect()
+    return ('Done')
