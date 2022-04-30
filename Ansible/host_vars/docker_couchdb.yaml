@@ -1,0 +1,7 @@
+# Modified from 14-4-22-workshop3
+docker_couchdb_user: 'admin'
+docker_couchdb_password: 'admin'
+docker_couchdb_VERSION: '3.2.1'
+docker_couchdb_cookie: 'a192aeb9904e6590849337933b000c99'
+docker_couchdb_image: 'ibmcom/couchdb3:'
+docker_couchdb_host_port : 5984

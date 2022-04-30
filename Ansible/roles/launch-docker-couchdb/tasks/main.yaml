@@ -1,0 +1,16 @@
+# Modified from https://github.com/andrewrothstein/ansible-docker-couchdb/blob/master/tasks/main.yml
+- name: Launch couchdb via docker container 
+  become: yes 
+  docker_container: 
+    name: "CCCA2"
+    image: "{{ docker_couchdb_image }}{{ docker_couchdb_VERSION }}"
+    ports: 
+      - "{{ docker_couchdb_host_port }}: {{ docker_couchdb_host_port }}"
+      # - 9100: 9100
+      # - 4369: 4369 
+    # Modified from 14-4-22-workshop3
+    env: 
+      COUCHDB_USER: "{{ docker_couchdb_user }}"
+      COUCHDB_PASSWORD: "{{ docker_couchdb_password }}"
+      NODENAME: "CCCA2"
+      COUCHDB_SECRET: "{{ docker_couchdb_cookie }}"

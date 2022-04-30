@@ -8,11 +8,4 @@ ansible_ssh_private_key_file: keys/key.pem
 # required from https://docs.ansible.com/ansible/latest/collections/ansible/builtin/git_module.html
 ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
 
-# Modified from https://www.digitalocean.com/community/tutorials/how-to-use-ansible-to-install-and-set-up-docker-on-ubuntu-20-04
-# Docker variables
-container_count: 4
-default_container_name: docker
-default_container_image: ubuntu
-default_container_command: sleep 1d
-
 
