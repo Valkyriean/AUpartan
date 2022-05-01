@@ -1,11 +1,11 @@
 import json
-from flask import Blueprint
+#from flask import Blueprint
 from app import db_enable, couch
 from flaskext.couchdb import Document, CouchDBManager
 from couchdb.mapping import TextField, FloatField, ListField
 
-bp = Blueprint("aurin", __name__, url_prefix="/aurin")
-
+#bp = Blueprint("aurin", __name__, url_prefix="/aurin")
+# can import setup_db function in historic.py file when finally using
 if db_enable:
     try:
         dbw = couch['aurin_wealth']
@@ -36,8 +36,8 @@ class ImmiRate(Document):
 manager.add_document(ImmiRate)
 
 
-@bp.route("/")
-def store_aurin_wealth():
+#@bp.route("/")
+def store_aurin_wealth(file_income, file_payroll):
   
     if db_enable:
  
@@ -46,7 +46,7 @@ def store_aurin_wealth():
         
         # Pre-store income information in each SA3 regions
         income_level = "median_aud_2017_18"
-        file_income = "../Data/Aurin/income.json"
+        #file_income = "../Data/Aurin/income.json"
         sa3 = "sa3_code"
         income_list = {}
         with open(file_income, 'r') as f:
@@ -58,7 +58,7 @@ def store_aurin_wealth():
                     income_list[str(instance[sa3])] = (float(instance[income_level]))
 
         # Read in payroll data and store income & payroll data in each SA3 regions into couchdb together
-        file_payroll = "../Data/Aurin/payroll.json"
+        #file_payroll = "../Data/Aurin/payroll.json"
         payroll_level_before = "wk_end_2020_01_04"
         payroll_level_later = "wk_end_2020_10_03"
         sa3_name = "sa3_code16"
@@ -78,8 +78,8 @@ def store_aurin_wealth():
 
 
 
-def store_aurin_immi():
-    file_immi = "Data/Aurin/immirate.json"
+def store_aurin_immi(file_immi):
+    #file_immi = "Data/Aurin/immirate.json"
     if db_enable:
         scenario = "immirate"
         record = {}
