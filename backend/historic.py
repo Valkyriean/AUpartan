@@ -210,3 +210,12 @@ def process_data(db, emopos, emoneg, emo, emocount):
 
     return emopos_list, emoneg_list, emo_list, emocount_list
 
+
+#code to run above code
+#save
+dbh = setup_db("historic")
+record_historic("../Data/Geo/sa3_geoinfo.csv", '../Data/Historic/twitter-melb.json', 3000, dbh, 'en')
+#readwith map-reduce
+emopos, emoneg, emo, emocount = set_emoview('historic')
+emopos_list, emoneg_list, emo_list, emocount_list = process_data(dbh, emopos, emoneg, emo, emocount)
+
