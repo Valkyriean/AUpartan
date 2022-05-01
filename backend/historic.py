@@ -26,6 +26,7 @@ def convert_emojis(text):
         text = text.replace(emot, "_".join(UNICODE_EMOJI[emot].replace(",","").replace(":","").split()))
     return text.replace("_"," ")
 
+#this should put in the name of your db in string, return couchdb,db object, needed for write in and view
 def setup_db(db_name):
     if db_enable:
         try:
@@ -44,7 +45,6 @@ class Historic(Document):
     _id = TextField()
     sa3_id = TextField()
     nlpvalue = ListField(FloatField())
-
 manager.add_document(Historic)
 
 
@@ -136,6 +136,7 @@ def record_historic(path,data_filepath ,public_account,db,language):
                 pass
     return ("Done")
 
+#design-doc should be the doc-type of historic dat document, in string
 def set_emoview(design_doc):
     emopos = ViewDefinition(design_doc,'positive','''\
         function(doc){
@@ -166,6 +167,7 @@ def set_emoview(design_doc):
         }''', wrapper = Row, group = True)
     return emopos, emoneg, emo, emocount
 
+#db be the result of set_result function, others should be return of set_emoview function, be careful of the order
 def process_data(db, emopos, emoneg, emo, emocount):
 
     emopos.sync(db)

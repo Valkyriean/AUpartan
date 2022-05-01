@@ -3,6 +3,7 @@ import json
 from app import db_enable, couch
 from flaskext.couchdb import Document, CouchDBManager
 from couchdb.mapping import TextField, FloatField, ListField
+from couchdb.design import ViewDefinition
 
 #bp = Blueprint("aurin", __name__, url_prefix="/aurin")
 # can import setup_db function in historic.py file when finally using
@@ -37,7 +38,8 @@ manager.add_document(ImmiRate)
 
 
 #@bp.route("/")
-def store_aurin_wealth(file_income, file_payroll):
+#db should be return of setup_db function, file_payroll and file_income should be the path to the assigned json file(string)
+def store_aurin_wealth(file_income, file_payroll,db):
   
     if db_enable:
  
@@ -70,15 +72,14 @@ def store_aurin_wealth(file_income, file_payroll):
                 sa3_code = str(instance[sa3_name])
                 
                 # Store the wealth information in each SA3 regions into couch db
-                if (sa3_code) not in dbw:
+                if (sa3_code) not in db:
                     new_wealth = Aurinwealth(_id = sa3_code, income_value = income_list[sa3_code], payroll_value = [instance[payroll_level_before], instance[payroll_level_later]])
-                    new_wealth.store(dbw)
+                    new_wealth.store(db)
 
     return ("Load Successful")
 
-
-
-def store_aurin_immi(file_immi):
+#db should be return of setup_db function, file_immi should assigned json file(string)
+def store_aurin_immi(file_immi, db):
     #file_immi = "Data/Aurin/immirate.json"
     if db_enable:
         scenario = "immirate"
@@ -90,6 +91,25 @@ def store_aurin_immi(file_immi):
         
         for key in record.keys():
             new_immi = ImmiRate(GCCSA_code=key, immi_rate=record[key])
-            new_immi.store(dbi)
+            new_immi.store(db)
     return ("Load Successful")
 
+#this will return a viewResult data type. Access it should use result.row["col_name"]
+def aurin_map(db, classname):
+    aurin_view_wealth = ViewDefinition(classname, 'wealthCheck','''/
+            function(doc){
+                    emit()
+            }
+    ''')
+    aurin_view_pay = ViewDefinition(classname, 'wealthCheck','''/
+            function(doc){
+                    emit()
+            }
+    ''')
+
+    aurin_view_wealth.sync(db)
+    aurin_view_pay.sync(db)
+    wealth = aurin_view_wealth(db)
+    payroll = aurin_view_pay(db)
+
+    return wealth, payroll
