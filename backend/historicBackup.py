@@ -1,71 +1,24 @@
-# Import library
-import json
-import csv
-import re
-import ast
+
+"""
 import os
-import math
-from emot.emo_unicode import UNICODE_EMOJI
-#from flask import Blueprint
+import re
+from tokenize import group
+import tweepy
+from flask import Blueprint
 from app import db_enable, couch
 from flaskext.couchdb import Document, CouchDBManager
-from couchdb.mapping import TextField, FloatField, ListField
+from couchdb.mapping import TextField, IntegerField, ListField, FloatField
 from couchdb.design import ViewDefinition
 from flaskext.couchdb import Row
+import functools, threading
 
-# Install vader_lexicon for sentimental analysis of historic data
-import nltk
-nltk.download('vader_lexicon')
-from nltk.sentiment import SentimentIntensityAnalyzer
+#bp = Blueprint("hissummary", __name__, url_prefix="/hissummary")
 
-# Set up NLP analysis tools
-sia = SentimentIntensityAnalyzer()
-
-def convert_emojis(text):
-    for emot in UNICODE_EMOJI:
-        text = text.replace(emot, "_".join(UNICODE_EMOJI[emot].replace(",","").replace(":","").split()))
-    return text.replace("_"," ")
-
-def setup_db(db_name):
-    if db_enable:
-        try:
-            db = couch[db_name]
-        except:
-            db = couch.create(db_name)
-    return db
-
-# Setup database in couchdb for stroing historic tweet information
-#bp = Blueprint("historic", __name__, url_prefix="/historic")
-
-# Setup views and designed documents for storing and querying tweets
-manager = CouchDBManager()
-class Historic(Document):
-    doc_type = 'historic'
-    _id = TextField()
-    sa3_id = TextField()
-    nlpvalue = ListField(FloatField())
-
-manager.add_document(Historic)
-
-
-#public_account:threshold for taking an account as public
-def record_verify_hist(record_dict,public_account, language):
-    if (record_dict["doc"]["coordinates"] == None):# Exclude the tweet without coordinates' information # Only analyse and collect the tweet sent in English
-        return False
-    if (record_dict["doc"]["user"]["followers_count"] > public_account):# Only include the tweet which is sent by the account with less than certain followers (exclude the Official Account)
-        return False
-    if (record_dict["doc"]["lang"] != language): # Only analyse and collect the tweet sent in English(or given language)
-        return False
-    if (record_dict["doc"]["retweeted"] == True):# Exclude the retweet# Only analyse and collect the tweet sent in English
-       return False             
-    return True
-
-#path:file path for historical data; public_account:threshold for taking an account as public;db:couchDB databaselanguage:language as target
-def record_historic(path,data_filepath ,public_account,db,language):
+@bp.route("/")
+def record_historic():
 
     # Read in SA3 code and its geo-information for further usage
-    #filename = "../Data/Geo/sa3_geoinfo.csv"
-    filename = path
+    filename = "../Data/Geo/sa3_geoinfo.csv"
     sa3_list = []
     lon_list = []
     lat_list = []
@@ -88,11 +41,11 @@ def record_historic(path,data_filepath ,public_account,db,language):
                 lat_list.append(ast.literal_eval(row[3]))
 
     # Read in historic tweet data with json and process it with nltk package for sentimental analysing
-    #data_filepath = '../Data/Historic/twitter-melb.json'
+    data_filepath = '../Data/Historic/twitter-melb.json'
     file_size = os.path.getsize(data_filepath)
     read_end = math.ceil(file_size)
     current_pointer_index = 0
-    #public_account = 3000
+    public_account = 3000
 
     with open(data_filepath, 'r', encoding = "utf8") as map_file:
             
@@ -110,7 +63,11 @@ def record_historic(path,data_filepath ,public_account,db,language):
             try:
                 record_dict = json.loads(new_line)
 
-                if record_verify_hist(record_dict,public_account, language):
+
+                if ((record_dict["doc"]["coordinates"] != None) and # Exclude the tweet without coordinates' information # Only analyse and collect the tweet sent in English
+                (record_dict["doc"]["user"]["followers_count"] <= public_account) and # Only include the tweet which is sent by the account with less than certain followers (exclude the Official Account)
+                (record_dict["doc"]["lang"] == "en") and # Only analyse and collect the tweet sent in English
+                (record_dict["doc"]["retweeted"] == False)):# Exclude the retweet# Only analyse and collect the tweet sent in English
                     # Allocate tweet into specific SA3 region with its coordinate
                     tweet_coor = record_dict["doc"]["coordinates"]["coordinates"]
                     for j in range(len(lon_list)):
@@ -134,7 +91,17 @@ def record_historic(path,data_filepath ,public_account,db,language):
 
             except Exception as e:
                 pass
+
     return ("Done")
+
+manager = CouchDBManager()
+class HisSummary(Document):
+    doc_type = 'HisSummary'
+    _id = TextField()
+    sa3_id = TextField()
+    nlpvalue = ListField(FloatField())
+manager.add_document(HisSummary)
+
 
 def set_emoview(design_doc):
     emopos = ViewDefinition(design_doc,'positive','''\
@@ -166,6 +133,9 @@ def set_emoview(design_doc):
         }''', wrapper = Row, group = True)
     return emopos, emoneg, emo, emocount
 
+
+# @synchronized
+#@bp.route("/")
 def process_data(db, emopos, emoneg, emo, emocount):
 
     emopos.sync(db)
@@ -207,4 +177,4 @@ def process_data(db, emopos, emoneg, emo, emocount):
     #print(emocount_list)
 
     return emopos_list, emoneg_list, emo_list, emocount_list
-
+    """
