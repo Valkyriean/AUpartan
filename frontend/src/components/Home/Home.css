@@ -1,6 +1,10 @@
-div#main {
-    
+div.main {
+    border-radius: 1vh;
     border: 0.3vh solid green;
     padding: 2vh;
     margin: 2vh;
   }
+
+h2.indicator {
+  margin-top: 0px;
+}
