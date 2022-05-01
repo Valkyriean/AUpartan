@@ -49,3 +49,6 @@ app.register_blueprint(hissummary.bp)
 
 import streaming
 app.register_blueprint(streaming.bp)
+
+import politics
+app.register_blueprint(politics.bp)
