@@ -1,12 +1,24 @@
 import time
 import requests
 import json 
+from couchdb import Server
+
 
 # Initialise
 REQUEST_GAP = 10
 GATEWAY_IP = "0.0.0.0"
 GATEWAY_PORT = 3000
 ID=1
+DB_USERNAME= "admin"
+DB_PASSWORD= "meiyoumima"
+
+couch = Server()
+couch.resource.credentials = (DB_USERNAME, DB_PASSWORD)
+try:
+    db = couch['ccc']
+except:
+    db = couch.create('ccc')
+
 print("Initialized")
 # Main loop
 
