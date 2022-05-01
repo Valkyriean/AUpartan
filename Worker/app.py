@@ -10,14 +10,14 @@ GATEWAY_IP = "0.0.0.0"
 GATEWAY_PORT = 3000
 ID=1
 DB_USERNAME= "admin"
-DB_PASSWORD= "meiyoumima"
+DB_PASSWORD= "1999317"
 
 couch = Server()
 couch.resource.credentials = (DB_USERNAME, DB_PASSWORD)
 try:
-    db = couch['ccc']
+    db = couch['historic']
 except:
-    db = couch.create('ccc')
+    db = couch.create('historic')
 
 print("Initialized")
 # Main loop
@@ -26,7 +26,7 @@ print("Initialized")
 
 
 
-
+"""
 while True:
     # Request task from main node
     print("request task from gateway...")
@@ -45,3 +45,4 @@ while True:
     except:
         print("no connection to gateway, retry in 1 sec")
         time.sleep(1)
+"""

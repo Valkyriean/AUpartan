@@ -33,7 +33,10 @@ def setup_db(db_name):
             db = couch[db_name]
         except:
             db = couch.create(db_name)
-    return db
+        return db
+    else:
+        print("db error")
+        return None
 
 # Setup database in couchdb for stroing historic tweet information
 #bp = Blueprint("historic", __name__, url_prefix="/historic")
