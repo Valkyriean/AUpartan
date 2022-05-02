@@ -29,18 +29,6 @@ class CityLang(Document):
 
 manager.add_document(CityLang)
 
-englishRate = ViewDefinition('CityLang', 'enRate', '''\
-    function(doc){
-        if (doc.lang_type == 'en'){
-            emit(doc.city_name, 1);
-        }else{
-            emit(doc.city_name, 0);
-        }
-    }''','''function(keys, values, rereduce){
-              return (sum(values) / values.length);
-    }
-    ''', wrapper = Row, group = True)
-
 # Tweet API Streaming
 BEARER_TOKEN = "AAAAAAAAAAAAAAAAAAAAAIHFbAEAAAAA0oBVG5orLLErnyAqw2po3fOae5w%3D4lgZWoMOyGG496F2aNACoKOdDCaDnxqret6oFPLToE244O6Tx6"
 CONSUMER_KEY = "K4leUSXBdJwHytayPXdFzEzJN"
@@ -52,12 +40,12 @@ api = tweepy.API(auth, wait_on_rate_limit=True)
 
 #@bp.route('/Sydney/', endpoint='Sydney', methods=["POST", "GET"])
 #@bp.route('/Melbourne/', endpoint='Melbourne', methods=["POST", "GET"])
-@bp.route("/<city_name>/")
-def citylang(city_name):
+#@bp.route("/<city_name>/")
+def citylang(city_name, follower_limit, CONSUMER_KEY, CONSUMER_SECRET, bearer_token, db):
     city = city_name
-    follower_limit = 3000
-    
-
+    #follower_limit = 3000
+    auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
+    api = tweepy.API(auth, wait_on_rate_limit=True)
     class TweetListener(StreamingClient):
 
         def on_tweet(self, tweet: Tweet):
@@ -96,7 +84,7 @@ def citylang(city_name):
     if resp.errors:
         raise RuntimeError(resp.errors)
 
-    print(client.get_rules())
+    #print(client.get_rules())
 
     try:
         client.filter()
@@ -107,13 +95,29 @@ def citylang(city_name):
 
 
 #use to extract english using rate for streaming data, with mapreduce
-"""
-@bp.route("/immirate/")
-def process_data():
+
+#@bp.route("/immirate/")
+def process_data(db):
     englishRate.sync(db)
     enrate_s = englishRate(db)
 
-    for row in enrate_s:
+    englishRate = ViewDefinition('CityLang', 'enRate', '''\
+    function(doc){
+        if (doc.lang_type == 'en'){
+            emit(doc.city_name, 1);
+        }else{
+            emit(doc.city_name, 0);
+        }
+    }''','''function(keys, values, rereduce){
+              return (sum(values) / values.length);
+    }
+    ''', wrapper = Row, group = True)
+
+
+    rate_list = []
+    for row in enrate_s.rows():
+        rate_list.append(row)
+        
+        
         print(row.value)
     return ("rate calcluatd")
-"""
