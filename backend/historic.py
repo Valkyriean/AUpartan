@@ -217,11 +217,12 @@ def process_data(db, emopos, emoneg, emo, emocount):
 #a general version of function above, to reduce the probability of the overflow problem of above function
 def run_single_request_hist(view, db):
     view.sync(db)
-    view_list = []
+    view_dict = {}
     view_result = view(db)
     for row in view_result:
-        view_list.append(row.value)
-    return view_list
+        view_dict[row.key] = row.value
+    
+    return json.dumps(view_dict, indent=4)
 
 #code to run above code
 #save
