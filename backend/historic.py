@@ -43,12 +43,13 @@ def setup_db(db_name):
 
 # Setup views and designed documents for storing and querying tweets
 manager = CouchDBManager()
-class Historic(Document):
-    doc_type = 'historic'
-    _id = TextField()
-    sa3_id = TextField()
-    nlpvalue = ListField(FloatField())
-manager.add_document(Historic)
+def aurin_doc_update(manager):
+    class Historic(Document):
+        doc_type = 'historic'
+        _id = TextField()
+        sa3_id = TextField()
+        nlpvalue = ListField(FloatField())
+    manager.add_document(Historic)
 
 
 #public_account:threshold for taking an account as public
@@ -213,6 +214,14 @@ def process_data(db, emopos, emoneg, emo, emocount):
 
     return emopos_list, emoneg_list, emo_list, emocount_list
 
+#a general version of function above, to reduce the probability of the overflow problem of above function
+def run_single_request_hist(view, db):
+    view.sync(db)
+    view_list = []
+    view_result = view(db)
+    for row in view_result:
+        view_list.append(row.value)
+    return view_list
 
 #code to run above code
 #save

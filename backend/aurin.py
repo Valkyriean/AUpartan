@@ -20,21 +20,19 @@ if db_enable:
         dbi = couch.create('aurin_immi')
 
 manager = CouchDBManager()
-
-class Aurinwealth(Document):
-    doc_type = 'Aurinwealth'
-    _id = TextField()
-    income_value = FloatField()
-    payroll_value = ListField(FloatField())
-
-manager.add_document(Aurinwealth)
-
-class ImmiRate(Document):
-    doc_type = 'ImmiRate'
-    GCCSA_code = TextField()
-    immi_rate = FloatField()
-
-manager.add_document(ImmiRate)
+#afunction to generate document class and update it to the couchDB
+def aurin_doc_update(manager):
+    class Aurinwealth(Document):
+        doc_type = 'Aurinwealth'
+        _id = TextField()
+        income_value = FloatField()
+        payroll_value = ListField(FloatField())
+    manager.add_document(Aurinwealth)
+    class ImmiRate(Document):
+        doc_type = 'ImmiRate'
+        GCCSA_code = TextField()
+        immi_rate = FloatField()
+    manager.add_document(ImmiRate)
 
 
 #@bp.route("/")
