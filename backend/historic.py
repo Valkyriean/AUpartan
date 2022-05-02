@@ -43,13 +43,13 @@ def setup_db(db_name):
 
 # Setup views and designed documents for storing and querying tweets
 manager = CouchDBManager()
-def aurin_doc_update(manager):
-    class Historic(Document):
-        doc_type = 'historic'
-        _id = TextField()
-        sa3_id = TextField()
-        nlpvalue = ListField(FloatField())
-    manager.add_document(Historic)
+
+class Historic(Document):
+    doc_type = 'historic'
+    _id = TextField()
+    sa3_id = TextField()
+    nlpvalue = ListField(FloatField())
+manager.add_document(Historic)
 
 
 #public_account:threshold for taking an account as public
