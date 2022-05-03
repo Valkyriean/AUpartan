@@ -5,6 +5,7 @@ import './index.css';
 import Home from './components/Home/Home'
 import Map from './components/Map/Map';
 import PlotPoint from './components/PlotPoint/PlotPoint'
+import SubmitWork from './components/SubmitWork/SubmitWork';
 import reportWebVitals from './reportWebVitals';
 //import axios from 'axios';
 import {BrowserRouter, Routes, Route,} from "react-router-dom";
@@ -17,6 +18,9 @@ root.render(
       <Route path='/' element={<Home />} />
       <Route path='/Map' element={<Map />} />
       <Route path='/Plot' element={<PlotPoint />} />
+      <Route path='/Submit' element={<SubmitWork />} />
+
+      
     </Routes>
   </BrowserRouter>
 );

@@ -1,0 +1,23 @@
+div.main {
+    border-radius: 1vh;
+    border: 0.3vh solid green;
+    padding: 2vh;
+    margin: 2vh;
+  }
+
+h2.indicator {
+  margin-top: 0px;
+}
+
+button.default {
+  height: 25px;
+  width: 250px;
+}
+
+button.submit {
+  margin: 0;
+  position: absolute;
+  left: 5%;
+  height: 30px;
+  width: 90%;
+}
