@@ -11,7 +11,7 @@ from couchdb.design import ViewDefinition
 from flaskext.couchdb import Row
 
 
-bp = Blueprint("streaming", __name__, url_prefix="/streaming")
+#bp = Blueprint("streaming", __name__, url_prefix="/streaming")
 
 if db_enable:
     try:
@@ -44,7 +44,6 @@ api = tweepy.API(auth, wait_on_rate_limit=True)
 #@bp.route("/<city_name>/")
 def citylang(city_name, follower_limit, CONSUMER_KEY, CONSUMER_SECRET, bearer_token, db):
     city = city_name
-    #follower_limit = 3000
     auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
     api = tweepy.API(auth, wait_on_rate_limit=True)
     class TweetListener(StreamingClient):
@@ -87,6 +86,7 @@ def citylang(city_name, follower_limit, CONSUMER_KEY, CONSUMER_SECRET, bearer_to
 
     #print(client.get_rules())
 
+    #should be added here for 
     try:
         client.filter()
     except KeyboardInterrupt:
@@ -100,23 +100,20 @@ def citylang(city_name, follower_limit, CONSUMER_KEY, CONSUMER_SECRET, bearer_to
 #@bp.route("/immirate/")
 def view_twitter_stream(db):
 
-    englishRate = ViewDefinition('CityLang', 'enRate', '''\
+    languagehcount = ViewDefinition('CityLang', 'languagehcount', '''\
     function(doc){
-        if (doc.lang_type == 'en'){
-            emit(doc.city_name, 1);
-        }else{
-            emit(doc.city_name, 0);
+       emit(doc.lang_type,1)
         }
     }''','''function(keys, values, rereduce){
-              return (sum(values) / values.length);
+              return sum(values);
     }
     ''', wrapper = Row, group = True)
 
-    englishRate.sync(db)
-    enrate_s = englishRate(db)
+    languagehcount.sync(db)
+    language_sta = languagehcount(db)
 
     rate_dict = {}
-    for row in enrate_s:
+    for row in language_sta:
         rate_dict[row.key]= row.value
         
     
