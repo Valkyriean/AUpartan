@@ -1,3 +1,4 @@
+import json
 from tweepy import StreamingClient, Tweet, StreamRule
 import tweepy
 from tokenize import group
@@ -97,9 +98,7 @@ def citylang(city_name, follower_limit, CONSUMER_KEY, CONSUMER_SECRET, bearer_to
 #use to extract english using rate for streaming data, with mapreduce
 
 #@bp.route("/immirate/")
-def process_data(db):
-    englishRate.sync(db)
-    enrate_s = englishRate(db)
+def view_twitter_stream(db):
 
     englishRate = ViewDefinition('CityLang', 'enRate', '''\
     function(doc){
@@ -113,11 +112,14 @@ def process_data(db):
     }
     ''', wrapper = Row, group = True)
 
+    englishRate.sync(db)
+    enrate_s = englishRate(db)
 
-    rate_list = []
-    for row in enrate_s.rows():
-        rate_list.append(row)
+    rate_dict = {}
+    for row in enrate_s:
+        rate_dict[row.key]= row.value
         
-        
-        print(row.value)
-    return ("rate calcluatd")
+    
+    return json.dumps(rate_dict, indent=4)
+
+
