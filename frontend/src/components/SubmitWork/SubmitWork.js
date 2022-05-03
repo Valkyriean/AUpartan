@@ -1,24 +1,8 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import Navbar from '../Navbar/Navbar';
-import Select from 'react-select'
-import { Input, Button } from 'antd';
 import './SubmitWork.css';
-
-const opt_Operator = [
-  { value: 'divide', label: 'A / B' },
-  { value: 'record A B', label: 'Scatter Plot A vs B' },
-  { value: 'record A', label: 'Bar chart Plot A (ignor B)' }
-]
-
-const opt_Twitter_City = [
-  { value: 'Sydney', label: 'Sydney' },
-  { value: 'Melbourne', label: 'Melbourne' },
-  { value: 'Brisbane', label: 'Brisbane' },
-  { value: 'Darwin', label: 'Darwin' },
-  { value: 'Hobart', label: 'Hobart' },
-  { value: 'Perth', label: 'Perth' },
-  { value: 'Adelaide', label: 'Adelaide' },
-]
+import 'antd/dist/antd.css';
+import { Input } from 'antd';
 
 const opt_Twitter_method = [
   { value: 'search', label: 'Search' },
@@ -47,9 +31,14 @@ const OperatorSelectWriter = (
   }); 
   return(
     
-    <dev>
-      <Select id={idString + '-operator'} options={opt_Operator} onChange={handleSelectChange(idString + '-operator', this)}/>
-    </dev>
+    <div>
+      <select id={idString + '-operator'}>
+        <option value="" disabled selected>Select operation</option>
+        <option value = "divide">A / B</option>
+        <option value = "record A B">Scatter Plot A vs B</option>
+        <option value = "record A">Bar chart Plot A (ignor B)</option>
+      </select>
+    </div>
   )
 }
 
@@ -60,16 +49,30 @@ const TwitterSelectWriter = (
     <div>
       <h2 class='indicator'>Get from Twitter:</h2>
       <label>Select city:
-        <Select id={id + '-city'} options={opt_Twitter_City} />
+        <select id={id + '-city'}>
+          <option value="" disabled selected>Select city</option>
+          <option value = "Sydney">Sydney</option>
+          <option value = "Melbourne">Melbourne</option>
+          <option value = "Brisbane">Brisbane</option>
+          <option value = "Darwin">Darwin</option>
+          <option value = "Hobart">Hobart</option>
+          <option value = "Perth">Perth</option>
+          <option value = "Adelaide">Adelaide</option>
+        </select>
       </label>
+      <br/>
       <label>Search for:
         <Input id={id + '-word'} style={{ width: "99.5%", height: "35px", fontSize: "15px" }} placeholder="  e.g. kangaroo beats up man" />
       </label>
+      <br/>
       <label>Select Get Method:
-        <Select id={id + '-method'} options={opt_Twitter_method} />
+        <select id={id + '-method'} options={opt_Twitter_method}>
+
+        </select>
       </label>
+      <br/>
       <label>Select Processing Method:
-        <Select id={id + '-process'} options={opt_Twitter_process} />
+        <select id={id + '-process'} options={opt_Twitter_process} />
       </label>
     </div>
     
@@ -83,7 +86,16 @@ const PreCalculatedWriter = (
     <div>
       <h2 class='indicator'>Use Our Pre-Calculated Data:</h2>
       <label>Select city:
-        <Select id={id + '-city'} options={opt_Twitter_City} />
+        <select id={id + '-city'}>
+          <option value="" disabled selected>Select city</option>
+          <option value = "Sydney">Sydney</option>
+          <option value = "Melbourne">Melbourne</option>
+          <option value = "Brisbane">Brisbane</option>
+          <option value = "Darwin">Darwin</option>
+          <option value = "Hobart">Hobart</option>
+          <option value = "Perth">Perth</option>
+          <option value = "Adelaide">Adelaide</option>
+        </select>
       </label>
       <label>Search for:
         <Input id={id + '-word'} style={{ width: "99.4%", height: "35px", fontSize: "15px" }} placeholder="  e.g. kangaroo beats up man" />
@@ -127,11 +139,12 @@ export default class SubmitWork extends React.Component {
   };
 
   handleClick_Op(id) {
+    console.log("id : " + id)
     var ids = id.split('-');
     var newBox = this.state.box;
     switch (ids.length) {
       case 1:
-        console.log("id : " + id)
+        
         newBox.rendered = [
           <OperatorSelectWriter {...id}/>
         ];
@@ -313,8 +326,8 @@ export default class SubmitWork extends React.Component {
   };
   
   collectInput(id) {
-    let result = document.getElementById('0-operator');
-    console.log(result.options[result.selectedIndex].value);
+    var obj = document.getElementById('0-operator');
+    console.log(obj.value);
     this.collectRecursive(this.state.box, '0');
   };
 
@@ -332,7 +345,7 @@ export default class SubmitWork extends React.Component {
       <div>
         <Navbar submitWork={'active'}/>
         <RecursiveComponent {...this.state.box} />
-        <button class = 'submit' id='submit' onClick={(e) => this.collectInput(e.target.id)}> Submit Work </button>
+        <button class = "submit" id='submit' onClick={(e) => this.collectInput(e.target.id)}> Submit Work </button>
       </div>
     );
   };

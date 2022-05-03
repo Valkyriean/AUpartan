@@ -1,23 +1,32 @@
 div.main {
-    border-radius: 1vh;
-    border: 0.3vh solid green;
-    padding: 2vh;
-    margin: 2vh;
-  }
-
+  border-radius: 1vh;
+  border: 0.3vh solid rgb(224, 224, 224);
+  margin-top: 2vh;
+  margin-bottom: 2vh;
+  margin-left: 1vw;
+  margin-right: 1vw;
+  padding: 1vh;
+  transition: all 300ms ease;
+}
+div.main:hover {
+  border: 0.3vh solid rgb(124, 206, 253);
+  transition: all 300ms ease;
+}
 h2.indicator {
   margin-top: 0px;
 }
 
 button.default {
-  height: 25px;
+  border-radius: 0.5vh;
+  background-color:white;
+  height: 30px;
   width: 250px;
 }
 
 button.submit {
   margin: 0;
   position: absolute;
-  left: 5%;
+  left: 1vw;
   height: 30px;
-  width: 90%;
+  width: 98vw;
 }
