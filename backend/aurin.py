@@ -20,20 +20,18 @@ if db_enable:
         dbi = couch.create('aurin_immi')
 
 manager = CouchDBManager()
+#afunction to generate document class and update it to the couchDB
 
 class Aurinwealth(Document):
     doc_type = 'Aurinwealth'
     _id = TextField()
     income_value = FloatField()
     payroll_value = ListField(FloatField())
-
 manager.add_document(Aurinwealth)
-
 class ImmiRate(Document):
     doc_type = 'ImmiRate'
     GCCSA_code = TextField()
     immi_rate = FloatField()
-
 manager.add_document(ImmiRate)
 
 
@@ -94,22 +92,45 @@ def store_aurin_immi(file_immi, db):
             new_immi.store(db)
     return ("Load Successful")
 
-#this will return a viewResult data type. Access it should use result.row["col_name"]
-def aurin_map(db, classname):
-    aurin_view_wealth = ViewDefinition(classname, 'wealthCheck','''/
+#this will return a json which is based on dictionary. 
+def aurin_map_wp(db, design):
+    aurin_view_wealth = ViewDefinition(design, 'wealthCheck','''/
             function(doc){
-                    emit()
+                    emit(doc._id, doc.income_value)
             }
     ''')
-    aurin_view_pay = ViewDefinition(classname, 'wealthCheck','''/
+    aurin_view_pay = ViewDefinition(design, 'wealthCheck','''/
             function(doc){
-                    emit()
+                    emit(doc._id, doc.payroll_value)
             }
-    ''')
+    ''')# not sure wether payroll need to different it, if needed, :emit(doc._id, (doc.payroll_value[0] - doc.payroll_value[1]))
 
     aurin_view_wealth.sync(db)
     aurin_view_pay.sync(db)
-    wealth = aurin_view_wealth(db)
-    payroll = aurin_view_pay(db)
+    wealth_r = aurin_view_wealth(db)
+    payroll_r = aurin_view_pay(db)
+    dict_pay = {}
+    dict_wealth = {}
+    for row in wealth_r:
+        dict_wealth[row.key] = row.value
+    for row in payroll_r:
+        dict_pay[row.key] = row.value
 
+    wealth = json.dumps(dict_wealth, indent=4)
+    payroll = json.dumps(dict_pay, indent=4)
     return wealth, payroll
+
+#similar ability as function above, but for immi data instead
+def aurin_map_immi(db, design):
+    aurin_view_immi = ViewDefinition(design, 'immiCheck','''/
+            function(doc){
+                    emit(doc.GCCSA_code, doc.immi_rate)
+            }
+    ''')
+    aurin_view_immi.sync(db)
+    immi_r = aurin_view_immi(db)
+    dict_i = {}
+    for row in immi_r:
+        dict_i[row.key] = dict_i[row.value]
+    
+    return json.dumps(dict_i, indent=4)

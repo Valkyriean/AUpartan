@@ -43,6 +43,7 @@ def setup_db(db_name):
 
 # Setup views and designed documents for storing and querying tweets
 manager = CouchDBManager()
+
 class Historic(Document):
     doc_type = 'historic'
     _id = TextField()
@@ -141,21 +142,42 @@ def record_historic(path,data_filepath ,public_account,db,language):
 
 #design-doc should be the doc-type of historic dat document, in string
 def set_emoview(design_doc):
-    emopos = ViewDefinition(design_doc,'positive','''\
+    emoposcount = ViewDefinition(design_doc,'positivecount','''\
         function(doc){
             emit(doc.sa3_id, doc.nlpvalue[0]);
         }''', '''function(keys, values, rereduce){
-                return (sum(values) / values.length);
+                return sum(values);
         }''', wrapper = Row, group = True)
 
-    emoneg = ViewDefinition(design_doc,'negative','''\
+    emoposlinr = ViewDefinition(design_doc,'positivenum','''\
+        function(doc){
+            emit(doc.sa3_id, 1);
+        }''', '''function(keys, values, rereduce){
+                return sum(values);
+        }''', wrapper = Row, group = True)
+
+    emonegcount = ViewDefinition(design_doc,'negativecount','''\
         function(doc){
             emit(doc.sa3_id, doc.nlpvalue[1]);
         }''', '''function(keys, values, rereduce){
-                return (sum(values) / values.length);
+                return sum(values);
         }''', wrapper = Row, group = True)
 
-    emo = ViewDefinition(design_doc,'emotion','''\
+    emoneglinr = ViewDefinition(design_doc,'negativenum','''\
+        function(doc){
+            emit(doc.sa3_id, 1);
+        }''', '''function(keys, values, rereduce){
+                return sum(values);
+        }''', wrapper = Row, group = True)
+
+    emocounts = ViewDefinition(design_doc,'emotioncount','''\
+        function(doc){
+            emit(doc.sa3_id, doc.nlpvalue[2]);
+        }''', '''function(keys, values, rereduce){
+                return (sum(values) / values.length);
+        }''', wrapper = Row, group = True)
+    
+    emolinr = ViewDefinition(design_doc,'emotionnum','''\
         function(doc){
             emit(doc.sa3_id, doc.nlpvalue[2]);
         }''', '''function(keys, values, rereduce){
@@ -168,7 +190,7 @@ def set_emoview(design_doc):
         }''', '''function(keys, values, rereduce){
                 return sum(values);
         }''', wrapper = Row, group = True)
-    return emopos, emoneg, emo, emocount
+    return emoposcount, emonegcount,emoneglinr, emocounts, emolinr, emocount, emoposlinr
 
 #db be the result of set_result function, others should be return of set_emoview function, be careful of the order
 def process_data(db, emopos, emoneg, emo, emocount):
@@ -213,12 +235,45 @@ def process_data(db, emopos, emoneg, emo, emocount):
 
     return emopos_list, emoneg_list, emo_list, emocount_list
 
+#a general version of function above, to reduce the probability of the overflow problem of above function
+def run_single_request_hist(view, db):
+    view.sync(db)
+    view_dict = {}
+    view_result = view(db)
+    for row in view_result:
+        view_dict[row.key] = row.value
+    
+    return json.dumps(view_dict, indent=4)
+
+#a function that return average of each key, just in case there will be error for process_data()function
+def hist_average(viewCount, viewLine, db):
+    viewCount.sync(db)
+    viewLine.sync(db)
+    average_dict = {}
+    count = {}
+    line = {}
+    viewCount_result = viewCount(db)
+    viewLine_result = viewLine(db)
+    for row in viewCount_result:
+        count[row.key] = row.value
+    for row in viewLine_result:
+        line[row.key] = row.value
+    for key in count:
+        try:
+            average_dict[key] = count[key]/line[key]
+        except Exception as e:
+            average_dict[key] = "value error"
+            #pass
+    
+    return json.dumps(average_dict, indent=4)
+
+
 
 #code to run above code
 #save
 dbh = setup_db("historic")
 record_historic("../Data/Geo/sa3_geoinfo.csv", '../Data/Historic/twitter-melb.json', 3000, dbh, 'en')
 #readwith map-reduce
-emopos, emoneg, emo, emocount = set_emoview('historic')
-emopos_list, emoneg_list, emo_list, emocount_list = process_data(dbh, emopos, emoneg, emo, emocount)
+emoposcount, emonegcount,emoneglinr, emocounts, emolinr, emocount, emoposlinr = set_emoview('historic')
+#emopos_list, emoneg_list, emo_list, emocount_list = process_data(dbh, emopos, emoneg, emo, emocount)
 

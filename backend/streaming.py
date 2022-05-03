@@ -1,3 +1,4 @@
+import json
 from tweepy import StreamingClient, Tweet, StreamRule
 import tweepy
 from tokenize import group
@@ -10,7 +11,7 @@ from couchdb.design import ViewDefinition
 from flaskext.couchdb import Row
 
 
-bp = Blueprint("streaming", __name__, url_prefix="/streaming")
+#bp = Blueprint("streaming", __name__, url_prefix="/streaming")
 
 if db_enable:
     try:
@@ -29,18 +30,6 @@ class CityLang(Document):
 
 manager.add_document(CityLang)
 
-englishRate = ViewDefinition('CityLang', 'enRate', '''\
-    function(doc){
-        if (doc.lang_type == 'en'){
-            emit(doc.city_name, 1);
-        }else{
-            emit(doc.city_name, 0);
-        }
-    }''','''function(keys, values, rereduce){
-              return (sum(values) / values.length);
-    }
-    ''', wrapper = Row, group = True)
-
 # Tweet API Streaming
 BEARER_TOKEN = "AAAAAAAAAAAAAAAAAAAAAIHFbAEAAAAA0oBVG5orLLErnyAqw2po3fOae5w%3D4lgZWoMOyGG496F2aNACoKOdDCaDnxqret6oFPLToE244O6Tx6"
 CONSUMER_KEY = "K4leUSXBdJwHytayPXdFzEzJN"
@@ -52,12 +41,11 @@ api = tweepy.API(auth, wait_on_rate_limit=True)
 
 #@bp.route('/Sydney/', endpoint='Sydney', methods=["POST", "GET"])
 #@bp.route('/Melbourne/', endpoint='Melbourne', methods=["POST", "GET"])
-@bp.route("/<city_name>/")
-def citylang(city_name):
+#@bp.route("/<city_name>/")
+def citylang(city_name, follower_limit, CONSUMER_KEY, CONSUMER_SECRET, bearer_token, db):
     city = city_name
-    follower_limit = 3000
-    
-
+    auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
+    api = tweepy.API(auth, wait_on_rate_limit=True)
     class TweetListener(StreamingClient):
 
         def on_tweet(self, tweet: Tweet):
@@ -96,8 +84,9 @@ def citylang(city_name):
     if resp.errors:
         raise RuntimeError(resp.errors)
 
-    print(client.get_rules())
+    #print(client.get_rules())
 
+    #should be added here for 
     try:
         client.filter()
     except KeyboardInterrupt:
@@ -107,13 +96,27 @@ def citylang(city_name):
 
 
 #use to extract english using rate for streaming data, with mapreduce
-"""
-@bp.route("/immirate/")
-def process_data():
-    englishRate.sync(db)
-    enrate_s = englishRate(db)
 
-    for row in enrate_s:
-        print(row.value)
-    return ("rate calcluatd")
-"""
+#@bp.route("/immirate/")
+def view_twitter_stream(db):
+
+    languagehcount = ViewDefinition('CityLang', 'languagehcount', '''\
+    function(doc){
+       emit(doc.lang_type,1)
+        }
+    }''','''function(keys, values, rereduce){
+              return sum(values);
+    }
+    ''', wrapper = Row, group = True)
+
+    languagehcount.sync(db)
+    language_sta = languagehcount(db)
+
+    rate_dict = {}
+    for row in language_sta:
+        rate_dict[row.key]= row.value
+        
+    
+    return json.dumps(rate_dict, indent=4)
+
+
