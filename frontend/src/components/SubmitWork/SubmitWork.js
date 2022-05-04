@@ -1,26 +1,6 @@
 import React from 'react';
 import Navbar from '../Navbar/Navbar';
 import './SubmitWork.css';
-import 'antd/dist/antd.css';
-import { Input } from 'antd';
-
-const opt_Twitter_method = [
-  { value: 'search', label: 'Search' },
-  { value: 'stream', label: 'Stream' }
-]
-
-const opt_Twitter_process = [
-  { value: 'count', label: 'Count' },
-  { value: 'sentiment', label: 'Sentiment (Average)' }
-]
-
-const handleSelectChange = (
-  id,
-  event
-) => {
-  console.log(id);
-  console.log(event);
-}
 
 const OperatorSelectWriter = (
   id
@@ -30,14 +10,25 @@ const OperatorSelectWriter = (
     idString = idString + id[element]
   }); 
   return(
-    
     <div>
-      <select id={idString + '-operator'}>
-        <option value="" disabled selected>Select operation</option>
-        <option value = "divide">A / B</option>
-        <option value = "record A B">Scatter Plot A vs B</option>
-        <option value = "record A">Bar chart Plot A (ignor B)</option>
-      </select>
+      <div class='selectDiv'>
+        <label>Select city:
+          <select id={idString + '-operator'}>
+            <option value = "" disabled selected>Select operation</option>
+            <option value = "divide">A / B</option>
+            <option value = "record A B">Scatter Plot A vs B</option>
+            <option value = "record A">Bar chart Plot A (ignor B)</option>
+          </select>
+        </label>  
+        <br/>
+        <label>Select scale:
+          <select id={idString + '-scale'}>
+            <option value="" disabled selected>Select scale</option>
+            <option value = "City">City</option>
+            <option value = "SA3">SA3</option>
+          </select>
+        </label>
+      </div>
     </div>
   )
 }
@@ -45,12 +36,16 @@ const OperatorSelectWriter = (
 const TwitterSelectWriter = (
   id
 ) => {
+  let idString = ''
+  Object.keys(id).forEach(element => {
+    idString = idString + id[element]
+  }); 
   return(
     <div>
       <h2 class='indicator'>Get from Twitter:</h2>
       <label>Select city:
-        <select id={id + '-city'}>
-          <option value="" disabled selected>Select city</option>
+        <select id={idString + '-city'}>
+          <option value = "" disabled selected>Select city</option>
           <option value = "Sydney">Sydney</option>
           <option value = "Melbourne">Melbourne</option>
           <option value = "Brisbane">Brisbane</option>
@@ -62,17 +57,23 @@ const TwitterSelectWriter = (
       </label>
       <br/>
       <label>Search for:
-        <Input id={id + '-word'} style={{ width: "99.5%", height: "35px", fontSize: "15px" }} placeholder="  e.g. kangaroo beats up man" />
+        <input id={idString + '-word'} placeholder="  e.g. kangaroo beats up man" />
       </label>
       <br/>
       <label>Select Get Method:
-        <select id={id + '-method'} options={opt_Twitter_method}>
-
+        <select id={idString + '-method'}>
+          <option value = "" disabled selected>Select get method</option>
+          <option value = "search">Search</option>
+          <option value = "stream">Stream</option>
         </select>
       </label>
       <br/>
       <label>Select Processing Method:
-        <select id={id + '-process'} options={opt_Twitter_process} />
+        <select id={idString + '-process'}>
+          <option value = "" disabled selected>Select process method</option>
+          <option value = "count">Count</option>
+          <option value = "sentiment">Sentiment (Average)</option>
+        </select>
       </label>
     </div>
     
@@ -82,23 +83,15 @@ const TwitterSelectWriter = (
 const PreCalculatedWriter = (
   id
 ) => {
+  let idString = ''
+  Object.keys(id).forEach(element => {
+    idString = idString + id[element]
+  }); 
   return(
     <div>
       <h2 class='indicator'>Use Our Pre-Calculated Data:</h2>
-      <label>Select city:
-        <select id={id + '-city'}>
-          <option value="" disabled selected>Select city</option>
-          <option value = "Sydney">Sydney</option>
-          <option value = "Melbourne">Melbourne</option>
-          <option value = "Brisbane">Brisbane</option>
-          <option value = "Darwin">Darwin</option>
-          <option value = "Hobart">Hobart</option>
-          <option value = "Perth">Perth</option>
-          <option value = "Adelaide">Adelaide</option>
-        </select>
-      </label>
       <label>Search for:
-        <Input id={id + '-word'} style={{ width: "99.4%", height: "35px", fontSize: "15px" }} placeholder="  e.g. kangaroo beats up man" />
+        <input id={idString + '-word'} placeholder="  e.g. kangaroo beats up man" />
       </label>
     </div>
     
@@ -124,8 +117,8 @@ const RecursiveComponent = ({
 export default class SubmitWork extends React.Component {
   state = {
     box: { },
-    submit: { }, 
   };
+
   componentDidMount(){
     this.setState({ 
       box: {
@@ -325,19 +318,29 @@ export default class SubmitWork extends React.Component {
     this.setState({ box: newBox });
   };
   
-  collectInput(id) {
+  collectinput(id) {
     var obj = document.getElementById('0-operator');
-    console.log(obj.value);
-    this.collectRecursive(this.state.box, '0');
+    console.log(this.collectRecursive(this.state.box, '0'));
   };
 
   collectRecursive(parent, id) {
+    var ret = {};
     if (parent.children) {
-      this.collectRecursive(parent.children[0], id + '-0');
-      this.collectRecursive(parent.children[1], id + '-1');
+      for (const tag of ['operator', 'scale']) {
+        var obj = document.getElementById(id + '-' + tag);
+        if (obj) ret[tag] = obj.value;
+      }
+      ret['data0'] = this.collectRecursive(parent.children[0], id + '-0');
+      ret['data1'] = this.collectRecursive(parent.children[1], id + '-1');
+      return ret;
     } else {
-      console.log(id);
+      for (const tag of ['city', 'word', 'method', 'process']) {
+        var obj = document.getElementById(id + '-' + tag);
+        if (obj) ret[tag] = obj.value;
+      }
+      return ret;
     }
+    return null;
   }
 
   render() {
@@ -345,7 +348,7 @@ export default class SubmitWork extends React.Component {
       <div>
         <Navbar submitWork={'active'}/>
         <RecursiveComponent {...this.state.box} />
-        <button class = "submit" id='submit' onClick={(e) => this.collectInput(e.target.id)}> Submit Work </button>
+        <button class = "submit" id='submit' onClick={(e) => this.collectinput(e.target.id)}> Submit Work </button>
       </div>
     );
   };

@@ -30,3 +30,37 @@ button.submit {
   height: 30px;
   width: 98vw;
 }
+
+div.selectDiv {
+  margin-left: 1vw;
+}
+
+select {
+  width: 500px;
+  height: 30px;
+  padding-left: 1vw;
+  border-radius: 0.5vh;
+  background-color: white;
+  border-color: rgb(224, 224, 224);
+  border-width: 0.5px;
+  transition: all 150ms ease;
+}
+
+select:hover {
+  border-color: rgb(124, 206, 253);
+  transition: all 150ms ease;
+}
+
+input {
+  width: 500px; 
+  height: 30px; 
+  border-radius: 0.3vh;
+  background-color: white;
+  border-color: rgb(224, 224, 224);
+  transition: all 150ms ease;
+}
+
+input:hover {
+  border-color: rgb(124, 206, 253);
+  transition: all 150ms ease;
+}
