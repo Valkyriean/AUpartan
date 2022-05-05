@@ -9,28 +9,49 @@ const OperatorSelectWriter = (
   Object.keys(id).forEach(element => {
     idString = idString + id[element]
   }); 
-  return(
-    <div>
-      <div class='selectDiv'>
-        <label>Select city:
-          <select id={idString + '-operator'}>
-            <option value = "" disabled selected>Select operation</option>
-            <option value = "divide">A / B</option>
-            <option value = "record A B">Scatter Plot A vs B</option>
-            <option value = "record A">Bar chart Plot A (ignor B)</option>
-          </select>
-        </label>  
-        <br/>
-        <label>Select scale:
-          <select id={idString + '-scale'}>
-            <option value="" disabled selected>Select scale</option>
-            <option value = "City">City</option>
-            <option value = "SA3">SA3</option>
-          </select>
-        </label>
+  if (idString == '0'){
+    return(
+      <div>
+        <div class='selectDiv'>
+          <label>Select city:
+            <select id={idString + '-operator'}>
+              <option value = "" disabled selected>Select operation</option>
+              <option value = "divide">A / B</option>
+              <option value = "record A B">Scatter Plot A vs B</option>
+              <option value = "record A">Bar chart Plot A (ignor B)</option>
+            </select>
+          </label>  
+          <br/>
+          <label>Select scale:
+            <select id={'scale'}>
+              <option value="" disabled selected>Select scale</option>
+              <option value = "City">City</option>
+              <option value = "SA3">SA3</option>
+            </select>
+          </label>
+          <br/>
+          <label>Task name:
+            <input id={'name'} placeholder="  e.g. Percentage of people have favourable opinion of kangaroos" />
+          </label>
+        </div>
       </div>
-    </div>
-  )
+    ) 
+  } else {
+    return(
+      <div>
+        <div class='selectDiv'>
+          <label>Select city:
+            <select id={idString + '-operator'}>
+              <option value = "" disabled selected>Select operation</option>
+              <option value = "divide">A / B</option>
+              <option value = "record A B">Scatter Plot A vs B</option>
+              <option value = "record A">Bar chart Plot A (ignor B)</option>
+            </select>
+          </label>  
+        </div>
+      </div>
+    ) 
+  }
 }
 
 const TwitterSelectWriter = (
@@ -91,7 +112,7 @@ const PreCalculatedWriter = (
     <div>
       <h2 class='indicator'>Use Our Pre-Calculated Data:</h2>
       <label>Search for:
-        <input id={idString + '-word'} placeholder="  e.g. kangaroo beats up man" />
+        <input id={idString + '-file'} placeholder="  e.g. kangaroo beats up man" />
       </label>
     </div>
     
@@ -319,14 +340,16 @@ export default class SubmitWork extends React.Component {
   };
   
   collectinput(id) {
-    var obj = document.getElementById('0-operator');
-    console.log(this.collectRecursive(this.state.box, '0'));
+    var jsonObj = this.collectRecursive(this.state.box, '0');
+    jsonObj['scale'] = document.getElementById('scale').value;
+    jsonObj['name'] = document.getElementById('name').value;
+    console.log(jsonObj);
   };
 
   collectRecursive(parent, id) {
     var ret = {};
     if (parent.children) {
-      for (const tag of ['operator', 'scale']) {
+      for (const tag of ['operator']) {
         var obj = document.getElementById(id + '-' + tag);
         if (obj) ret[tag] = obj.value;
       }
@@ -334,13 +357,12 @@ export default class SubmitWork extends React.Component {
       ret['data1'] = this.collectRecursive(parent.children[1], id + '-1');
       return ret;
     } else {
-      for (const tag of ['city', 'word', 'method', 'process']) {
+      for (const tag of ['city', 'word', 'method', 'process', 'file']) {
         var obj = document.getElementById(id + '-' + tag);
         if (obj) ret[tag] = obj.value;
       }
       return ret;
     }
-    return null;
   }
 
   render() {
