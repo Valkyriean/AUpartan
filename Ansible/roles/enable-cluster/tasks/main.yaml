@@ -1,0 +1,66 @@
+# Modified from https://docs.ansible.com/ansible/latest/collections/ansible/builtin/uri_module.html  
+# Some information modified from 14-4-22-workshop3
+- name: Enable Cluster
+  become: yes 
+  ansible.builtin.uri: 
+    url: "http://{{ groups['instance1ip'][0] }}:5984/_cluster_setup"
+    user: "{{ docker_couchdb_user }}"
+    password: "{{ docker_couchdb_password }}"
+    method: POST 
+    force_basic_auth: yes 
+    status_code: 201
+    body_format: json 
+    body:  "{\"action\": \"enable_cluster\", \"bind_address\":\"0.0.0.0\",\
+             \"username\": \"{{ docker_couchdb_user }}\", \"password\":\"{{ docker_couchdb_password }}\", \"port\":\"{{ docker_couchdb_host_port }}\",\
+             \"remote_node\": \"{{ item }}\", \"node_count\":\"2\",\
+             \"remote_current_user\":\"{{ docker_couchdb_user }}\", \"remote_current_password\":\"{{ docker_couchdb_password }}\"}"
+    headers: 
+     Content-Type: "application/json"
+  loop: 
+    - "{{ groups['instance2ip'][0] }}"
+
+- name: Add node
+  become: yes 
+  ansible.builtin.uri: 
+    url: "http://{{ groups['instance1ip'][0] }}:5984/_cluster_setup"
+    user: "{{ docker_couchdb_user }}"
+    password: "{{ docker_couchdb_password }}"
+    method: POST 
+    force_basic_auth: yes 
+    status_code: 201, 409
+    body_format: json 
+    body:  "{\"action\": \"add_node\", \"host\":\"{{ item }}\",\
+              \"port\": \"{{ docker_couchdb_host_port }}\", \"username\": \"{{ docker_couchdb_user }}\", \"password\":\"{{ docker_couchdb_password }}\"}"
+    headers: 
+      Content-Type: "application/json"
+  loop: 
+   - "{{ groups['instance2ip'][0] }}"
+   
+- ansible.builtin.debug:
+    msg: "Instance {{ item }}"
+  loop: 
+    - "{{ groups['instance2ip'][0] }}"
+# # - name: Log in
+# #   become: yes
+# #   uri:
+# #     url: "http://{{ groups['instance1ip'][0] }}:5984/"
+# #     status_code: 200,201,409
+# #     method: GET
+# #     user: "{{ docker_couchdb_user }}"
+# #     password:  "{{ docker_couchdb_password }}"
+# #     force_basic_auth: yes
+# #     return_content: yes
+- name: Finish Cluster
+  become: yes 
+  ansible.builtin.uri: 
+    url: "http://{{ groups['instance1ip'][0] }}:5984/_cluster_setup"
+    user: "{{ docker_couchdb_user }}"
+    password: "{{ docker_couchdb_password }}"
+    method: POST 
+    force_basic_auth: yes 
+    status_code: 201 
+    body_format: json 
+    # Modified from 14-4-22-workshop3
+    body:  "{\"action\": \"finish_cluster\"}"
+    headers: 
+     Content-Type: "application/json"

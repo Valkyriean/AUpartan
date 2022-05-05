@@ -7,7 +7,7 @@
     key_name: '{{ instance_key_name }}'
     flavor: '{{ instance_flavor }}'
     availability_zone: '{{ availability_zone }}'
-    security_groups: '{{ sg_names }}'
+    security_groups: '{{ item.security_groups }}'
     volumes: '{{ item.volumes }}'
     auto_floating_ip: yes
     wait: yes
@@ -47,17 +47,24 @@
 
 # Follow https://docs.ansible.com/ansible/latest/collections/ansible/builtin/lineinfile_module.html
 # Save ips of different instances into an inventory file 
-- name: Record ips to Inventory
+- name: Record ips with ubuntu username to Inventory
   ansible.builtin.lineinfile: 
     path: "inventory/host.ini"
     line: "ubuntu@{{ item.openstack.public_v4 }}\n"
   loop: '{{ os_instance.results }}'
   when: item.openstack is defined
 
-- name: Record ips seperately to Inventory 
+- name: Record ips with ubuntu username seperately to Inventory 
   ansible.builtin.lineinfile: 
     path: "inventory/host.ini"
     line: "[{{ item.openstack.name }}]\nubuntu@{{ item.openstack.public_v4 }}\n"
+  loop: '{{ os_instance.results }}'
+  when: item.openstack is defined
+
+- name: Only record ips seperately to Inventory
+  ansible.builtin.lineinfile: 
+    path: "inventory/host.ini"
+    line: "[{{ item.openstack.name }}ip]\n{{ item.openstack.public_v4 }}\n"
   loop: '{{ os_instance.results }}'
   when: item.openstack is defined
 
