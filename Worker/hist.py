@@ -1,4 +1,4 @@
-from app import db, couch
+from app import db
 import json
 import csv
 import re
@@ -13,28 +13,13 @@ from flaskext.couchdb import Row
 import nltk
 from nltk.sentiment import SentimentIntensityAnalyzer
 nltk.download('vader_lexicon')
-
 sia = SentimentIntensityAnalyzer()
 
+# Define function for converting emojis to text for further analysing
 def convert_emojis(text):
     for emot in UNICODE_EMOJI:
         text = text.replace(emot, "_".join(UNICODE_EMOJI[emot].replace(",","").replace(":","").split()))
     return text.replace("_"," ")
-
-#this should put in the name of your db in string, return couchdb,db object, needed for write in and view
-"""
-def setup_db(db_name):
-    
-    if db_enable:
-        try:
-            dbset = couch[db_name]
-        except:
-            dbset = couch.create(db_name)
-        return dbset
-    else:
-        print("db error")
-        return None
-"""
 
 # Setup views and designed documents for storing and querying tweets
 manager = CouchDBManager()
@@ -45,32 +30,85 @@ class Historic(Document):
     nlpvalue = ListField(FloatField())
 manager.add_document(Historic)
 
-
 #public_account:threshold for taking an account as public
-def record_verify_hist(record_dict,public_account, language):
-    if (record_dict["doc"]["coordinates"] == None):# Exclude the tweet without coordinates' information # Only analyse and collect the tweet sent in English
+def record_verify_hist(record_dict, public_account, language):
+    if (record_dict["doc"]["coordinates"] == None): # Exclude the tweet without coordinates' information # Only analyse and collect the tweet sent in English
         return False
-    if (record_dict["doc"]["user"]["followers_count"] > public_account):# Only include the tweet which is sent by the account with less than certain followers (exclude the Official Account)
+    if (record_dict["doc"]["user"]["followers_count"] > public_account): # Only include the tweet which is sent by the account with less than certain followers (exclude the Official Account)
         return False
     if (record_dict["doc"]["lang"] != language): # Only analyse and collect the tweet sent in English(or given language)
         return False
-    if (record_dict["doc"]["retweeted"] == True):# Exclude the retweet# Only analyse and collect the tweet sent in English
+    if (record_dict["doc"]["retweeted"] == True): # Exclude the retweet# Only analyse and collect the tweet sent in English
        return False             
     return True
 
-#path:file path for historical data; public_account:threshold for taking an account as public;db:couchDB databaselanguage:language as target
-def record_historic(path,data_filepath ,public_account,db,language):
+# design-doc should be the doc-type of historic dat document, in string
+def set_emoview(design_doc, db):
+    emoposlinr = ViewDefinition(design_doc,'positivecount','''\
+        function(doc){
+            emit(doc.sa3_id, doc.nlpvalue[0]);
+        }''', '''function(keys, values, rereduce){
+                return sum(values);
+        }''', wrapper = Row, group = True)
+
+    emoposcount = ViewDefinition(design_doc,'positivenum','''\
+        function(doc){
+            emit(doc.sa3_id, 1);
+        }''', '''function(keys, values, rereduce){
+                return sum(values);
+        }''', wrapper = Row, group = True)
+
+    emoneglinr = ViewDefinition(design_doc,'negativecount','''\
+        function(doc){
+            emit(doc.sa3_id, doc.nlpvalue[1]);
+        }''', '''function(keys, values, rereduce){
+                return sum(values);
+        }''', wrapper = Row, group = True)
+
+    emonegcount = ViewDefinition(design_doc,'negativenum','''\
+        function(doc){
+            emit(doc.sa3_id, 1);
+        }''', '''function(keys, values, rereduce){
+                return sum(values);
+        }''', wrapper = Row, group = True)
+
+    emocount = ViewDefinition(design_doc,'count','''\
+        function(doc){
+            emit(doc.sa3_id, 1);
+        }''', '''function(keys, values, rereduce){
+                return sum(values);
+        }''', wrapper = Row, group = True)
+
+    emolinr = ViewDefinition(design_doc,'emotionnum','''\
+        function(doc){
+            emit(doc.sa3_id, doc.nlpvalue[2]);
+        }''', '''function(keys, values, rereduce){
+                return sum(values);
+        }''', wrapper = Row, group = True)
+    
+    emoposlinr.sync(db)
+    emoposcount.sync(db)
+    emoneglinr.sync(db)
+    emonegcount.sync(db)
+    emocount.sync(db)
+    emolinr.sync(db)
+    
+    return emoposcount, emoposlinr, emonegcount, emoneglinr, emocount, emolinr
+
+# Load view definition / MapReduce into database for further usage
+emoposcount, emoposlinr, emonegcount, emoneglinr, emocount, emolinr = set_emoview('historicNew', db)
+
+# Path: file path for historical data; public_account:threshold for taking an account as public;db:couchDB databaselanguage:language as target
+def record_historic(path, data_filepath, public_account, db, language):
 
     # Read in SA3 code and its geo-information for further usage
-    #filename = "../Data/Geo/sa3_geoinfo.csv"
-    filename = path
     sa3_list = []
     lon_list = []
     lat_list = []
     head = True
 
     # reading csv file
-    with open(filename, 'r') as csvfile:
+    with open(path, 'r') as csvfile:
         
         # creating a csv reader object
         csvreader = csv.reader(csvfile)
@@ -86,15 +124,13 @@ def record_historic(path,data_filepath ,public_account,db,language):
                 lat_list.append(ast.literal_eval(row[3]))
 
     # Read in historic tweet data with json and process it with nltk package for sentimental analysing
-    #data_filepath = '../Data/Historic/twitter-melb.json'
     file_size = os.path.getsize(data_filepath)
     read_end = math.ceil(file_size)
     current_pointer_index = 0
-    #public_account = 3000
 
     with open(data_filepath, 'r', encoding = "utf8") as map_file:
-        counter = 0
-        while current_pointer_index < read_end and counter <10:
+
+        while current_pointer_index < read_end:
 
             line_record = map_file.readline()
             current_pointer_index = map_file.tell()
@@ -108,14 +144,13 @@ def record_historic(path,data_filepath ,public_account,db,language):
             try:
                 record_dict = json.loads(new_line)
 
-                if record_verify_hist(record_dict,public_account, language):
+                if record_verify_hist(record_dict, public_account, language):
                     # Allocate tweet into specific SA3 region with its coordinate
                     tweet_coor = record_dict["doc"]["coordinates"]["coordinates"]
                     for j in range(len(lon_list)):
                         if ((tweet_coor[0] > lon_list[j][0] and tweet_coor[0] < lon_list[j][1]) and
                         (tweet_coor[1] > lat_list[j][0] and tweet_coor[1] < lat_list[j][1])):
                             sa3_num = sa3_list[j]
-                            counter+=1
                             break
                                 
                     # Store tweet_id for duplication checking in couchdb
@@ -133,92 +168,43 @@ def record_historic(path,data_filepath ,public_account,db,language):
 
             except Exception as e:
                 pass
+
     return ("Done")
 
-#design-doc should be the doc-type of historic dat document, in string
-def set_emoview(design_doc):
-    emopos = ViewDefinition(design_doc,'positive','''\
-        function(doc){
-            emit(doc.sa3_id, doc.nlpvalue[0]);
-        }''', '''function(keys, values, rereduce){
-                return (sum(values) / values.length);
-        }''', wrapper = Row, group = True)
-
-    emoneg = ViewDefinition(design_doc,'negative','''\
-        function(doc){
-            emit(doc.sa3_id, doc.nlpvalue[1]);
-        }''', '''function(keys, values, rereduce){
-                return (sum(values) / values.length);
-        }''', wrapper = Row, group = True)
-
-    emo = ViewDefinition(design_doc,'emotion','''\
-        function(doc){
-            emit(doc.sa3_id, doc.nlpvalue[2]);
-        }''', '''function(keys, values, rereduce){
-                return (sum(values) / values.length);
-        }''', wrapper = Row, group = True)
-
-    emocount = ViewDefinition(design_doc,'count','''\
-        function(doc){
-            emit(doc.sa3_id, 1);
-        }''', '''function(keys, values, rereduce){
-                return sum(values);
-        }''', wrapper = Row, group = True)
-    return emopos, emoneg, emo, emocount
-
-#db be the result of set_result function, others should be return of set_emoview function, be careful of the order
-def process_data(db, emopos, emoneg, emo, emocount):
-
-    emopos.sync(db)
-    emoneg.sync(db)
-    emo.sync(db)
-    emocount.sync(db)
-
-    emopos_list = []
-    emoneg_list = []
-    emo_list = []
-    emocount_list = []
-
-    emopos_dict = emopos(db)
-    emoneg_dict = emoneg(db)
-    emo_dict = emo(db)
-    emocount_dict = emocount(db)
-
-    for row in emopos_dict:
-        emopos_list.append(row.value)
-    for row in emoneg_dict:
-        emoneg_list.append(row.value)
-    for row in emo_dict:
-        emo_list.append(row.value)
-    for row in emocount_dict:
-        emocount_list.append(row.value)
-
-    #for row in emopo:
-     #   emopos_list.append(row.value)
-    #for row in emoneg(db):
-     #   emoneg_list.append(row.value)
-    #for row in emo(db):
-     #   emo_list.append(row.value)
-    #for row in emocount(db):
-     #   emocount_list.append(row.value)
-
-    #print(emopos_list)
-    #print(emoneg_list)
-    #print(emo_list)
-    #print(emocount_list)
-
-    return emopos_list, emoneg_list, emo_list, emocount_list
+# Load in historic data
+record_historic("../Data/Geo/sa3_geoinfo.csv", '../Data/Historic/twitter-melb.json', 3000, db, 'en')
 
 
-#code to run above code
-#save
-#print(db_enable)
-#dbh = setup_db("historic")
-record_historic("../Data/Geo/sa3_geoinfo.csv", '../Data/twitter-melb.json', 3000, db, 'en')
-#readwith map-reduce
-emopos, emoneg, emo, emocount = set_emoview('historic')
-emopos_list, emoneg_list, emo_list, emocount_list = process_data(db, emopos, emoneg, emo, emocount)
+# Function to generate pre-cooked data, store it into new summary database and return it as a json file
+def hist_average(viewCount, viewLine, db):
 
-print(emopos_list)
+    # Store data into dictionary for further computational usage (generating summarised json)
+    average_dict = {}
+    count = {}
+    line = {}
 
+    # Query data with MapReduce function
+    viewCount_result = viewCount(db)
+    viewLine_result = viewLine(db)
 
+    for row in viewCount_result:
+        count[row.key] = row.value
+
+    for row in viewLine_result:
+        line[row.key] = row.value
+
+    # Calcualte average value of each emotional statistic
+    for key in count:
+        try:
+            average_dict[key] = count[key]/line[key]
+        except Exception as e:
+            average_dict[key] = "value error"
+            pass
+        
+    # Return the mean value of the selected feature in a json format
+    return json.dumps(average_dict, indent = 4)
+
+# Call the hist_average function to compute the average value of all sentimental statistic
+pos_json = hist_average(emoposlinr, emoposcount, db)
+neg_json = hist_average(emoneglinr, emonegcount, db)
+emo_json = hist_average(emolinr, emocount, db)

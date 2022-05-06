@@ -10,14 +10,14 @@ GATEWAY_IP = "0.0.0.0"
 GATEWAY_PORT = 3000
 ID=1
 DB_USERNAME= "admin"
-DB_PASSWORD= "1999317"
+DB_PASSWORD= "Relax1017"
 
 couch = Server()
 couch.resource.credentials = (DB_USERNAME, DB_PASSWORD)
 try:
-    db = couch['historic']
+    db = couch['historicNew']
 except:
-    db = couch.create('historic')
+    db = couch.create('historicNew')
 
 print("Initialized")
 # Main loop
