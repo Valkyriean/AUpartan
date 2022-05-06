@@ -96,7 +96,7 @@ def set_emoview(design_doc, db):
     return emoposcount, emoposlinr, emonegcount, emoneglinr, emocount, emolinr
 
 # Load view definition / MapReduce into database for further usage
-emoposcount, emoposlinr, emonegcount, emoneglinr, emocount, emolinr = set_emoview('historicNew', db)
+emoposcount, emoposlinr, emonegcount, emoneglinr, emocount, emolinr = set_emoview('historicnew', db)
 
 # Path: file path for historical data; public_account:threshold for taking an account as public;db:couchDB databaselanguage:language as target
 def record_historic(path, data_filepath, public_account, db, language):
@@ -174,7 +174,6 @@ def record_historic(path, data_filepath, public_account, db, language):
 # Load in historic data
 record_historic("../Data/Geo/sa3_geoinfo.csv", '../Data/Historic/twitter-melb.json', 3000, db, 'en')
 
-
 # Function to generate pre-cooked data, store it into new summary database and return it as a json file
 def hist_average(viewCount, viewLine, db):
 
@@ -200,7 +199,9 @@ def hist_average(viewCount, viewLine, db):
         except Exception as e:
             average_dict[key] = "value error"
             pass
-        
+    
+    print(average_dict)
+
     # Return the mean value of the selected feature in a json format
     return json.dumps(average_dict, indent = 4)
 
