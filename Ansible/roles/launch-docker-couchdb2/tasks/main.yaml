@@ -8,7 +8,7 @@
 - name: Launch couchdb via docker container 
   become: yes 
   docker_container: 
-    name: "CCCA2"
+    name: "Worker1"
     image: "{{ docker_couchdb_image }}{{ docker_couchdb_VERSION }}"
     ports: 
       - "{{ docker_couchdb_host_port }}:{{ docker_couchdb_host_port }}"

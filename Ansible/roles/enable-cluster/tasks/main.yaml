@@ -18,6 +18,8 @@
      Content-Type: "application/json"
   loop: 
     - "{{ groups['instance2ip'][0] }}"
+    # - "{{ groups['instance3ip'][0] }}"
+    # - "{{ groups['instance4ip'][0] }}"
 
 - name: Add node
   become: yes 
@@ -35,11 +37,14 @@
       Content-Type: "application/json"
   loop: 
    - "{{ groups['instance2ip'][0] }}"
+   # - "{{ groups['instance3ip'][0] }}"
+   # - "{{ groups['instance4ip'][0] }}"
    
 - ansible.builtin.debug:
     msg: "Instance {{ item }}"
   loop: 
     - "{{ groups['instance2ip'][0] }}"
+
 # # - name: Log in
 # #   become: yes
 # #   uri:
@@ -50,6 +55,7 @@
 # #     password:  "{{ docker_couchdb_password }}"
 # #     force_basic_auth: yes
 # #     return_content: yes
+
 - name: Finish Cluster
   become: yes 
   ansible.builtin.uri: 
