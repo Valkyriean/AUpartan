@@ -22,7 +22,7 @@ def convert_emojis(text):
 # Setup views and designed documents for storing and querying tweets
 manager = CouchDBManager()
 class CityLang(Document):
-    doc_type = 'CityLang'
+    doc_type = 'citylang'
     _id = TextField()
     city_name = TextField()
     lang_type = TextField()
@@ -77,7 +77,7 @@ def view_twitter_lang(design_doc, db):
 
     return totalcount, languagecount, encount, emostat
 
-totalcount, languagecount, encount, emostat = view_twitter_lang('citylangnew', dbc)
+totalcount, languagecount, encount, emostat = view_twitter_lang('citylang', dbc)
 
 # Path: file path for historical data; public_account:threshold for taking an account as public;db:couchDB databaselanguage:language as target
 # Collect twitter information (emotional stat and language type) from the selected city
@@ -141,13 +141,13 @@ def view_twitter_stream(viewdef, db):
 
     rate_dict = {}
     for row in language_stat:
-        rate_dict[row.key]= row.value
+        rate_dict[row.key] = row.value
     
     print(rate_dict)
     return json.dumps(rate_dict, indent = 4)
 
 # Call the view_twitter_stream function to compute the summarised data of all city language statistic
-view_twitter_stream(totalcount, dbc)
-view_twitter_stream(languagecount, dbc)
-view_twitter_stream(encount, dbc)
-view_twitter_stream(emostat, dbc)
+view_twitter_stream(totalcount, dbc) # 统计每个城市的总Tweet数量
+view_twitter_stream(languagecount, dbc) # 统计每个城市的每种语言的tweet的总数量
+view_twitter_stream(encount, dbc) # 统计每个城市中用英语en发tweet的总数量
+# view_twitter_stream(emostat, dbc) # 对应的Case暂时没想好，先不跑

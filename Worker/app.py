@@ -24,6 +24,11 @@ try:
 except:
     dbc = couch.create('citylangnew')
 
+try:
+    dbp = couch['socialnew']
+except:
+    dbp = couch.create('socialnew')
+
 print("Initialized")
 # Main loop
 

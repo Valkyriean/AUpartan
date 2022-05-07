@@ -97,7 +97,7 @@ def set_emoview(design_doc, db):
     return emoposcount, emoposlinr, emonegcount, emoneglinr, emocount, emolinr
 
 # Load view definition / MapReduce into database for further usage
-emoposcount, emoposlinr, emonegcount, emoneglinr, emocount, emolinr = set_emoview('historicnew', dbh)
+emoposcount, emoposlinr, emonegcount, emoneglinr, emocount, emolinr = set_emoview('historic', dbh)
 
 # Path: file path for historical data; public_account:threshold for taking an account as public;db:couchDB databaselanguage:language as target
 def record_historic(path, data_filepath, public_account, db, language):
