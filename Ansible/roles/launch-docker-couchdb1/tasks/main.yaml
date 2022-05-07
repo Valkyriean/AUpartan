@@ -19,9 +19,9 @@
     env: 
       COUCHDB_USER: "{{ docker_couchdb_user }}"
       COUCHDB_PASSWORD: "{{ docker_couchdb_password }}"
-      NODENAME: couchdb@172.26.134.189
+      NODENAME: "couchdb@{{ groups['instance1ip'][0] }}"
       COUCHDB_SECRET: "{{ docker_couchdb_cookie }}"
-      ERL_FLAGS: "-setcookie '{{ docker_couchdb_cookie }}' -name couchdb@172.26.134.189 -kernel inet_dist_listen_min 9100 -kernel inet_dist_listen_max 9200"
+      ERL_FLAGS: "-setcookie '{{ docker_couchdb_cookie }}' -name couchdb@{{ groups['instance1ip'][0] }} -kernel inet_dist_listen_min 9100 -kernel inet_dist_listen_max 9200"
 
       
   
