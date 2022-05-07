@@ -1,4 +1,4 @@
-from app import db
+from app import dbh
 import json
 import csv
 import re
@@ -42,7 +42,8 @@ def record_verify_hist(record_dict, public_account, language):
        return False             
     return True
 
-# design-doc should be the doc-type of historic dat document, in string
+# design-doc should be the doc-type of historic data document, in string
+# Storing design document into database
 def set_emoview(design_doc, db):
     emoposlinr = ViewDefinition(design_doc,'positivecount','''\
         function(doc){
@@ -96,7 +97,7 @@ def set_emoview(design_doc, db):
     return emoposcount, emoposlinr, emonegcount, emoneglinr, emocount, emolinr
 
 # Load view definition / MapReduce into database for further usage
-emoposcount, emoposlinr, emonegcount, emoneglinr, emocount, emolinr = set_emoview('historicnew', db)
+emoposcount, emoposlinr, emonegcount, emoneglinr, emocount, emolinr = set_emoview('historicnew', dbh)
 
 # Path: file path for historical data; public_account:threshold for taking an account as public;db:couchDB databaselanguage:language as target
 def record_historic(path, data_filepath, public_account, db, language):
@@ -172,7 +173,7 @@ def record_historic(path, data_filepath, public_account, db, language):
     return ("Done")
 
 # Load in historic data
-record_historic("../Data/Geo/sa3_geoinfo.csv", '../Data/Historic/twitter-melb.json', 3000, db, 'en')
+record_historic("../Data/Geo/sa3_geoinfo.csv", '../Data/Historic/twitter-melb.json', 3000, dbh, 'en')
 
 # Function to generate pre-cooked data, store it into new summary database and return it as a json file
 def hist_average(viewCount, viewLine, db):
@@ -206,6 +207,6 @@ def hist_average(viewCount, viewLine, db):
     return json.dumps(average_dict, indent = 4)
 
 # Call the hist_average function to compute the average value of all sentimental statistic
-pos_json = hist_average(emoposlinr, emoposcount, db)
-neg_json = hist_average(emoneglinr, emonegcount, db)
-emo_json = hist_average(emolinr, emocount, db)
+pos_json = hist_average(emoposlinr, emoposcount, dbh)
+neg_json = hist_average(emoneglinr, emonegcount, dbh)
+emo_json = hist_average(emolinr, emocount, dbh)

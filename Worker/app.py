@@ -15,9 +15,14 @@ DB_PASSWORD= "Relax1017"
 couch = Server()
 couch.resource.credentials = (DB_USERNAME, DB_PASSWORD)
 try:
-    db = couch['historicnew']
+    dbh = couch['historicnew']
 except:
-    db = couch.create('historicnew')
+    dbh = couch.create('historicnew')
+
+try:
+    dbc = couch['citylangnew']
+except:
+    dbc = couch.create('citylangnew')
 
 print("Initialized")
 # Main loop
