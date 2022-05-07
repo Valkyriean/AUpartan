@@ -10,7 +10,7 @@ GATEWAY_IP = "0.0.0.0"
 GATEWAY_PORT = 3000
 ID=1
 DB_USERNAME= "admin"
-DB_PASSWORD= "Relax1017"
+DB_PASSWORD= "1999317"
 
 couch = Server()
 couch.resource.credentials = (DB_USERNAME, DB_PASSWORD)

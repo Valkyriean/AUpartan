@@ -1,4 +1,6 @@
 import json
+import time
+
 
 def read_requirement(requ):
     read_in = json.loads(requ)

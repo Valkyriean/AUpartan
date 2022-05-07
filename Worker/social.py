@@ -104,7 +104,7 @@ CONSUMER_SECRET = "bpyL6MhIsNKRoWDrHj0ou9wHwib7tCm4ob5p3SZam51iDZyqv4"
 auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
 api = tweepy.API(auth, wait_on_rate_limit=True)
 
-def citylang(city_name, input_text, follower_limit, db, bearer_token, api, sia):
+def citylang(city_name, input_text, follower_limit, db, bearer_token, api, sia,time):
     
     class TweetListener(StreamingClient):
 
@@ -153,7 +153,11 @@ def citylang(city_name, input_text, follower_limit, db, bearer_token, api, sia):
     print(client.get_rules())
 
     try:
+
+        timenow = time.time()
+        
         client.filter()
+
     except KeyboardInterrupt:
         client.disconnect()
 

@@ -9,6 +9,7 @@ from couchdb.mapping import TextField, FloatField
 from couchdb.design import ViewDefinition
 from flaskext.couchdb import Row
 import nltk
+import sys
 from nltk.sentiment import SentimentIntensityAnalyzer
 nltk.download('vader_lexicon')
 sia = SentimentIntensityAnalyzer()
@@ -81,10 +82,11 @@ totalcount, languagecount, encount, emostat = view_twitter_lang('citylang', dbc)
 
 # Path: file path for historical data; public_account:threshold for taking an account as public;db:couchDB databaselanguage:language as target
 # Collect twitter information (emotional stat and language type) from the selected city
-def citylang(city, follower_limit, bearer_token, api, db):
+def citylang(city, follower_limit, bearer_token, api, db, maxNum):
 
     class TweetListener(StreamingClient):
-
+        count = 0
+        max = 0
         def on_tweet(self, tweet: Tweet):
             text = api.get_status(tweet.id, tweet_mode = "extended")
 
@@ -98,6 +100,9 @@ def citylang(city, follower_limit, bearer_token, api, db):
                 # Store the target information into database
                 new_lang = CityLang(_id = text.id, city_name = city, lang_type = text.lang, tweet_emo = nlp_result)
                 new_lang.store(db)
+                self.count += 1
+            if self.count >= self.max:
+                sys.exit('max number reached')
                 
         def on_request_error(self, status_code):
             print(status_code)
@@ -106,6 +111,7 @@ def citylang(city, follower_limit, bearer_token, api, db):
             self.disconnect
                 
     client = TweetListener(bearer_token)
+    client.max = maxNum
     rules = [StreamRule(value = city)]
 
     resp = client.get_rules()
@@ -126,13 +132,13 @@ def citylang(city, follower_limit, bearer_token, api, db):
     #should be added here for 
     try:
         client.filter()
-    except KeyboardInterrupt:
+    except:
         client.disconnect()
 
     return ('Done')
 
 # Activate the streaming harvest machine based on the selected city name string
-citylang("Melbourne", 3000, BEARER_TOKEN, api, dbc) 
+citylang("Melbourne", 3000, BEARER_TOKEN, api, dbc, 11) 
 
 # Function to generate pre-cooked data, store it into new summary database and return it as a json file
 def view_twitter_stream(viewdef, db):
@@ -147,7 +153,7 @@ def view_twitter_stream(viewdef, db):
     return json.dumps(rate_dict, indent = 4)
 
 # Call the view_twitter_stream function to compute the summarised data of all city language statistic
-view_twitter_stream(totalcount, dbc) # 统计每个城市的总Tweet数量
-view_twitter_stream(languagecount, dbc) # 统计每个城市的每种语言的tweet的总数量
-view_twitter_stream(encount, dbc) # 统计每个城市中用英语en发tweet的总数量
+#view_twitter_stream(totalcount, dbc) # 统计每个城市的总Tweet数量
+#view_twitter_stream(languagecount, dbc) # 统计每个城市的每种语言的tweet的总数量
+#view_twitter_stream(encount, dbc) # 统计每个城市中用英语en发tweet的总数量
 # view_twitter_stream(emostat, dbc) # 对应的Case暂时没想好，先不跑
