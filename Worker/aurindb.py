@@ -3,8 +3,6 @@ from app import couch
 from flaskext.couchdb import Document, CouchDBManager
 from couchdb.mapping import TextField, FloatField
 
-#bp = Blueprint("aurin", __name__, url_prefix="/aurin")
-# can import setup_db function in historic.py file when finally using
 try:
     dbsa3 = couch['aurin_sa3']
 except:
@@ -20,15 +18,15 @@ manager = CouchDBManager()
 class AurinSA3(Document):
     doc_type = 'AurinSA3'
     _id = TextField()
-    income_value = FloatField()
-    payroll_value = FloatField()
+    income = FloatField()
+    payroll = FloatField()
 manager.add_document(AurinSA3)
 
 class AurinCity(Document):
     doc_type = 'AurinCity'
     _id = TextField()
-    city_name = TextField()
-    immi_rate = FloatField()
+    city = TextField()
+    immigration = FloatField()
 manager.add_document(AurinCity)
 
 #db should be return of setup_db function, file_payroll and file_income should be the path to the assigned json file(string)
@@ -47,7 +45,6 @@ def store_aurin_sa3(file_income, file_payroll, db):
                 income_list[str(instance[sa3])] = (float(instance[income_level]))
 
     # Read in payroll data and store income & payroll data in each SA3 regions into couchdb together
-    payroll_level_before = "wk_end_2020_01_04"
     payroll_level_later = "wk_end_2020_10_03"
     sa3_name = "sa3_code16"
     with open(file_payroll, 'r') as f:
@@ -59,7 +56,7 @@ def store_aurin_sa3(file_income, file_payroll, db):
             
             # Store the wealth information in each SA3 regions into couch db
             if (sa3_code) not in db:
-                new_wealth = AurinSA3(_id = sa3_code, income_value = income_list[sa3_code], payroll_value = instance[payroll_level_later])
+                new_wealth = AurinSA3(_id = sa3_code, income = income_list[sa3_code], payroll = instance[payroll_level_later])
                 new_wealth.store(db)
 
     return ("Load Successful")
@@ -79,11 +76,11 @@ def store_aurin_city(file_immi, db):
                 if (i in element["properties"]["gccsa_name_2016"]):
                     if i == "Capital":
                         if element["properties"]["gccsa_code_2016"] not in db:
-                            new_immi = AurinCity(_id = element["properties"]["gccsa_code_2016"], city_name = "Canberra", immi_rate = element["properties"]["ctznshp_stts_prsns_brn_ovrss_cnss_astrln_ctzn_pc"])
+                            new_immi = AurinCity(_id = element["properties"]["gccsa_code_2016"], city = "Canberra", immigration = element["properties"]["ctznshp_stts_prsns_brn_ovrss_cnss_astrln_ctzn_pc"])
                             new_immi.store(db)
                     else:
                         if element["properties"]["gccsa_code_2016"] not in db:
-                            new_immi = AurinCity(_id = element["properties"]["gccsa_code_2016"], city_name = i, immi_rate = element["properties"]["ctznshp_stts_prsns_brn_ovrss_cnss_astrln_ctzn_pc"])
+                            new_immi = AurinCity(_id = element["properties"]["gccsa_code_2016"], city = i, immigration = element["properties"]["ctznshp_stts_prsns_brn_ovrss_cnss_astrln_ctzn_pc"])
                             new_immi.store(db)
 
     return ("Load Successful")
