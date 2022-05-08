@@ -14,10 +14,6 @@ DB_PASSWORD= "Relax1017"
 
 couch = Server()
 couch.resource.credentials = (DB_USERNAME, DB_PASSWORD)
-try:
-    dbh = couch['historictest']
-except:
-    dbh = couch.create('historictest')
 
 try:
     dbc = couch['citylangnew']
