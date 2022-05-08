@@ -4,8 +4,8 @@ from couchdb.mapping import TextField, FloatField
 from couchdb.design import ViewDefinition
 
 # Region scale and keywrods collect from Gateway's task
-receive_level = "city"
-receive_keyword = "immigration"
+receive_level = "sa3"
+receive_keyword = "payroll"
 
 # Design document for extracting SA3 / City Aurin Data
 def extractSA3Data(design_doc, request, db):
@@ -24,8 +24,8 @@ def extractCityData(design_doc, request, db):
     requestCity.sync(db)
     return requestCity
 
-# Create database for storing target raw data
-db_name = receive_level + "_" + receive_keyword
+# Create database for storing target summary data
+db_name = receive_level + "_" + receive_keyword + "_summary"
 try:
     dbrt = couch[db_name]
 except:
@@ -58,7 +58,7 @@ def store_target(viewData, rawdb, targetdb):
             newAurinTarget.store(targetdb)
     
     # Return the mean value of the selected feature in a json format
-    return ("Collect Successful")
+    return ("Mission Accomplished")
 
 # Activate the harvester of Aurin for the target value in a specified region scale
 store_target(viewData, dbraw, dbrt)
