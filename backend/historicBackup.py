@@ -178,11 +178,11 @@ def process_data(db, emopos, emoneg, emo, emocount):
 
     return emopos_list, emoneg_list, emo_list, emocount_list
     """
-
+"""
 '''function(doc){
     if (doc.text,includes("''' + request + '''")){
         emit(doc.key, doc.value);
     }
 }
 '''
-
+"""

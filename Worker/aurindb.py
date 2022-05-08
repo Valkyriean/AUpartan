@@ -2,7 +2,6 @@ import json
 from app import couch
 from flaskext.couchdb import Document, CouchDBManager
 from couchdb.mapping import TextField, FloatField
-from couchdb.design import ViewDefinition
 
 #bp = Blueprint("aurin", __name__, url_prefix="/aurin")
 # can import setup_db function in historic.py file when finally using
