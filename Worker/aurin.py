@@ -1,12 +1,10 @@
-import json
-#from flask import Blueprint
 from app import couch
 from flaskext.couchdb import Document, CouchDBManager
-from couchdb.mapping import TextField, FloatField, ListField
+from couchdb.mapping import TextField, FloatField
 from couchdb.design import ViewDefinition
 
-receive_level = "sa3"
-receive_keyword = "payroll"
+receive_level = "city"
+receive_keyword = "immigration"
 
 # Design document for extracting SA3 / City Aurin Data
 def extractSA3Data(design_doc, request, db):
@@ -28,9 +26,9 @@ def extractCityData(design_doc, request, db):
 # Create database for storing target raw data
 db_name = receive_level + "_" + receive_keyword
 try:
-    dbw = couch[db_name]
+    dbrt = couch[db_name]
 except:
-    dbw = couch.create(db_name)
+    dbrt = couch.create(db_name)
 
 # Call database with selected region's scale
 if (receive_level == "sa3"):
@@ -40,18 +38,24 @@ else:
     dbraw = couch["aurin_city"]
     viewData = extractCityData('aurin', receive_keyword, dbraw)
 
-def store_target(viewData, db):
+# Store summarised target aurin data for further calling from the Gateway node and render it onto UI
+manager = CouchDBManager()
+class AurinTarget(Document):
+    doc_type = 'aurintarget'
+    _id = TextField()
+    target_value = FloatField()
+manager.add_document(AurinTarget)
 
-    line = {}
+def store_target(viewData, rawdb, targetdb):
 
-    viewData_result = viewData(db)
+    viewData_result = viewData(rawdb)
 
     for row in viewData_result:
-        line[row.key] = row.value
+        if (row.key not in targetdb):
+            newAurinTarget = AurinTarget(_id = row.key, target_value = row.value)
+            newAurinTarget.store(targetdb)
     
-    print(line)
-
     # Return the mean value of the selected feature in a json format
     return ("test")
 
-store_target(viewData, dbraw)
+store_target(viewData, dbraw, dbrt)
