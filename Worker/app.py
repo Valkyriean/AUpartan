@@ -10,19 +10,24 @@ GATEWAY_IP = "0.0.0.0"
 GATEWAY_PORT = 3000
 ID=1
 DB_USERNAME= "admin"
-DB_PASSWORD= "1999317"
+DB_PASSWORD= "Relax1017"
 
 couch = Server()
 couch.resource.credentials = (DB_USERNAME, DB_PASSWORD)
 try:
-    dbh = couch['historicnew']
+    dbh = couch['historictest']
 except:
-    dbh = couch.create('historicnew')
+    dbh = couch.create('historictest')
 
 try:
     dbc = couch['citylangnew']
 except:
     dbc = couch.create('citylangnew')
+
+try:
+    dbcs = couch['citylangsum']
+except:
+    dbcs = couch.create('citylangsum')
 
 try:
     dbp = couch['socialnew']

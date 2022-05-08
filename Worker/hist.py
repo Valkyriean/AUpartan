@@ -28,6 +28,7 @@ class Historic(Document):
     _id = TextField()
     sa3_id = TextField()
     nlpvalue = ListField(FloatField())
+    tweet_text = TextField()
 manager.add_document(Historic)
 
 #public_account:threshold for taking an account as public
@@ -164,7 +165,7 @@ def record_historic(path, data_filepath, public_account, db, language):
 
                     # Store historic data's information into couchdb as document without duplication
                     if tweet_id not in db:
-                        new_historic = Historic(_id = tweet_id, sa3_id = sa3_num, nlpvalue = nlp_result)
+                        new_historic = Historic(_id = tweet_id, sa3_id = sa3_num, nlpvalue = nlp_result, tweet_text = text)
                         new_historic.store(db)
 
             except Exception as e:

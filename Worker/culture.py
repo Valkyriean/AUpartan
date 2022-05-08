@@ -1,11 +1,11 @@
-from app import dbc
+from app import dbc, dbcs
 import re
 import json
 from tweepy import StreamingClient, Tweet, StreamRule
 import tweepy
 from emot.emo_unicode import UNICODE_EMOJI
 from flaskext.couchdb import Document, CouchDBManager
-from couchdb.mapping import TextField, FloatField
+from couchdb.mapping import TextField, FloatField, IntegerField
 from couchdb.design import ViewDefinition
 from flaskext.couchdb import Row
 import nltk
@@ -28,6 +28,12 @@ class CityLang(Document):
     city_name = TextField()
     lang_type = TextField()
     tweet_emo = FloatField()
+manager.add_document(CityLang)
+
+class CityLangSum(Document):
+    doc_type = 'citylangsum'
+    _id = TextField()
+    total_tweet = IntegerField()    
 manager.add_document(CityLang)
 
 # Tweet API Streaming
@@ -88,21 +94,27 @@ def citylang(city, follower_limit, bearer_token, api, db, maxNum):
         count = 0
         max = 0
         def on_tweet(self, tweet: Tweet):
-            text = api.get_status(tweet.id, tweet_mode = "extended")
 
-            if ((text.user.followers_count < follower_limit) and (str(text.id) not in db) and (text.lang != "und")):
-                
-                # Calculate text emotional stats
-                tweet_text = convert_emojis(text.full_text)
-                tweet_text = re.sub('http://\S+|https://\S+', '', tweet_text)
-                nlp_result = sia.polarity_scores(tweet_text)["compound"]
+            try: 
 
-                # Store the target information into database
-                new_lang = CityLang(_id = text.id, city_name = city, lang_type = text.lang, tweet_emo = nlp_result)
-                new_lang.store(db)
-                self.count += 1
-            if self.count >= self.max:
-                sys.exit('max number reached')
+                text = api.get_status(tweet.id, tweet_mode = "extended")
+
+                if ((text.user.followers_count < follower_limit) and (str(text.id) not in db) and (text.lang != "und")):
+                    
+                    # Calculate text emotional stats
+                    tweet_text = convert_emojis(text.full_text)
+                    tweet_text = re.sub('http://\S+|https://\S+', '', tweet_text)
+                    nlp_result = sia.polarity_scores(tweet_text)["compound"]
+
+                    # Store the target information into database
+                    new_lang = CityLang(_id = text.id, city_name = city, lang_type = text.lang, tweet_emo = nlp_result)
+                    new_lang.store(db)
+                    self.count += 1
+                if self.count >= self.max:
+                    sys.exit('max number reached')
+            
+            except Exception as e:
+                pass
                 
         def on_request_error(self, status_code):
             print(status_code)
@@ -138,22 +150,22 @@ def citylang(city, follower_limit, bearer_token, api, db, maxNum):
     return ('Done')
 
 # Activate the streaming harvest machine based on the selected city name string
-citylang("Melbourne", 3000, BEARER_TOKEN, api, dbc, 11) 
+citylang("Melbourne", 3000, BEARER_TOKEN, api, dbc, 20) 
 
 # Function to generate pre-cooked data, store it into new summary database and return it as a json file
-def view_twitter_stream(viewdef, db):
+def view_twitter_stream(viewdef, db, dbs):
 
     language_stat = viewdef(db)
 
-    rate_dict = {}
     for row in language_stat:
-        rate_dict[row.key] = row.value
-    
-    print(rate_dict)
-    return json.dumps(rate_dict, indent = 4)
+        if row.key not in dbs:
+            new_lang = CityLangSum(_id = row.key, total_tweet = row.value)
+            new_lang.store(dbs)
+
+    return ("Done")
 
 # Call the view_twitter_stream function to compute the summarised data of all city language statistic
 #view_twitter_stream(totalcount, dbc) # 统计每个城市的总Tweet数量
-#view_twitter_stream(languagecount, dbc) # 统计每个城市的每种语言的tweet的总数量
+view_twitter_stream(languagecount, dbc, dbcs) # 统计每个城市的每种语言的tweet的总数量
 #view_twitter_stream(encount, dbc) # 统计每个城市中用英语en发tweet的总数量
 # view_twitter_stream(emostat, dbc) # 对应的Case暂时没想好，先不跑
