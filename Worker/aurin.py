@@ -5,63 +5,53 @@ from flaskext.couchdb import Document, CouchDBManager
 from couchdb.mapping import TextField, FloatField, ListField
 from couchdb.design import ViewDefinition
 
-receive_level = "SA3"
-receive_keyword = "income"
+receive_level = "sa3"
+receive_keyword = "payroll"
 
-# Create database for storing raw data
+# Design document for extracting SA3 / City Aurin Data
+def extractSA3Data(design_doc, request, db):
+    requestSA3 = ViewDefinition(design_doc, request,'''\
+        function(doc){
+            emit(doc._id, doc.'''+ request +''');
+        }''')
+    requestSA3.sync(db)
+    return requestSA3
+
+def extractCityData(design_doc, request, db):
+    requestCity = ViewDefinition(design_doc, request,'''\
+        function(doc){
+            emit(doc.city, doc.'''+ request +''');
+        }''')
+    requestCity.sync(db)
+    return requestCity
+
+# Create database for storing target raw data
 db_name = receive_level + "_" + receive_keyword
 try:
     dbw = couch[db_name]
 except:
     dbw = couch.create(db_name)
 
-read_path = "../Data/Aurin/" + receive_level + "/" + receive_keyword + ".json"
+# Call database with selected region's scale
+if (receive_level == "sa3"):
+    dbraw = couch["aurin_sa3"]
+    viewData = extractSA3Data('aurin', receive_keyword, dbraw)
+else:
+    dbraw = couch["aurin_city"]
+    viewData = extractCityData('aurin', receive_keyword, dbraw)
 
-manager = CouchDBManager()
-class AurinData(Document):
-    doc_type = 'AurinData'
-    _id = TextField()
-    income_value = FloatField()
-    payroll_value = ListField(FloatField())
-manager.add_document(AurinData)
+def store_target(viewData, db):
 
-def store_aurin(file_income, region, keyword, db):
-   
-    # Wealth data in SA3 regions load into CouchDB
-    if region == "SA3":
-        region_code = "sa3_code"
-    else:
-        region_code = ""
-    scenario = "wealth"
+    line = {}
+
+    viewData_result = viewData(db)
+
+    for row in viewData_result:
+        line[row.key] = row.value
     
-    # Pre-store income information in each SA3 regions
-    income_level = "median_aud_2017_18"
-    #file_income = "../Data/Aurin/income.json"
-    sa3 = "sa3_code"
-    income_list = {}
-    with open(file_income, 'r') as f:
-        income = json.load(f)
+    print(line)
 
-        for i in income["features"]:
-            instance = i["properties"]
-            if instance[sa3] not in income_list:
-                income_list[str(instance[sa3])] = (float(instance[income_level]))
+    # Return the mean value of the selected feature in a json format
+    return ("test")
 
-    # Read in payroll data and store income & payroll data in each SA3 regions into couchdb together
-    #file_payroll = "../Data/Aurin/payroll.json"
-    payroll_level_before = "wk_end_2020_01_04"
-    payroll_level_later = "wk_end_2020_10_03"
-    sa3_name = "sa3_code16"
-    with open(file_payroll, 'r') as f:
-        payroll = json.load(f)
-
-        for i in payroll["features"]:
-            instance = i["properties"]
-            sa3_code = str(instance[sa3_name])
-            
-            # Store the wealth information in each SA3 regions into couch db
-            if (sa3_code) not in db:
-                new_wealth = Aurinwealth(_id = sa3_code, income_value = income_list[sa3_code], payroll_value = [instance[payroll_level_before], instance[payroll_level_later]])
-                new_wealth.store(db)
-
-    return ("Load Successful")
+store_target(viewData, dbraw)
