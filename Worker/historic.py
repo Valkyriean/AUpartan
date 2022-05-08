@@ -26,6 +26,7 @@ try:
 except:
     dbrt = couch.create(db_name)
 
+"""
 # Design document for extracting related tweet from preserved historic database
 def KeyData(design_doc, request, db):
 
@@ -45,7 +46,42 @@ def KeyData(design_doc, request, db):
     requestSA3.sync(db)
 
     return requestText, requestSA3
-    
+"""
+
+
+def KeyData(design_doc, request, db):
+    if request != 'all':
+        requestText = ViewDefinition(design_doc, request, '''function(doc){\
+            if (doc.tweet_text.includes("''' + request + '''")){
+            emit(doc._id, doc.tweet_text);
+            }
+            }''')
+        requestText.sync(db)
+
+        request_sa3 = request + "_sa3"
+        requestSA3 = ViewDefinition(design_doc, request_sa3, '''function(doc){\
+            if (doc.tweet_text.includes("''' + request + '''")){
+                emit(doc._id, doc.sa3_id);
+            }
+        }''')
+        requestSA3.sync(db)
+    else:
+        requestText = ViewDefinition(design_doc, request, '''\
+            function(doc){
+                emit(doc._id, doc.tweet_text);
+            }''')
+        requestText.sync(db)
+
+        request_sa3 = request + "_sa3"
+        requestSA3 = ViewDefinition(design_doc, request_sa3, '''\
+            function(doc){
+                emit(doc._id, doc.sa3_id);
+            }''')
+        requestSA3.sync(db)
+
+    return requestText, requestSA3
+
+"""
 def KeyDataAll(design_doc, request, db):
     requestTextAll = ViewDefinition(design_doc, request, '''\
         function(doc){
@@ -61,13 +97,11 @@ def KeyDataAll(design_doc, request, db):
     requestSA3All.sync(db)
 
     return requestTextAll, requestSA3All
+"""
 
-if receive_keyword != "all":
-    requestText, requestSA3 = KeyData("historic", receive_keyword, dbraw)
-else:
-    requestText, requestSA3 = KeyDataAll("historicall", receive_keyword, dbraw)
+requestText, requestSA3 = KeyData("historic", receive_keyword, dbraw)
 
-到此为止是设计all和普通keyword的区别view def
+#到此为止是设计all和普通keyword的区别view def
 
 # Setup class for collecting target historicu information into historic raw database
 manager = CouchDBManager()
