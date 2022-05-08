@@ -3,6 +3,7 @@ from flaskext.couchdb import Document, CouchDBManager
 from couchdb.mapping import TextField, FloatField
 from couchdb.design import ViewDefinition
 
+# Region scale and keywrods collect from Gateway's task
 receive_level = "city"
 receive_keyword = "immigration"
 
@@ -46,6 +47,7 @@ class AurinTarget(Document):
     target_value = FloatField()
 manager.add_document(AurinTarget)
 
+# Function for collecting target data from Aurin preserved database
 def store_target(viewData, rawdb, targetdb):
 
     viewData_result = viewData(rawdb)
@@ -56,6 +58,7 @@ def store_target(viewData, rawdb, targetdb):
             newAurinTarget.store(targetdb)
     
     # Return the mean value of the selected feature in a json format
-    return ("test")
+    return ("Collect Successful")
 
+# Activate the harvester of Aurin for the target value in a specified region scale
 store_target(viewData, dbraw, dbrt)
