@@ -44,7 +44,7 @@ def ruleGenerate(input_keyword, input_city):
             query_rule += " OR "
     query_rule += ")"
     return query_rule
-
+query_rule = ruleGenerate(input_keyword, input_city)
 
 def nlpText(input_text, sia_tool):
     text = convert_emojis(input_text)
@@ -108,13 +108,13 @@ city_count, city_pos, city_neg, city_emo = summaryView('summary', input_keyword,
 def writeDb(result, dbrcity):
     sia = SentimentIntensityAnalyzer()
     for i in result[0]:
-                    tweet_text, nlp_stat = nlpText(str(i), sia)
-                    for j in input_city:
-                        if j.lower() in tweet_text.lower():
-                            if (str(i.id) not in dbrcity):
-                                new_search = Search(_id = str(i.id), city_name = j, nlppos = nlp_stat[0], nlpneg = nlp_stat[1], nlpemo = nlp_stat[2])
-                                new_search.store(dbrcity)
-                                break
+        tweet_text, nlp_stat = nlpText(str(i), sia)
+        for j in input_city:
+            if j.lower() in tweet_text.lower():
+                if (str(i.id) not in dbrcity):
+                    new_search = Search(_id = str(i.id), city_name = j, nlppos = nlp_stat[0], nlpneg = nlp_stat[1], nlpemo = nlp_stat[2])
+                    new_search.store(dbrcity)
+                    break
 
 def search_store(dbrcity, client, query_rule):
     result_finish = True #are these two essential as argument?
@@ -139,7 +139,7 @@ def search_store(dbrcity, client, query_rule):
         except Exception as e:
             pass
     return ('done')
-
+search_store(dbrcity, client, query_rule)
 
 # Create summarised database (dbsh stands for database summary search)
 db_name = "search_" + input_keyword.lower() + "_summary"
