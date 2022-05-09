@@ -34,17 +34,17 @@ except:
     dbrcity = couch.create(rawdb_name)
 
 # Construct query keyword string
-query_rule = input_keyword + " ("
-for i in range(len(input_city)):
-    if (i >= len(input_city) - 1):
-        query_rule += input_city[i]
-    else:
-        query_rule += input_city[i]
-        query_rule += " OR "
-query_rule += ")"
+def ruleGenerate(input_keyword, input_city):
+    query_rule = input_keyword + " ("
+    for i in range(len(input_city)):
+        if (i >= len(input_city) - 1):
+            query_rule += input_city[i]
+        else:
+            query_rule += input_city[i]
+            query_rule += " OR "
+    query_rule += ")"
+    return query_rule
 
-result_finish = True
-state_start = True
 
 def nlpText(input_text, sia_tool):
     text = convert_emojis(input_text)
@@ -105,39 +105,41 @@ def summaryView(design_doc, request, db):
 
 city_count, city_pos, city_neg, city_emo = summaryView('summary', input_keyword, dbrcity)
 
-while result_finish:
-    try:
-        if (state_start):
-            result = client.search_recent_tweets(query_rule, max_results = 100)
-            for i in result[0]:
-                tweet_text, nlp_stat = nlpText(str(i), sia)
-                for j in input_city:
-                    if j.lower() in tweet_text.lower():
-                        if (str(i.id) not in dbrcity):
-                            new_search = Search(_id = str(i.id), city_name = j, nlppos = nlp_stat[0], nlpneg = nlp_stat[1], nlpemo = nlp_stat[2])
-                            new_search.store(dbrcity)
-                            break
-            if "next_token" in result[3]:
-                state_start = False
-                next_page = result[3]["next_token"]
+def writeDb(result, dbrcity):
+    sia = SentimentIntensityAnalyzer()
+    for i in result[0]:
+                    tweet_text, nlp_stat = nlpText(str(i), sia)
+                    for j in input_city:
+                        if j.lower() in tweet_text.lower():
+                            if (str(i.id) not in dbrcity):
+                                new_search = Search(_id = str(i.id), city_name = j, nlppos = nlp_stat[0], nlpneg = nlp_stat[1], nlpemo = nlp_stat[2])
+                                new_search.store(dbrcity)
+                                break
+
+def search_store(dbrcity, client, query_rule):
+    result_finish = True #are these two essential as argument?
+    state_start = True
+    while result_finish:
+        try:
+            if (state_start):
+                result = client.search_recent_tweets(query_rule, max_results = 100)
+                writeDb(result, dbrcity)
+                if "next_token" in result[3]:
+                    state_start = False
+                    next_page = result[3]["next_token"]
+                else:
+                    break
             else:
-                break
-        else:
-            result = client.search_recent_tweets(query_rule, max_results = 100, next_token = next_page)
-            for i in result[0]:
-                tweet_text, nlp_stat = nlpText(str(i), sia)
-                for j in input_city:
-                    if j.lower() in tweet_text.lower():
-                        if (str(i.id) not in dbrcity):
-                            new_search = Search(_id = str(i.id), city_name = j, nlppos = nlp_stat[0], nlpneg = nlp_stat[1], nlpemo = nlp_stat[2])
-                            new_search.store(dbrcity)
-                            break
-            if "next_token" in result[3]:
-                next_page = result[3]["next_token"]
-            else:
-                break
-    except Exception as e:
-        pass
+                result = client.search_recent_tweets(query_rule, max_results = 100, next_token = next_page)
+                writeDb(result, dbrcity)
+                if "next_token" in result[3]:
+                    next_page = result[3]["next_token"]
+                else:
+                    break
+        except Exception as e:
+            pass
+    return ('done')
+
 
 # Create summarised database (dbsh stands for database summary search)
 db_name = "search_" + input_keyword.lower() + "_summary"
