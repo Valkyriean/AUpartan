@@ -1,4 +1,3 @@
-from app import couch
 from flaskext.couchdb import Row
 from flaskext.couchdb import Document, CouchDBManager
 from couchdb.mapping import TextField
@@ -9,16 +8,14 @@ sia = SentimentIntensityAnalyzer()
 from couchdb.mapping import TextField, FloatField, IntegerField
 from couchdb.design import ViewDefinition
 
-# Region scale and keywrods collect from Gateway's task (dbraw stands for database historic raw data)
-receive_keyword = "heart"
-dbraw = couch["historic_raw"]
-
-# Setup raw database for storing target keyword related tweets (dbrt stands for database raw target)
-db_name = "historic_" + receive_keyword
-try:
-    dbrt = couch[db_name]
-except:
-    dbrt = couch.create(db_name)
+def create_cluster(couch, receive_keyword):
+    # Setup raw database for storing target keyword related tweets (dbrt stands for database raw target)
+    db_name = "historic_" + receive_keyword
+    try:
+        dbrt = couch[db_name]
+    except:
+        dbrt = couch.create(db_name)
+    return dbrt
 
 def KeyData(design_doc, request, db):
     if request != 'all':
@@ -52,10 +49,6 @@ def KeyData(design_doc, request, db):
 
     return requestText, requestSA3
 
-requestText, requestSA3 = KeyData("historic", receive_keyword, dbraw)
-
-#到此为止是设计all和普通keyword的区别view def
-
 # Setup class for collecting target historicu information into historic raw database
 manager = CouchDBManager()
 class Historic(Document):
@@ -84,9 +77,6 @@ def store_target(viewData, viewSA3, rawdb, targetdb):
 
     # Return the finished status to Gateway
     return ("Collect Successful")
-
-# Activate the harvester of Aurin for the target value in a specified region scale
-store_target(requestText, requestSA3, dbraw, dbrt)
 
 # Create summarised database of the target information harvested from the historical dataset
 def summaryView(design_doc, request, db):
@@ -128,14 +118,14 @@ def summaryView(design_doc, request, db):
 
     return sa3_count, sa3_pos, sa3_neg, sa3_emo
 
-sa3_count, sa3_pos, sa3_neg, sa3_emo = summaryView('summary', receive_keyword, dbrt)
-
-# Create summarised database (dbsh stands for database summary historic)
-db_name = "historic_" + receive_keyword + "_summary"
-try:
-    dbsh = couch[db_name]
-except:
-    dbsh = couch.create(db_name)
+def create_summary_cluster(couch, receive_keyword):
+    # Create summarised database (dbsh stands for database summary historic)
+    db_name = "historic_" + receive_keyword + "_summary"
+    try:
+        dbsh = couch[db_name]
+    except:
+        dbsh = couch.create(db_name)
+    return dbsh
 
 # Create class for generating objects of summaried data
 manager = CouchDBManager()
@@ -183,4 +173,13 @@ def summary_target(viewCount, viewPos, viewNeg, viewEmo, rawtarget, summarydb):
     return ("Mission Accomplished")
 
 # Activate the harvester of Aurin for the target value in a specified region scale
-summary_target(sa3_count, sa3_pos, sa3_neg, sa3_emo, dbrt, dbsh)
+
+def historic_work(couch, receive_keyword):
+    dbrt =  create_cluster(couch, receive_keyword)
+    dbraw = couch["historic_raw"]
+    requestText, requestSA3 = KeyData("historic", receive_keyword, dbraw)
+    store_target(requestText, requestSA3, dbraw, dbrt)
+    sa3_count, sa3_pos, sa3_neg, sa3_emo = summaryView('summary', receive_keyword, dbrt)
+    dbsh = create_summary_cluster(couch, receive_keyword)
+    summary_target(sa3_count, sa3_pos, sa3_neg, sa3_emo, dbrt, dbsh)
+    return True

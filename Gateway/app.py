@@ -9,42 +9,111 @@ import queue
 from flask import Flask, jsonify, abort, request, make_response, url_for
 
 
+
+
 # Gateway backend following ReSTful
 app = Flask(__name__, static_url_path="")
 
 
 
 
-q = queue.Queue()
+queueing_task = queue.Queue()
+working_task = []
+finished_task = []
 
+'''
+example for task json:
 
-for i in range(1,20):
-    task = {"id":i, "type":"wait", "time":i}
-    q.put(task)
+{   "name": "aurin_income",
+    "type": "aurin",
+    "keyword": "income",
+    "level" : "sa3" (# another level is "city")
+}
 
-@app.route('/task', methods=['POST'])
+example for search json:
+{
+    "id": "search_Election",
+    "type": "search",
+    "keyword": "Election",
+    "city_set":["Melbourne", "Sydney", "Brisbane"]
+}
+
+example for historic json
+{
+    "id": "historic_Covid",
+    "type": "historic",
+    "keyword": "Covid",
+}
+
+'''
+
+# @app.route('/check_task/<task_name>')
+# def check_task(task_name):
+
+# for i in range(1,20):
+#     task = {"id":i, "type":"wait", "time":i}
+#     queueing_task.put(task)
+
+example_task = {"name": "aurin_payroll",
+                "type": "aurin",
+                "keyword": "payroll",
+                "level" : "sa3"
+}
+
+example_task_2 = {"name": "search_covid",
+                "type": "search",
+                "keyword": "covid",
+                "city_set" : ["Canberra", "Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide", "Hobart"]
+}
+
+example_task_3 = {"name": "historic_heart",
+                "type": "historic",
+                "keyword": "heart",
+}
+
+queueing_task.put(example_task)
+queueing_task.put(example_task_2)
+queueing_task.put(example_task_3)
+
+# working pool
+
+@app.route('/get_task', methods=['POST'])
 def get_task():
     json_data = request.json
-    print(request)
     print(json_data)
-    if q.empty():
-        return {"status":"no work"}
-    task = q.get()
-    print("Task " + str(task["id"]) + " got by worker " + str(json_data['id']))
+    if queueing_task.empty():
+        return {"status":"no_work"}
+    task = queueing_task.get()
+    print("Task " + str(task["name"]) + " got by worker " + str(json_data['worker_id']))
+    working_task.append(task)
     return {"status":"success", "task":task}
-        
-        
-        
-        
-@app.errorhandler(400)
-def not_found(error):
-    return make_response(jsonify({'error': 'Bad request'}), 400)
 
 
-@app.errorhandler(404)
-def not_found(error):
-    return make_response(jsonify({'error': 'Not found'}), 404)
+@app.route('/finish_task', methods=['POST'])
+def finsh_task():
+    json_data = request.json
+    task_name = json_data['task_name']
+    print("Finish " + str(task_name))
+    finished_task.append(task_name)
+    return "Success", 200
 
+        
+@app.route('/failed_task', methods=['POST'])
+def failed_task():
+    json_data = request.json
+    task_name = json_data['task_name']
+    print("Failed " + str(task_name))
+    # finished_task.append(task_name)
+    return "Success", 200
+        
+# Front end
+@app.route('/queueing_task', methods=['GET'])
+def get_queueing_task():
+    return str(queueing_task)
+
+@app.route('/finished_task', methods=['GET'])
+def get_finished_task():
+    return str(finished_task)
         
 # tasks = [
 #     {
@@ -129,6 +198,15 @@ def not_found(error):
 #     tasks.remove(task[0])
 #     return jsonify({'result': True})
 
+
+@app.errorhandler(400)
+def bad_resuest(error):
+    return make_response(jsonify({'error': 'Bad request'}), 400)
+
+
+@app.errorhandler(404)
+def not_found(error):
+    return make_response(jsonify({'error': 'Not found'}), 404)
 
 if __name__ == '__main__':
     app.run(debug=True, host="localhost", port=3000)

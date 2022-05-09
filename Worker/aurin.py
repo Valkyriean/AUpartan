@@ -1,11 +1,6 @@
-from app import couch
 from flaskext.couchdb import Document, CouchDBManager
 from couchdb.mapping import TextField, FloatField
 from couchdb.design import ViewDefinition
-
-# Region scale and keywrods collect from Gateway's task
-receive_level = "sa3"
-receive_keyword = "payroll"
 
 # Design document for extracting SA3 / City Aurin Data
 def extractSA3Data(design_doc, request, db):
@@ -24,20 +19,24 @@ def extractCityData(design_doc, request, db):
     requestCity.sync(db)
     return requestCity
 
-# Create database for storing target summary data
-db_name = receive_level + "_" + receive_keyword + "_summary"
-try:
-    dbrt = couch[db_name]
-except:
-    dbrt = couch.create(db_name)
+def create_cluster(couch, receive_level, receive_keyword):
+    # Create database for storing target summary data
+    db_name = "aurin_" + receive_level + "_" + receive_keyword + "_summary"
+    try:
+        dbrt = couch[db_name]
+    except:
+        dbrt = couch.create(db_name)
+    return dbrt
 
-# Call database with selected region's scale
-if (receive_level == "sa3"):
-    dbraw = couch["aurin_sa3"]
-    viewData = extractSA3Data('aurin', receive_keyword, dbraw)
-else:
-    dbraw = couch["aurin_city"]
-    viewData = extractCityData('aurin', receive_keyword, dbraw)
+def import_view(couch, receive_level, receive_keyword):
+    # Call database with selected region's scale
+    if (receive_level == "sa3"):
+        dbraw = couch["aurin_sa3"]
+        viewData = extractSA3Data('aurin', receive_keyword, dbraw)
+    else:
+        dbraw = couch["aurin_city"]
+        viewData = extractCityData('aurin', receive_keyword, dbraw)
+    return dbraw, viewData
 
 # Store summarised target aurin data for further calling from the Gateway node and render it onto UI
 manager = CouchDBManager()
@@ -61,4 +60,8 @@ def store_target(viewData, rawdb, targetdb):
     return ("Mission Accomplished")
 
 # Activate the harvester of Aurin for the target value in a specified region scale
-store_target(viewData, dbraw, dbrt)
+def aurin_work(couch, receive_level, receive_keyword):
+    dbrt = create_cluster(couch, receive_level, receive_keyword)
+    dbraw, viewData = import_view(couch, receive_level, receive_keyword)
+    store_target(viewData, dbraw, dbrt)
+    return True

@@ -1,5 +1,4 @@
 import tweepy
-from app import couch
 from emot.emo_unicode import UNICODE_EMOJI
 import nltk
 import re
@@ -22,16 +21,14 @@ def convert_emojis(text):
 BEARER_TOKEN = "AAAAAAAAAAAAAAAAAAAAAIHFbAEAAAAA0oBVG5orLLErnyAqw2po3fOae5w%3D4lgZWoMOyGG496F2aNACoKOdDCaDnxqret6oFPLToE244O6Tx6"
 client = tweepy.Client(BEARER_TOKEN)
 
-# Collect keyword / city from Gateway
-input_city = ["Canberra", "Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide", "Hobart"]
-input_keyword = "Election"
-
-# Create raw database for storing tweets from search harvester
-rawdb_name = "search_" + input_keyword.lower()
-try:
-    dbrcity = couch[rawdb_name]
-except:
-    dbrcity = couch.create(rawdb_name)
+def create_raw_cluster(couch, input_keyword):
+    # Create raw database for storing tweets from search harvester
+    rawdb_name = "search_" + input_keyword.lower()
+    try:
+        dbrcity = couch[rawdb_name]
+    except:
+        dbrcity = couch.create(rawdb_name)
+    return dbrcity
 
 # Construct query keyword string
 def ruleGenerate(input_keyword, input_city):
@@ -44,7 +41,6 @@ def ruleGenerate(input_keyword, input_city):
             query_rule += " OR "
     query_rule += ")"
     return query_rule
-query_rule = ruleGenerate(input_keyword, input_city)
 
 def nlpText(input_text, sia_tool):
     text = convert_emojis(input_text)
@@ -61,7 +57,6 @@ class Search(Document):
     nlpneg = FloatField()
     nlpemo = FloatField()
 manager.add_document(Search)
-
 
 # Create summarised database of the target information harvested from the historical dataset
 def summaryView(design_doc, request, db):
@@ -103,9 +98,7 @@ def summaryView(design_doc, request, db):
 
     return city_count, city_pos, city_neg, city_emo
 
-city_count, city_pos, city_neg, city_emo = summaryView('summary', input_keyword, dbrcity)
-
-def writeDb(result, dbrcity):
+def writeDb(result, dbrcity, input_city):
     sia = SentimentIntensityAnalyzer()
     for i in result[0]:
         tweet_text, nlp_stat = nlpText(str(i), sia)
@@ -115,15 +108,16 @@ def writeDb(result, dbrcity):
                     new_search = Search(_id = str(i.id), city_name = j, nlppos = nlp_stat[0], nlpneg = nlp_stat[1], nlpemo = nlp_stat[2])
                     new_search.store(dbrcity)
                     break
+    return ("Success")
 
-def search_store(dbrcity, client, query_rule):
+def search_store(dbrcity, client, query_rule, city_set):
     result_finish = True #are these two essential as argument?
     state_start = True
     while result_finish:
         try:
             if (state_start):
                 result = client.search_recent_tweets(query_rule, max_results = 100)
-                writeDb(result, dbrcity)
+                writeDb(result, dbrcity, city_set)
                 if "next_token" in result[3]:
                     state_start = False
                     next_page = result[3]["next_token"]
@@ -131,7 +125,7 @@ def search_store(dbrcity, client, query_rule):
                     break
             else:
                 result = client.search_recent_tweets(query_rule, max_results = 100, next_token = next_page)
-                writeDb(result, dbrcity)
+                writeDb(result, dbrcity, city_set)
                 if "next_token" in result[3]:
                     next_page = result[3]["next_token"]
                 else:
@@ -139,14 +133,15 @@ def search_store(dbrcity, client, query_rule):
         except Exception as e:
             pass
     return ('done')
-search_store(dbrcity, client, query_rule)
 
-# Create summarised database (dbsh stands for database summary search)
-db_name = "search_" + input_keyword.lower() + "_summary"
-try:
-    dbss = couch[db_name]
-except:
-    dbss = couch.create(db_name)
+def create_summary_cluster(couch, input_keyword):
+    # Create summarised database (dbsh stands for database summary search)
+    db_name = "search_" + input_keyword.lower() + "_summary"
+    try:
+        dbss = couch[db_name]
+    except:
+        dbss = couch.create(db_name)
+    return dbss
 
 # Create class for generating objects of summaried data
 manager = CouchDBManager()
@@ -193,5 +188,11 @@ def summary_target(viewCount, viewPos, viewNeg, viewEmo, rawtarget, summarydb):
     # Return the mean value of the selected feature in a json format
     return ("Mission Accomplished")
 
-# Activate the harvester of Aurin for the target value in a specified region scale
-summary_target(city_count, city_pos, city_neg, city_emo, dbrcity, dbss)
+def search_work(couch, city_set, input_keyword):
+    dbrcity = create_raw_cluster(couch, input_keyword)
+    query_rule = ruleGenerate(input_keyword, city_set)
+    city_count, city_pos, city_neg, city_emo = summaryView('summary', input_keyword, dbrcity)
+    search_store(dbrcity, client, query_rule, city_set)
+    dbss = create_summary_cluster(couch, input_keyword)
+    summary_target(city_count, city_pos, city_neg, city_emo, dbrcity, dbss)
+    return True
