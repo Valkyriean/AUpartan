@@ -12,8 +12,10 @@ import os
 # Initialise
 REQUEST_GAP = 10
 GATEWAY_IP = os.environ.get('GATEWAYIP', None)
+print(GATEWAY_IP)
 GATEWAY_PORT = 3000
 WORKER_ID = os.environ.get('WORKERIP', None)
+print(WORKER_ID)
 DB_USERNAME= "admin"
 DB_PASSWORD= "admin"
 
