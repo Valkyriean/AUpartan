@@ -77,6 +77,7 @@ example_task_3 = {"name": "historic_heart",
 }
 
 queueing_task.put(preserve_task_1)
+queueing_task.put(preserve_task_2)
 queueing_task.put(example_task)
 queueing_task.put(example_task_2)
 # queueing_task.put(example_task_2)
