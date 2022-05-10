@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import './index.css';
 import Home from './components/Home/Home'
-import Map from './components/Map/Map';
+import Map from './components/Map/MapTesting';
 import PlotPoint from './components/PlotPoint/PlotPoint'
 import SubmitWork from './components/SubmitWork/SubmitWork';
 import reportWebVitals from './reportWebVitals';

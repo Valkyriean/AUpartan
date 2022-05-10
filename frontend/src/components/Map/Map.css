@@ -1,4 +1,22 @@
 .map-container {
+    position: relative;
     height: 95vh;
-  }
+}
   
+.mapboxgl-popup-content {
+  width: 420px;
+  position: fixed;
+  left: -200px;
+  bottom: 8px;
+  padding: 0px;
+}
+
+div.mapSelectDiv {
+  position: absolute;
+  margin-top: -95vh;
+  margin-left: 0vw;
+}
+
+select.mapSelect{
+  box-shadow:1px 1px gray;
+}
