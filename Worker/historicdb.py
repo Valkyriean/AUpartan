@@ -1,4 +1,3 @@
-from app import couch
 import json
 import csv
 import re
