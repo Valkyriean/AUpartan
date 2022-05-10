@@ -52,12 +52,12 @@ example for historic json
 
 preserve_task_1 = {"name": "aurin_preserve", 
                 "type" : "preserve",
-                "level" : "aurin"
+                "task" : "aurin"
 }
 
 preserve_task_2 = {"name": "historic_preserve", 
                 "type" : "preserve",
-                "level" : "historic"
+                "task" : "historic"
 }
 
 example_task = {"name": "aurin_payroll",

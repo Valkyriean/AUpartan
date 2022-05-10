@@ -38,7 +38,7 @@ def assign_work(task):
         historic_work(couch, keyword)
         return True
     else:
-        preserve_name = task["name"]
+        preserve_name = task.get("task", None)
         if preserve_name == "aurin":
             preserve_aurin(couch)
             return True
