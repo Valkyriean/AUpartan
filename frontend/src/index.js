@@ -16,9 +16,9 @@ root.render(
   <BrowserRouter>
     <Routes>
       <Route path='/' element={<Home />} />
-      <Route path='/Map' element={<Map />} />
-      <Route path='/Plot' element={<PlotPoint />} />
-      <Route path='/Submit' element={<SubmitWork />} />
+      <Route path='/app/map' element={<Map />} />
+      <Route path='/app/plot' element={<PlotPoint />} />
+      <Route path='/app/submit' element={<SubmitWork />} />
 
       
     </Routes>

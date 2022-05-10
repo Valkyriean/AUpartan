@@ -18,7 +18,7 @@ def map_communication():
     except:
         pass
 
-@app.route('/submit', methods = ['GET', 'POST'])
+@app.route('/request/submit', methods = ['GET', 'POST'])
 def submit_communication():
     try:
         json_data = request.json
