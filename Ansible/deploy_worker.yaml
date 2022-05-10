@@ -1,0 +1,3 @@
+- hosts: instance1 
+  roles:
+  - role: deploy-worker
