@@ -86,6 +86,6 @@ def store_aurin_city(file_immi, db):
 
 def preserve_aurin(couch):
     dbsa3, dbcity = set_aurin_cluster(couch)
-    store_aurin_sa3("../Data/Aurin/SA3/income.json", "../Data/Aurin/SA3/payroll.json", dbsa3)
-    store_aurin_city("../Data/Aurin/City/immirate.json", dbcity)
+    store_aurin_sa3("CCCA2/Data/Aurin/SA3/income.json", "CCCA2/Data/Aurin/SA3/payroll.json", dbsa3)
+    store_aurin_city("CCCA2/Data/Aurin/City/immirate.json", dbcity)
     return True
