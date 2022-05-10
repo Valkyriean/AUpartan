@@ -115,9 +115,6 @@ def record_historic(csv_path, data_filepath, public_account, db, language):
 
     return ("Done")
 
-# Load in historic data into raw database
-record_historic("../Data/Geo/sa3_geoinfo.csv", '../Data/Historic/twitter-melb.json', 3000, dbhr, 'en')
-
 def preserve_historic(couch):
     dbhr = set_historic_cluster(couch)
     record_historic("../Data/Geo/sa3_geoinfo.csv", '../Data/Historic/twitter-melb.json', 3000, dbhr, 'en')
