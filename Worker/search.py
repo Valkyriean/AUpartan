@@ -188,7 +188,8 @@ def summary_target(viewCount, viewPos, viewNeg, viewEmo, rawtarget, summarydb):
     # Return the mean value of the selected feature in a json format
     return ("Mission Accomplished")
 
-def search_work(couch, city_set, input_keyword):
+def search_work(couch, input_keyword):
+    city_set = ["Canberra", "Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide", "Hobart"]
     dbrcity = create_raw_cluster(couch, input_keyword)
     query_rule = ruleGenerate(input_keyword, city_set)
     city_count, city_pos, city_neg, city_emo = summaryView('summary', input_keyword, dbrcity)

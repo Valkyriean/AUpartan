@@ -21,7 +21,7 @@ print("Initialized")
 # Main loop
 
 def test():
-    ret = search_work(couch, ["Canberra", "Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide", "Hobart"], "Election")
+    ret = search_work(couch, "Election")
     print(ret)
 
 def assign_work(task):
@@ -33,9 +33,8 @@ def assign_work(task):
         aurin_work(couch, search_level, search_keyword)
         return True
     elif task_type == "search":
-        city_set = task["city_set"]
         keyword = task["keyword"]
-        search_work(couch, city_set, keyword)
+        search_work(couch, keyword)
         return True
     elif task_type == "historic":
         keyword = task["keyword"]

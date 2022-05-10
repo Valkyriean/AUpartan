@@ -63,7 +63,6 @@ example_task = {"name": "aurin_payroll",
 example_task_2 = {"name": "search_covid",
                 "type": "search",
                 "keyword": "covid",
-                "city_set" : ["Canberra", "Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide", "Hobart"]
 }
 
 example_task_3 = {"name": "historic_heart",
