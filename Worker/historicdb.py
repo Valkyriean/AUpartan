@@ -117,5 +117,5 @@ def record_historic(csv_path, data_filepath, public_account, db, language):
 
 def preserve_historic(couch):
     dbhr = set_historic_cluster(couch)
-    record_historic("../Data/Geo/sa3_geoinfo.csv", '../Data/Historic/twitter-melb.json', 3000, dbhr, 'en')
+    record_historic("CCCA2/Data/Geo/sa3_geoinfo.csv", 'CCCA2/Data/Historic/twitter-melb.json', 3000, dbhr, 'en')
     return True
