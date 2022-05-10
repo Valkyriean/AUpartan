@@ -10,9 +10,9 @@ from search import search_work
 REQUEST_GAP = 10
 GATEWAY_IP = "0.0.0.0"
 GATEWAY_PORT = 3000
-WORKER_ID=1
+WORKER_ID = 1
 DB_USERNAME= "admin"
-DB_PASSWORD= "Relax1017"
+DB_PASSWORD= "admin"
 
 couch = Server()
 couch.resource.credentials = (DB_USERNAME, DB_PASSWORD)

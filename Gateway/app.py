@@ -9,12 +9,8 @@ import queue
 from flask import Flask, jsonify, abort, request, make_response, url_for
 
 
-
-
 # Gateway backend following ReSTful
 app = Flask(__name__, static_url_path="")
-
-
 
 
 queueing_task = queue.Queue()
@@ -60,9 +56,9 @@ example_task = {"name": "aurin_payroll",
                 "level" : "sa3"
 }
 
-example_task_2 = {"name": "search_covid",
+example_task_2 = {"name": "search_election",
                 "type": "search",
-                "keyword": "covid",
+                "keyword": "Election",
 }
 
 example_task_3 = {"name": "historic_heart",
@@ -72,8 +68,7 @@ example_task_3 = {"name": "historic_heart",
 
 queueing_task.put(example_task)
 queueing_task.put(example_task_2)
-queueing_task.put(example_task_3)
-
+# queueing_task.put(example_task_2)
 # working pool
 
 @app.route('/get_task', methods=['POST'])
