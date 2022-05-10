@@ -218,15 +218,15 @@ def not_found(error):
 # Serve the static file to client's browser
 @app.route('/', methods=["GET"])
 def get_index():
-    return send_file('./build/index.html')
+    return send_file('./instance/index.html')
 
 @app.route('/static/js/<filename>', methods=["GET"])
 def get_js(filename):
-    return send_file('./build/static/js/{0}'.format(filename))
+    return send_file('./instance/static/js/{0}'.format(filename))
 
 @app.route('/static/css/<filename>', methods=["GET"])
 def get_css(filename):
-    return send_file('./build/static/css/{0}'.format(filename))
+    return send_file('./instance/static/css/{0}'.format(filename))
 
 #no image yet
 @app.route('/img/<filename>', methods=["GET"])
@@ -240,15 +240,15 @@ def get_media(filename):
 
 @app.route('/favicon.ico', methods=["GET"])
 def get_ico():
-    return send_file('./build/favicon.ico')
+    return send_file('./instance/favicon.ico')
 
 # @app.route('/app', methods=["GET"])
 # def serve1():
-#     return send_file('./build/index.html')
+#     return send_file('./instance/index.html')
 
 @app.route('/app/<foo>', methods=["GET"])
 def serve(foo):
-    return send_file('./build/index.html')
+    return send_file('./instance/index.html')
 
 @app.route('/request/submit', methods = ['GET', 'POST'])
 def submit_communication():
