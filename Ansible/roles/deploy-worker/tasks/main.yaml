@@ -1,0 +1,2 @@
+- name: run app from Worker
+  shell: python3 CCCA2/Worker/app.py
