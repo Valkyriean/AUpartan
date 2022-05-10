@@ -8,13 +8,14 @@ from aurin import aurin_work
 from historic import historic_work
 from search import search_work
 import os 
+import sys
 
 # Initialise
 REQUEST_GAP = 10
-GATEWAY_IP = os.environ.get('GATEWAYIP', None)
+GATEWAY_IP = sys.argv[1]
 print(GATEWAY_IP)
 GATEWAY_PORT = 3000
-WORKER_ID = os.environ.get('WORKERIP', None)
+WORKER_ID = sys.argv[2]
 print(WORKER_ID)
 DB_USERNAME= "admin"
 DB_PASSWORD= "admin"
