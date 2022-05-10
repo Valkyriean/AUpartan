@@ -36,7 +36,7 @@ function PreCalculatedWriter_City (id) {
   console.log(id)
   const [list, setList] = useState([]);
   useEffect(()=>{
-  fetch("http://127.0.0.1:3000/request/submit", {
+  fetch("http://127.0.0.1:5000/request/submit", {
     method: "POST",
     headers: {'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -66,7 +66,7 @@ function PreCalculatedWriter_SA3 (id) {
   console.log(id)
   const [list, setList] = useState([]);
   useEffect(()=>{
-  fetch("http://127.0.0.1:3000/request/submit", {
+  fetch("http://127.0.0.1:5000/request/submit", {
     method: "POST",
     headers: {'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -104,6 +104,28 @@ const RecursiveComponent = ({
         ))}
     </div>
   );
+};
+
+function SubmitTasks (req) {
+  console.log('lalalalalalala')
+  const [res, setRes] = useState([]);
+  useEffect(()=>{
+  fetch("http://127.0.0.1:5000/request/submit", {
+    method: "POST",
+    headers: {'Content-Type': 'application/json' },
+    body: JSON.stringify(req)
+  })
+  .then(response => response.json())
+  .then(response => {
+    setRes(response.state);     // replace with reading standard json
+  });
+  }, []);
+  console.log(res)
+  return(
+    <div>
+      <p>lalalalala</p>
+    </div>
+  )
 };
 
 export default class SubmitWork extends React.Component {
@@ -193,6 +215,7 @@ export default class SubmitWork extends React.Component {
     ];
     this.setState({ box: newBox });
   };
+
   handleClick_Op_City_1(id) {
     console.log("id : " + id)
     var newBox = this.state.box;
@@ -262,11 +285,11 @@ export default class SubmitWork extends React.Component {
     }
     if (scale == 'City'){
       newBox.children[parseInt(ids[1])].rendered = [
-      <div>
-        <h2 class='indicator'>Get Pre-Calculated Data:</h2>
-        <PreCalculatedWriter_City {...id}/>
-      </div>
-    ];
+        <div>
+          <h2 class='indicator'>Get Pre-Calculated Data:</h2>
+          <PreCalculatedWriter_City {...id}/>
+        </div>
+      ];
     }
     
     
@@ -274,17 +297,34 @@ export default class SubmitWork extends React.Component {
   };
   
   collectinput() {
-    var ret = {};
+    var ret = {'request': "task"};
     for (const tag of ['SA3', 'City']) {
       var obj = document.getElementById(tag);
       if (obj) ret['scale'] = tag;
     }
     
-    for (const tag of ['0-0-word', '0-0-process', '0-0-preCal', '0-1-word', '0-1-process', '0-1-preCal']) {
+    for (const tag of ['name', '0-0-word', '0-0-process', '0-0-preCal', '0-1-word', '0-1-process', '0-1-preCal']) {
       var obj = document.getElementById(tag);
       if (obj) ret[tag] = obj.value;
     }
     console.log(ret)
+    
+    fetch("http://127.0.0.1:5000/request/submit", {
+    method: "POST",
+    headers: {'Content-Type': 'application/json' },
+    body: JSON.stringify(ret)
+    }).then(response => response.json())
+    .then(response => {
+      console.log(response.state);
+      if (response.state == 'success') {
+        document.getElementById('submit').style.color = 'green';
+        document.getElementById('submit').textContent = 'success';
+        document.getElementById('submit').disabled = true;
+      }
+      if (response.state == 'failed') {
+        window.location.assign("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+      }
+    });
   };
 
   render() {
