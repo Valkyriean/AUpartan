@@ -50,6 +50,16 @@ example for historic json
 #     task = {"id":i, "type":"wait", "time":i}
 #     queueing_task.put(task)
 
+preserve_task_1 = {"name": "aurin_preserve", 
+                "type" : "preserve",
+                "level" : "aurin"
+}
+
+preserve_task_2 = {"name": "historic_preserve", 
+                "type" : "preserve",
+                "level" : "historic"
+}
+
 example_task = {"name": "aurin_payroll",
                 "type": "aurin",
                 "keyword": "payroll",
@@ -66,6 +76,7 @@ example_task_3 = {"name": "historic_heart",
                 "keyword": "heart",
 }
 
+queueing_task.put(preserve_task_1)
 queueing_task.put(example_task)
 queueing_task.put(example_task_2)
 # queueing_task.put(example_task_2)

@@ -2,6 +2,8 @@ import time
 import requests
 import json 
 from couchdb import Server
+from aurindb import preserve_aurin
+from historicdb import preserve_historic
 from aurin import aurin_work
 from historic import historic_work
 from search import search_work
@@ -20,14 +22,9 @@ couch.resource.credentials = (DB_USERNAME, DB_PASSWORD)
 print("Initialized")
 # Main loop
 
-def test():
-    ret = search_work(couch, "Election")
-    print(ret)
-
 def assign_work(task):
     task_type = task.get("type", None)
     if task_type == "aurin":
-        print("Aurin task")
         search_level = task.get("level", None)
         search_keyword = task.get("keyword", None)
         aurin_work(couch, search_level, search_keyword)
@@ -41,6 +38,13 @@ def assign_work(task):
         historic_work(couch, keyword)
         return True
     else:
+        preserve_name = task["name"]
+        if preserve_name == "aurin":
+            preserve_aurin(couch)
+            return True
+        elif preserve_name == "historic":
+            preserve_historic(couch)
+            return True
         return False
 
 

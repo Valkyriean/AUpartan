@@ -16,10 +16,12 @@ def convert_emojis(text):
     return text.replace("_"," ")
 
 # Setup couchd for storing raw data of historic database
-try:
-    dbhr = couch['historic_raw']
-except:
-    dbhr = couch.create('historic_raw')
+def set_historic_cluster(couch):
+    try:
+        dbhr = couch['historic_raw']
+    except:
+        dbhr = couch.create('historic_raw')
+    return dbhr
 
 # Setup views and designed documents for storing and querying tweets
 manager = CouchDBManager()
@@ -116,3 +118,8 @@ def record_historic(csv_path, data_filepath, public_account, db, language):
 
 # Load in historic data into raw database
 record_historic("../Data/Geo/sa3_geoinfo.csv", '../Data/Historic/twitter-melb.json', 3000, dbhr, 'en')
+
+def preserve_historic(couch):
+    dbhr = set_historic_cluster(couch)
+    record_historic("../Data/Geo/sa3_geoinfo.csv", '../Data/Historic/twitter-melb.json', 3000, dbhr, 'en')
+    return True

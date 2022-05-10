@@ -1,20 +1,21 @@
 import json
-from app import couch
 from flaskext.couchdb import Document, CouchDBManager
 from couchdb.mapping import TextField, FloatField
 
-try:
-    dbsa3 = couch['aurin_sa3']
-except:
-    dbsa3 = couch.create('aurin_sa3')
+def set_aurin_cluster(couch):
+    # Set up database for preserving aurin data
+    try:
+        dbsa3 = couch['aurin_sa3']
+    except:
+        dbsa3 = couch.create('aurin_sa3')
 
-try:
-    dbcity = couch['aurin_city']
-except:
-    dbcity = couch.create('aurin_city')
+    try:
+        dbcity = couch['aurin_city']
+    except:
+        dbcity = couch.create('aurin_city')
+    return dbsa3, dbcity
 
 manager = CouchDBManager()
-
 class AurinSA3(Document):
     doc_type = 'AurinSA3'
     _id = TextField()
@@ -61,8 +62,6 @@ def store_aurin_sa3(file_income, file_payroll, db):
 
     return ("Load Successful")
 
-store_aurin_sa3("../Data/Aurin/SA3/income.json", "../Data/Aurin/SA3/payroll.json", dbsa3)
-
 #db should be return of setup_db function, file_immi should assigned json file(string)
 def store_aurin_city(file_immi, db):
 
@@ -85,4 +84,8 @@ def store_aurin_city(file_immi, db):
 
     return ("Load Successful")
 
-store_aurin_city("../Data/Aurin/City/immirate.json", dbcity)
+def preserve_aurin(couch):
+    dbsa3, dbcity = set_aurin_cluster(couch)
+    store_aurin_sa3("../Data/Aurin/SA3/income.json", "../Data/Aurin/SA3/payroll.json", dbsa3)
+    store_aurin_city("../Data/Aurin/City/immirate.json", dbcity)
+    return True
