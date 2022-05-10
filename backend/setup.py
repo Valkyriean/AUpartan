@@ -42,4 +42,4 @@ else:
     if platform.system() == "Windows":
         os.system('gunicorn app:app')
     else:
-        os.system('python3 -m gunicorn app:app')
+        os.system('python3 -m gunicorn --bind 0.0.0.0:3000 --workers=2 app:app')
