@@ -7,17 +7,9 @@
 
   roles: 
   # - role: install-instance-requirements
-  - role: clone-github
+  # - role: clone-github
+  # - role: upload-historic-data 
   # - role: install-docker
-
-# - hosts: instance1 
-#   vars_files:
-#     - host_vars/instance_setup.yaml
-#     - host_vars/docker_couchdb.yaml
-#   gather_facts: true
-
-#   roles: 
-#   - role: launch-docker-couchdb1 
 
 # - hosts: instance2 
 #   vars_files:

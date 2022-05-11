@@ -1,0 +1,13 @@
+# - name: upload historic data to MRC
+#   become: true 
+#   ansible.builtin.copy: 
+#     src: '../Data/Historic/twitter-melb.json.tar.gz'
+#     dest: /home/ubuntu/CCCA2/Data/Historic
+#     owner: '{{ user }}'
+#     group: '{{ user }}'
+#     mode: 0644
+
+- name: extract historic data and move it to the right directory 
+  become: true 
+  shell: gzip -d CCCA2/Data/Historic/twitter-melb.json.tar.gz 
+  shell: sudo mv twitter-melb.json CCCA2/Data/Historic
