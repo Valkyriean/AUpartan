@@ -143,7 +143,7 @@ def get_task():
         return {"status":"no_work"}
     task = queueing_task.get()
     prerequisite = task.get("prerequisite", None)
-    limit = len(queueing_task)
+    limit = queueing_task.qsize()
     index = 0
     while prerequisite not in finished_task and prerequisite != None:
         if index > limit:
