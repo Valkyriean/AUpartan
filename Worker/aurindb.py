@@ -1,6 +1,7 @@
 import json
+import csv
 from flaskext.couchdb import Document, CouchDBManager
-from couchdb.mapping import TextField, FloatField
+from couchdb.mapping import TextField, FloatField, IntegerField
 
 def set_aurin_cluster(couch):
     # Set up database for preserving aurin data
@@ -28,6 +29,7 @@ class AurinCity(Document):
     _id = TextField()
     city = TextField()
     immigration = FloatField()
+    salary = IntegerField()
 manager.add_document(AurinCity)
 
 #db should be return of setup_db function, file_payroll and file_income should be the path to the assigned json file(string)
@@ -63,9 +65,20 @@ def store_aurin_sa3(file_income, file_payroll, db):
     return ("Load Successful")
 
 #db should be return of setup_db function, file_immi should assigned json file(string)
-def store_aurin_city(file_immi, db):
+def store_aurin_city(file_immi, file_salary, db):
 
     city_list = ["Melbourne", "Sydney", "Brisbane", "Adelaide", "Darwin", "Hobart", "Capital", "Perth"]
+    city_salary = {}
+    head = True
+    with open(file_salary, 'r') as csvfile:
+        csvreader = csv.reader(csvfile)
+
+        for row in csvreader:
+            if (head):
+                head = False
+                continue
+            else:
+                city_salary[row[0]] = int(row[1])
 
     with open(file_immi, 'r') as f:
         immiRecord = json.load(f)
@@ -75,11 +88,11 @@ def store_aurin_city(file_immi, db):
                 if (i in element["properties"]["gccsa_name_2016"]):
                     if i == "Capital":
                         if element["properties"]["gccsa_code_2016"] not in db:
-                            new_immi = AurinCity(_id = element["properties"]["gccsa_code_2016"], city = "Canberra", immigration = element["properties"]["ctznshp_stts_prsns_brn_ovrss_cnss_astrln_ctzn_pc"])
+                            new_immi = AurinCity(_id = element["properties"]["gccsa_code_2016"], city = "Canberra", immigration = element["properties"]["ctznshp_stts_prsns_brn_ovrss_cnss_astrln_ctzn_pc"], salary = city_salary["Canberra"])
                             new_immi.store(db)
                     else:
                         if element["properties"]["gccsa_code_2016"] not in db:
-                            new_immi = AurinCity(_id = element["properties"]["gccsa_code_2016"], city = i, immigration = element["properties"]["ctznshp_stts_prsns_brn_ovrss_cnss_astrln_ctzn_pc"])
+                            new_immi = AurinCity(_id = element["properties"]["gccsa_code_2016"], city = i, immigration = element["properties"]["ctznshp_stts_prsns_brn_ovrss_cnss_astrln_ctzn_pc"], salary = city[i])
                             new_immi.store(db)
 
     return ("Load Successful")
@@ -87,5 +100,5 @@ def store_aurin_city(file_immi, db):
 def preserve_aurin(couch):
     dbsa3, dbcity = set_aurin_cluster(couch)
     store_aurin_sa3("CCCA2/Data/Aurin/SA3/income.json", "CCCA2/Data/Aurin/SA3/payroll.json", dbsa3)
-    store_aurin_city("CCCA2/Data/Aurin/City/immirate.json", dbcity)
-    return True
+    store_aurin_city("CCCA2/Data/Aurin/City/immirate.json", "CCCA2/Data/Aurin/City/salary.csv", dbcity)
+    return True 
