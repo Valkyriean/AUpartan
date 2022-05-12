@@ -12,13 +12,16 @@ import sys
 
 # Initialise
 REQUEST_GAP = 10
-GATEWAY_IP = sys.argv[1]
-print(GATEWAY_IP)
+GATEWAY_IP = "localhost"
 GATEWAY_PORT = 3000
-WORKER_ID = sys.argv[2]
-print(WORKER_ID)
+WORKER_IP = "localhost"
 DB_USERNAME= "admin"
 DB_PASSWORD= "admin"
+if len(sys.argv) == 3:
+    GATEWAY_IP = sys.argv[1]
+    WORKER_IP = sys.argv[2]
+print(GATEWAY_IP)
+print(WORKER_IP)
 
 couch = Server()
 couch.resource.credentials = (DB_USERNAME, DB_PASSWORD)
@@ -58,7 +61,7 @@ def main():
         # Request task from main node
         print("request task from gateway...")
         try: 
-            r = requests.post(("http://"+GATEWAY_IP+":"+str(GATEWAY_PORT)+"/get_task"), json={"worker_id": WORKER_ID})
+            r = requests.post(("http://"+GATEWAY_IP+":"+str(GATEWAY_PORT)+"/get_task"), json={"worker_ip": WORKER_IP})
             res = r.json()
             print(res)
             if res.get("status", None) == "success":
@@ -67,9 +70,10 @@ def main():
                 task_name = task.get("name", "unnamed")
                 print(task)
                 if task:
-                    print("assigned")
-                    succ = assign_work(task)
-                    if succ:
+                    # print("assigned")
+                    # time.sleep(10)
+                    if assign_work(task):
+                    # if True:
                         requests.post(("http://"+GATEWAY_IP+":"+str(GATEWAY_PORT)+"/finish_task"), json={"task_name": task_name})
                     else:
                         requests.post(("http://"+GATEWAY_IP+":"+str(GATEWAY_PORT)+"/failed_task"), json={"task_name": task_name})
