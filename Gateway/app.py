@@ -60,27 +60,35 @@ preserve_task_2 = {"name": "historic_preserve",
                 "task" : "historic"
 }
 
-example_task = {"name": "aurin_payroll",
+example_task_1 = {"name": "aurin_payroll",
                 "type": "aurin",
                 "keyword": "payroll",
                 "level" : "sa3"
 }
 
-example_task_2 = {"name": "search_election",
+example_task_2 = {"name": "aurin_salary",
+                "type": "aurin",
+                "keyword": "salary",
+                "level" : "city"
+}
+
+example_task_3 = {"name": "search_election",
                 "type": "search",
                 "keyword": "Election",
 }
 
-example_task_3 = {"name": "historic_heart",
+example_task_4 = {"name": "historic_heart",
                 "type": "historic",
                 "keyword": "heart",
 }
 
 queueing_task.put(preserve_task_1)
-queueing_task.put(preserve_task_2)
-queueing_task.put(example_task)
+# queueing_task.put(preserve_task_2)
+
+queueing_task.put(example_task_1)
 queueing_task.put(example_task_2)
-# queueing_task.put(example_task_2)
+queueing_task.put(example_task_3)
+# queueing_task.put(example_task_4)
 # working pool
 
 @app.route('/get_task', methods=['POST'])
