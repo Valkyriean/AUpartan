@@ -101,10 +101,10 @@ def get_task():
     # print(working_task)
     json_data = request.json
     worker_ip = str(json_data.get("worker_ip"))
-    if working_task and working_task[0][0] > datetime.datetime.now():
-            task = working_task.pop()[1]
-            working_task.append((datetime.datetime.now()+timeout,task, worker_ip))
-            return {"status":"success", "task":task}
+    if working_task and working_task[0][0] < datetime.datetime.now():
+        task = working_task.pop()[1]
+        working_task.append((datetime.datetime.now()+timeout,task, worker_ip))
+        return {"status":"success", "task":task}
     # take task from task queue
     if queueing_task.empty():
         return {"status":"no_work"}

@@ -5,7 +5,10 @@ timeout = timedelta(days=1)
 
 now = datetime.datetime.now()
 
-print(now+timeout)
+new_time = now+timeout
 
-a = [1,2,3]
+
+print(new_time< datetime.datetime.now())
+
+
 
