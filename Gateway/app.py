@@ -1,15 +1,21 @@
-"""
-Original Source Code:
-https://gist.github.com/miguelgrinberg/5614326
-
-This is a simple Flask CRUD application to manage Task entities.
-"""
-
 import queue, datetime
-from unicodedata import name
 from flask import Flask, jsonify, request, make_response, send_file
 from flask_cors import CORS
 from datetime import timedelta
+from readSummary import extract_summary
+
+from couchdb import Server
+
+
+# Initialise
+
+DB_USERNAME= "admin"
+DB_PASSWORD= "admin"
+couch = Server()
+couch.resource.credentials = (DB_USERNAME, DB_PASSWORD)
+
+# 牟老师
+# return_dict = extract_summary(couch, summary_db)
 
 
 # Gateway backend following ReSTful
