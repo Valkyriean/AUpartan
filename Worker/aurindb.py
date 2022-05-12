@@ -92,7 +92,7 @@ def store_aurin_city(file_immi, file_salary, db):
                             new_immi.store(db)
                     else:
                         if element["properties"]["gccsa_code_2016"] not in db:
-                            new_immi = AurinCity(_id = element["properties"]["gccsa_code_2016"], city = i, immigration = element["properties"]["ctznshp_stts_prsns_brn_ovrss_cnss_astrln_ctzn_pc"], salary = city[i])
+                            new_immi = AurinCity(_id = element["properties"]["gccsa_code_2016"], city = i, immigration = element["properties"]["ctznshp_stts_prsns_brn_ovrss_cnss_astrln_ctzn_pc"], salary = city_salary[i])
                             new_immi.store(db)
 
     return ("Load Successful")
