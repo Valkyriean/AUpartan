@@ -19,7 +19,7 @@ def convert_emojis(text):
 
 # Tweet API Streaming
 BEARER_TOKEN = "AAAAAAAAAAAAAAAAAAAAAIHFbAEAAAAA0oBVG5orLLErnyAqw2po3fOae5w%3D4lgZWoMOyGG496F2aNACoKOdDCaDnxqret6oFPLToE244O6Tx6"
-client = tweepy.Client(BEARER_TOKEN)
+client = tweepy.Client(BEARER_TOKEN, wait_on_rate_limit=True)
 
 def create_raw_cluster(couch, input_keyword):
     # Create raw database for storing tweets from search harvester
