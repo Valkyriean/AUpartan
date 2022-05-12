@@ -115,17 +115,18 @@ example_task_8 = {"name": "historic_all",
                 "keyword": "all",
                 "prerequisite":"historic_preserve"
 }
-queueing_task.put(example_task_7)
-queueing_task.put(example_task_8)
-queueing_task.put(preserve_task_1)
-queueing_task.put(preserve_task_2)
+
+
 queueing_task.put(example_task_1)
 queueing_task.put(example_task_2)
 queueing_task.put(example_task_3)
 queueing_task.put(example_task_4)
 queueing_task.put(example_task_5)
 queueing_task.put(example_task_6)
-
+queueing_task.put(example_task_7)
+queueing_task.put(example_task_8)
+queueing_task.put(preserve_task_1)
+queueing_task.put(preserve_task_2)
 # working pool
 
 @app.route('/get_task', methods=['POST'])
@@ -142,11 +143,17 @@ def get_task():
         return {"status":"no_work"}
     task = queueing_task.get()
     prerequisite = task.get("prerequisite", None)
+    limit = len(queueing_task)
+    index = 0
     while prerequisite not in finished_task and prerequisite != None:
-        print(f"prerequisite {prerequisite} not fullfilled for task "+str(task.get("name")))
+        if index > limit:
+            print("No fulfilled task")
+            return {"status":"no prerequisite fulfilled task"}
+        print(f"prerequisite {prerequisite} not fulfilled for task "+str(task.get("name")))
         queueing_task.put(task)
         task = queueing_task.get()
         prerequisite = task.get("prerequisite", None)
+        index += 1
     print("Task " + str(task["name"]) + " got by worker " + worker_ip)
     working_task.append((datetime.datetime.now()+timeout,task, worker_ip))
     return {"status":"success", "task":task}
