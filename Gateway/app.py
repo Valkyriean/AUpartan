@@ -6,6 +6,7 @@ This is a simple Flask CRUD application to manage Task entities.
 """
 
 import queue, datetime
+from unicodedata import name
 from flask import Flask, jsonify, request, make_response, send_file
 from flask_cors import CORS
 from datetime import timedelta
@@ -68,25 +69,29 @@ preserve_task_2 = {"name": "historic_preserve",
 example_task_1 = {"name": "aurin_payroll",
                 "type": "aurin",
                 "keyword": "payroll",
-                "level" : "sa3"
+                "level" : "sa3",
+                "prerequisite":"aurin_preserve"
 }
 
 example_task_2 = {"name": "aurin_income",
                 "type": "aurin",
                 "keyword": "income",
-                "level" : "sa3"
+                "level" : "sa3",
+                "prerequisite":"aurin_preserve"
 }
 
 example_task_3 = {"name": "aurin_immigration",
                 "type": "aurin",
                 "keyword": "immigration",
-                "level" : "city"
+                "level" : "city",
+                "prerequisite":"aurin_preserve"
 }
 
 example_task_4 = {"name": "aurin_salary",
                 "type": "aurin",
                 "keyword": "salary",
-                "level" : "city"
+                "level" : "city",
+                "prerequisite":"aurin_preserve"
 }
 
 example_task_5 = {"name": "search_election",
@@ -102,13 +107,16 @@ example_task_6 = {"name": "search_crime",
 example_task_7 = {"name": "historic_crime",
                 "type": "historic",
                 "keyword": "crime",
+                "prerequisite":"historic_preserve"
 }
 
 example_task_8 = {"name": "historic_all",
                 "type": "historic",
                 "keyword": "all",
+                "prerequisite":"historic_preserve"
 }
-
+queueing_task.put(example_task_7)
+queueing_task.put(example_task_8)
 queueing_task.put(preserve_task_1)
 queueing_task.put(preserve_task_2)
 queueing_task.put(example_task_1)
@@ -117,8 +125,7 @@ queueing_task.put(example_task_3)
 queueing_task.put(example_task_4)
 queueing_task.put(example_task_5)
 queueing_task.put(example_task_6)
-queueing_task.put(example_task_7)
-queueing_task.put(example_task_8)
+
 # working pool
 
 @app.route('/get_task', methods=['POST'])
@@ -134,6 +141,12 @@ def get_task():
     if queueing_task.empty():
         return {"status":"no_work"}
     task = queueing_task.get()
+    prerequisite = task.get("prerequisite", None)
+    while prerequisite not in finished_task and prerequisite != None:
+        print(f"prerequisite {prerequisite} not fullfilled for task "+str(task.get("name")))
+        queueing_task.put(task)
+        task = queueing_task.get()
+        prerequisite = task.get("prerequisite", None)
     print("Task " + str(task["name"]) + " got by worker " + worker_ip)
     working_task.append((datetime.datetime.now()+timeout,task, worker_ip))
     return {"status":"success", "task":task}

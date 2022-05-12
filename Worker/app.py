@@ -71,7 +71,7 @@ def main():
                 print(task)
                 if task:
                     # print("assigned")
-                    # time.sleep(10)
+                    # time.sleep(3)
                     if assign_work(task):
                     # if True:
                         requests.post(("http://"+GATEWAY_IP+":"+str(GATEWAY_PORT)+"/finish_task"), json={"task_name": task_name})
