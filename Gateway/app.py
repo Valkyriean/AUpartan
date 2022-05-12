@@ -140,6 +140,7 @@ def get_task():
         return {"status":"success", "task":task}
     # take task from task queue
     if queueing_task.empty():
+        print("no work")
         return {"status":"no_work"}
     task = queueing_task.get()
     prerequisite = task.get("prerequisite", None)
