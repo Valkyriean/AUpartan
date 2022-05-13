@@ -1,7 +1,11 @@
+- name: delete previous app process
+  shell: pkill -f app.py
+
 - ansible.builtin.debug:
     msg: "{{ groups['instance2ip'][0] }}"
 
 - name: run app from Worker
   become: yes
-  shell: sudo python3 CCCA2/Worker/app.py {{ groups['instance1ip'][0] }} {{ groups['instance2ip'][0] }}
+  # shell: sudo python3 CCCA2/Worker/app.py {{ groups['instance1ip'][0] }} {{ groups['instance2ip'][0] }}
 
+  shell: nohup python3 -u CCCA2/Worker/app.py {{ groups['instance1ip'][0] }} {{ groups['instance2ip'][0] }} >log.txt & 
