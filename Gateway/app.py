@@ -134,9 +134,6 @@ queueing_task.put(example_task_5)
 queueing_task.put(example_task_6)
 queueing_task.put(example_task_7)
 queueing_task.put(example_task_8)
-<<<<<<< Updated upstream
-
-=======
 queueing_task.put(preserve_task_1)
 queueing_task.put(preserve_task_2)
 
@@ -144,7 +141,6 @@ scenarioDict["Income (sa3) VS overall sentiment"] = [{"name": "aurin_income", "l
 scenarioDict["Income (city) VS attitude toward election"] = [{"name": "aurin_salary", "level": "city"}, {"name": "search_election", "method": "sentiment"}]
 scenarioDict["Income (city) VS count of mentioning crime"] = [{"name": "aurin_salary", "level": "city"}, {"name": "search_crime", "method": "count"}]
 scenarioDict["Crime count (sa3)"] = [{"name": "historic_crime", "method": "count"}]
->>>>>>> Stashed changes
 # working pool
 
 @app.route('/get_task', methods=['POST'])
