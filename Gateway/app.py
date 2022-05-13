@@ -250,17 +250,26 @@ def getAurinTasksName(scale):
     return tasks
 
 # trst if a given task exist in a queue or list
-def testIn(testTask, taskList_Queue):
-    taskList = taskList_Queue
-    taskInfo = [(task.get("name", "N/A"), task.get("level", "N/A")) for task in taskList]
-    print("taskInfo in test" + str(taskInfo))
-    print(testTask)
-    return (testTask.get("name", "N/A"), testTask.get("level", "N/A")) in taskInfo
+def check_finished(task_name):
+    if task_name in finished_task:
+        return False
+    return True
+
+def check_in(task_name):
+    if check_finished(task_name):
+        return True
+    for t in list(queueing_task.queue):
+        if t.get("name",None) == task_name:
+            return False
+    for t in working_task:
+        if t[1].get("name",None) == task_name:
+            return False
+    return True
 
 # append task to queueing_task if there's no duplication
 # return true when task successfully added
 def addTask(task):
-    if not (testIn(task, queueing_task) or testIn(task, working_task) or testIn(task, finished_task)): 
+    if not check_in(task["name"]): 
         queueing_task.put(task)
         return True
     return False
@@ -275,7 +284,7 @@ def getScenarioAvailable():
         flag = True
         for task in scenarioDict[scenario]:
             print(task["name"])
-            if not testIn(task, finished_task):
+            if not check_finished(task["name"]):
                 flag = False
         if flag: availableScenarios.append(scenario)
     return availableScenarios
@@ -435,8 +444,7 @@ def plot_communication():
                                 "yLabel": scenarioDict[scenarioRequested][1]["name"]
                               })
 
-    except Exception as e: 
-        print(repr(e))
+    except:
         print("something wrong")
         return jsonify({"state" : "failed"})
 
