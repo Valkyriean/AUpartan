@@ -220,7 +220,7 @@ async def failed_task():
 # Front end
 @app.route('/queueing_task', methods=['GET'])
 def get_queueing_task():
-    return str(queueing_task)
+    return str(list(queueing_task.queue))
 
 @app.route('/finished_task', methods=['GET'])
 def get_finished_task():
@@ -251,7 +251,7 @@ def getAurinTasksName(scale):
 
 # trst if a given task exist in a queue or list
 def testIn(testTask, taskList_Queue):
-    taskList = list(taskList_Queue)
+    taskList = list(taskList_Queue.queue)
     taskInfo = [(task.get("name", "N/A"), task.get("level", "N/A")) for task in taskList]
     return (testTask.get("name", "N/A"), testTask.get("level", "N/A")) in taskInfo
 
