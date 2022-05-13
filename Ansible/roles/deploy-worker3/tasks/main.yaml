@@ -1,5 +1,5 @@
-- name: delete previous app process
-  shell: pkill -f app.py
+# - name: delete previous app process
+#   shell: sudo pkill -f app.py
   
 - ansible.builtin.debug:
     msg: "{{ groups['instance4ip'][0] }}"

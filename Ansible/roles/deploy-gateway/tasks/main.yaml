@@ -1,6 +1,6 @@
-- name: delete previous app process
-  shell: pkill -f gunicorn
+# - name: delete previous app process
+#   shell: sudo pkill -f gunicorn
 
 - name: run app from Gateway
   # shell: python3 CCCA2/Gateway/app.py
-  shell: cd CCCA2/Gateway; python3 -m gunicorn --bind 0.0.0.0:3000 --workers=2 app:app
+  shell: cd CCCA2/Gateway; sudo python3 -m gunicorn --bind 0.0.0.0:3000 --workers=2 app:app --log-level debug
