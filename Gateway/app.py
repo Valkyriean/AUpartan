@@ -252,24 +252,24 @@ def getAurinTasksName(scale):
 # trst if a given task exist in a queue or list
 def check_finished(task_name):
     if task_name in finished_task:
-        return False
-    return True
+        return True
+    return False
 
-def check_in(task_name):
+def check_global(task_name):
     if check_finished(task_name):
         return True
     for t in list(queueing_task.queue):
         if t.get("name",None) == task_name:
-            return False
+            return True
     for t in working_task:
         if t[1].get("name",None) == task_name:
-            return False
-    return True
+            return True
+    return False
 
 # append task to queueing_task if there's no duplication
 # return true when task successfully added
 def addTask(task):
-    if not check_in(task["name"]): 
+    if not check_global(task["name"]): 
         queueing_task.put(task)
         return True
     return False
