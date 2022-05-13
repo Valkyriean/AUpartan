@@ -253,6 +253,8 @@ def getAurinTasksName(scale):
 def testIn(testTask, taskList_Queue):
     taskList = taskList_Queue
     taskInfo = [(task.get("name", "N/A"), task.get("level", "N/A")) for task in taskList]
+    print("taskInfo in test" + str(taskInfo))
+    print(testTask)
     return (testTask.get("name", "N/A"), testTask.get("level", "N/A")) in taskInfo
 
 # append task to queueing_task if there's no duplication
