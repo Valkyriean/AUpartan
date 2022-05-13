@@ -44,7 +44,7 @@ def assign_work(task):
         keyword = task["keyword"]
         historic_work(couch, keyword)
         return True
-    else:
+    elif task_type == "preserve":
         preserve_name = task.get("task", None)
         if preserve_name == "aurin":
             preserve_aurin(couch)
@@ -52,7 +52,7 @@ def assign_work(task):
         elif preserve_name == "historic":
             preserve_historic(couch)
             return True
-        return False
+    return False
 
 
 
@@ -70,16 +70,15 @@ def main():
                 task_name = task.get("name", "unnamed")
                 print(task)
                 if task:
-                    # print("assigned")
-                    # if "preserve" in task_name:  
-                    #     time.sleep(30)
-                    # else:
-                    #     time.sleep(1)
+                    print("task valid")
                     flag = assign_work(task)
+                    # flag = True
+                    # time.sleep(5)
                     if flag:
-                    # if True:
+                        print("Finished")
                         requests.post(("http://"+GATEWAY_IP+":"+str(GATEWAY_PORT)+"/finish_task"), json={"task_name": task_name})
                     else:
+                        print("Failed")
                         requests.post(("http://"+GATEWAY_IP+":"+str(GATEWAY_PORT)+"/failed_task"), json={"task_name": task_name})
                 else:
                     print("NO task found")

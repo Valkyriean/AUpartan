@@ -122,7 +122,8 @@ example_task_8 = {"name": "historic_all",
                 "prerequisite":"historic_preserve"
 }
 
-
+queueing_task.put(preserve_task_1)
+queueing_task.put(preserve_task_2)
 queueing_task.put(example_task_1)
 queueing_task.put(example_task_2)
 queueing_task.put(example_task_3)
@@ -131,8 +132,7 @@ queueing_task.put(example_task_5)
 queueing_task.put(example_task_6)
 queueing_task.put(example_task_7)
 queueing_task.put(example_task_8)
-queueing_task.put(preserve_task_1)
-queueing_task.put(preserve_task_2)
+
 # working pool
 
 @app.route('/get_task', methods=['POST'])
