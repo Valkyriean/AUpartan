@@ -55,6 +55,8 @@ example for historic json
 
 '''
 
+with open("log.txt", "w") as f:
+    f.write("")
 # @app.route('/check_task/<task_name>')
 # def check_task(task_name):
 
