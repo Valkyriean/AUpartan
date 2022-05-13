@@ -423,7 +423,7 @@ def plot_communication():
                         keys.append(key)
                 return jsonify({"data": {"type": "scatter", "mode": "markers", "x": x, "y": y, "text": keys}, 
                                 "titleLabel": scenarioRequested, 
-                                "xLabel": scenarioDict[scenarioRequested][0]["name"]
+                                "xLabel": scenarioDict[scenarioRequested][0]["name"],
                                 "yLabel": scenarioDict[scenarioRequested][1]["name"]
                               })
 
