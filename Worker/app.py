@@ -86,8 +86,9 @@ def main():
             else:
                 print(res["status"])
                 time.sleep(uniform(REQUEST_GAP-0.5, REQUEST_GAP+0.5))
-        except:
+        except Exception as e: 
+            print(repr(e))
             print("no connection to gateway")
             time.sleep(uniform(REQUEST_GAP-0.5, REQUEST_GAP+0.5))
-            
+
 main()

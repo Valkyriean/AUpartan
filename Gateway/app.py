@@ -251,7 +251,7 @@ def getAurinTasksName(scale):
 
 # trst if a given task exist in a queue or list
 def testIn(testTask, taskList_Queue):
-    taskList = list(taskList_Queue.queue)
+    taskList = taskList_Queue
     taskInfo = [(task.get("name", "N/A"), task.get("level", "N/A")) for task in taskList]
     return (testTask.get("name", "N/A"), testTask.get("level", "N/A")) in taskInfo
 
@@ -433,7 +433,8 @@ def plot_communication():
                                 "yLabel": scenarioDict[scenarioRequested][1]["name"]
                               })
 
-    except:
+    except Exception as e: 
+        print(repr(e))
         print("something wrong")
         return jsonify({"state" : "failed"})
 
