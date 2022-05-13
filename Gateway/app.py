@@ -129,6 +129,16 @@ scenarioDict["Income (sa3) VS overall sentiment"] = [{"name": "aurin_income", "l
 scenarioDict["Income (city) VS attitude toward election"] = [{"name": "aurin_salary", "level": "city"}, {"name": "search_election", "method": "sentiment"}]
 scenarioDict["Income (city) VS count of mentioning crime"] = [{"name": "aurin_salary", "level": "city"}, {"name": "search_crime", "method": "count"}]
 scenarioDict["Crime count (sa3)"] = [{"name": "historic_crime", "method": "count"}]
+
+# ##### For Testing Only #####
+# finished_task.append(example_task_1)
+# finished_task.append(example_task_2)
+# finished_task.append(example_task_3)
+# finished_task.append(example_task_4)
+# finished_task.append(example_task_5)
+# finished_task.append(example_task_6)
+# ##### Remove After Front End Testing #####
+
 # working pool
 app.task_start_time = datetime.now() - timedelta(seconds=1)
 
@@ -256,13 +266,15 @@ def addTask(task):
 # get all scenario ready for ploting
 # "ready" means all tasks involved are completed
 def getScenarioAvailable():
+    print("finished tasks: " + str(finished_task))
     availableScenarios = []
     for scenario in scenarioDict.keys():
+        print("testing scenario: " + scenario )
         flag = True
         for task in scenarioDict[scenario]:
             print(task["name"])
-            if testIn(task, finished_task): continue
-            flag = False
+            if not testIn(task, finished_task):
+                flag = False
         if flag: availableScenarios.append(scenario)
     return availableScenarios
 
