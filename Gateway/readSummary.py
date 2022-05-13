@@ -1,7 +1,5 @@
-from flaskext.couchdb import Document, CouchDBManager
-from couchdb.mapping import TextField, FloatField, ListField
 from couchdb.design import ViewDefinition
-from flaskext.couchdb import Row
+
 
 def gateway_aurin(db, key_Search):
 
@@ -44,14 +42,14 @@ def extra_data_view(view_function, db):
 def extract_summary(couch, summary_db):
 
     if "aurin" in summary_db["name"]:
-        search_level = summary_db["name"].split("_")[0]
         search_key = summary_db["name"].split("_")[1]
         for i in couch:
-            if search_key in i:
-                if search_level in i:
-                    if "summary" in i:
-                        required_db = couch[i]
-                        break
+            if "aurin" in i:
+                if search_key in i:
+                    if summary_db["level"] in i:
+                        if "summary" in i:
+                            required_db = couch[i]
+                            break
         gateway_view = gateway_aurin(required_db, search_key)
     
     else:
