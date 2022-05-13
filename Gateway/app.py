@@ -2,8 +2,6 @@ import queue, datetime
 from flask import Flask, jsonify, request, make_response, send_file
 from flask_cors import CORS
 from datetime import timedelta
-
-from sqlalchemy import null, true
 from readSummary import extract_summary
 
 from couchdb import Server
