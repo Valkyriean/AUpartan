@@ -113,8 +113,7 @@ example_task_6 = {"name": "search_crime",
 example_task_7 = {"name": "historic_crime",
                 "type": "historic",
                 "keyword": "crime",
-                "prerequisite": None
-                #"historic_preserve"
+                "prerequisite":"historic_preserve"
 }
 
 example_task_8 = {"name": "historic_all",
@@ -131,14 +130,16 @@ queueing_task.put(example_task_4)
 queueing_task.put(example_task_5)
 queueing_task.put(example_task_6)
 queueing_task.put(example_task_7)
-# queueing_task.put(example_task_8)
-# queueing_task.put(preserve_task_1)
-# queueing_task.put(preserve_task_2)
+queueing_task.put(example_task_8)
+queueing_task.put(preserve_task_1)
+queueing_task.put(preserve_task_2)
 # working pool
 
 @app.route('/get_task', methods=['POST'])
 def get_task():
-    # print(working_task)
+    print(queueing_task)
+    print(working_task)
+    print(finished_task)
     json_data = request.json
     worker_ip = str(json_data.get("worker_ip"))
     if working_task and working_task[0][0] < datetime.datetime.now():
@@ -169,7 +170,9 @@ def get_task():
 
 @app.route('/finish_task', methods=['POST'])
 def finish_task():
-    # print(working_task)
+    print(queueing_task)
+    print(working_task)
+    print(finished_task)
     json_data = request.json
     task_name = json_data.get('task_name', "nameless task")
     if task_name in finished_task:

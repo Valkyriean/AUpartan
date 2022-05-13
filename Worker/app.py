@@ -71,8 +71,12 @@ def main():
                 print(task)
                 if task:
                     # print("assigned")
-                    # time.sleep(3)
-                    if assign_work(task):
+                    # if "preserve" in task_name:  
+                    #     time.sleep(30)
+                    # else:
+                    #     time.sleep(1)
+                    flag = assign_work(task)
+                    if flag:
                     # if True:
                         requests.post(("http://"+GATEWAY_IP+":"+str(GATEWAY_PORT)+"/finish_task"), json={"task_name": task_name})
                     else:
