@@ -2,6 +2,8 @@ import queue, datetime
 from flask import Flask, jsonify, request, make_response, send_file
 from flask_cors import CORS
 from datetime import timedelta
+
+from sqlalchemy import null, true
 from readSummary import extract_summary
 
 from couchdb import Server
@@ -14,9 +16,6 @@ DB_PASSWORD= "admin"
 couch = Server()
 couch.resource.credentials = (DB_USERNAME, DB_PASSWORD)
 
-# 牟老师
-# return_dict = extract_summary(couch, summary_db)
-
 
 # Gateway backend following ReSTful
 app = Flask(__name__, static_url_path="")
@@ -28,7 +27,8 @@ working_task = []
 finished_task = []
 timeout = timedelta(days=1)
 
-
+# scenario dictionary
+scenarioDict = dict()
 '''
 example for task json:
 
@@ -134,7 +134,17 @@ queueing_task.put(example_task_5)
 queueing_task.put(example_task_6)
 queueing_task.put(example_task_7)
 queueing_task.put(example_task_8)
+<<<<<<< Updated upstream
 
+=======
+queueing_task.put(preserve_task_1)
+queueing_task.put(preserve_task_2)
+
+scenarioDict["Income (sa3) VS overall sentiment"] = [{"name": "aurin_income", "level": "sa3"}, {"name": "historic_all", "method": "sentiment"}]
+scenarioDict["Income (city) VS attitude toward election"] = [{"name": "aurin_salary", "level": "city"}, {"name": "search_election", "method": "sentiment"}]
+scenarioDict["Income (city) VS count of mentioning crime"] = [{"name": "aurin_salary", "level": "city"}, {"name": "search_crime", "method": "count"}]
+scenarioDict["Crime count (sa3)"] = [{"name": "historic_crime", "method": "count"}]
+>>>>>>> Stashed changes
 # working pool
 
 @app.route('/get_task', methods=['POST'])
@@ -244,6 +254,41 @@ def not_found(error):
 
 ##### Front end serving #####
 # Serve the static file to client's browser
+
+# get all task names with "city" or "sa3" on its second section
+def getAurinTasksName(scale):
+    tasks = []
+    for name in couch:
+        if (str(name).split('_'))[1] == scale: tasks.append(name)
+    return tasks
+
+# trst if a given task exist in a queue or list
+def testIn(testTask, taskList_Queue):
+    taskList = list(taskList_Queue)
+    taskInfo = [(task.get("name", "N/A"), task.get("level", "N/A")) for task in taskList]
+    return (testTask.get("name", "N/A"), testTask.get("level", "N/A")) in taskInfo
+
+# append task to queueing_task if there's no duplication
+# return true when task successfully added
+def addTask(task):
+    if not (testIn(task, queueing_task) or testIn(task, working_task) or testIn(task, finished_task)): 
+        queueing_task.put(task)
+        return True
+    return False
+
+# get all scenario ready for ploting
+# "ready" means all tasks involved are completed
+def getScenarioAvailable():
+    availableScenarios = []
+    for scenario in scenarioDict.keys():
+        flag = True
+        for task in scenarioDict[scenario]:
+            if testIn(task, finished_task): continue
+            flag = False
+        if flag: availableScenarios.append(scenario)
+    return availableScenarios
+
+# basic routings
 @app.route('/', methods=["GET"])
 def get_index():
     return send_file('./instance/index.html')
@@ -256,7 +301,6 @@ def get_js(filename):
 def get_css(filename):
     return send_file('./instance/static/css/{0}'.format(filename))
 
-# Save for future use
 # @app.route('/img/<filename>', methods=["GET"])
 # def get_img(filename):
 #     return send_file('./static/dist/img/{0}'.format(filename))
@@ -273,17 +317,128 @@ def get_ico():
 def serve(foo):
     return send_file('./instance/index.html')
 
+# handel requests from page "submit"
 @app.route('/request/submit', methods = ['GET', 'POST'])
 def submit_communication():
     try:
         json_data = request.json
         print(json_data)
         if json_data["request"] == "preCalculatedList_SA3":
-            return jsonify({"preCalculatedList" : ["kangaroo beat human count SA3", "human beat kangaroo count"]})
+            return jsonify({"preCalculatedList" : getAurinTasksName("sa3")})
         if json_data["request"] == "preCalculatedList_City":
-            return jsonify({"preCalculatedList" : ["kangaroo beat human count City", "human eat kangaroo count"]})
+            return jsonify({"preCalculatedList" : getAurinTasksName("city")})
+        if json_data["request"] == "task":
+            scenarioName = json_data["name"]
+            if '0-0-word' in json_data.keys():
+                if json_data['scale'] == 'City': 
+                    taskType = 'search'
+                else:
+                    taskType = 'historic'
+                task_0 = {
+                    'name': taskType + '_' + json_data['0-0-word'],
+                    'type': taskType,
+                    'keyword': json_data['0-0-word'],
+                    'level': json_data['scale'],
+                    'method': json_data['0-0-process']
+                }
+            elif '0-0-preCal' in json_data.keys():
+                taskType = 'preCalculated'
+                task_0 = {
+                    'name': taskType + '_' + json_data['0-0-preCal'],
+                    'type': taskType,
+                    'keyword': json_data['0-0-preCal'],
+                    'level': json_data['scale']
+                }
+            else:
+                raise IndexError('no valid input')
+            
+            if '0-1-word' in json_data.keys() or '0-1-preCal' in json_data.keys():
+                if '0-1-word' in json_data.keys():
+                    if json_data['scale'] == 'City': 
+                        taskType = 'search'
+                    else:
+                        taskType = 'historic'
+                    task_1 = {
+                        'name': taskType + '_' + json_data['0-1-word'],
+                        'type': taskType,
+                        'keyword': json_data['0-1-word'],
+                        'level': json_data['scale'],
+                        'method': json_data['0-1-process']
+                    }
+                elif '0-1-preCal' in json_data.keys():
+                    taskType = 'preCalculated'
+                    task_1 = {
+                        'name': taskType + '_' + json_data['0-1-preCal'],
+                        'type': taskType,
+                        'keyword': json_data['0-1-preCal'],
+                        'level': json_data['scale']
+                    }
+                print({scenarioName: [task_0, task_1]})
+                ##### add scenario {scenarioName: [task_0['name'], task_1]} #####
+                scenarioDict[scenarioName] = [task_0, task_1]
+                ##### add task set(task_0, task_1) #####
+                addTask(task_0)
+                addTask(task_1)
+            else:
+                print({scenarioName: [task_0]})
+                ##### add scenario {scenarioName: [task_0]} #####
+                scenarioDict[scenarioName] = [task_0]
+                ##### add task set(task_0) #####
+                addTask(task_0)
+                pass 
+            return jsonify({"state" : "success"})
     except:
-        pass
+        print("something wrong")
+        return jsonify({"state" : "failed"})
+
+# handel requests from page "submit"
+@app.route('/request/plot', methods = ['GET', 'POST'])
+def plot_communication():
+    try:
+        json_data = request.json
+        print(json_data)
+        if json_data["request"] == "plotList":
+            return jsonify({"plotList" : getScenarioAvailable()})
+        if json_data["request"] == "getData":
+            scenarioRequested = json_data["scenario"]
+            if len(scenarioDict[scenarioRequested]) == 1:
+                raw = extract_summary(couch, scenarioDict[scenarioRequested][0])
+                keys = []
+                y = []
+                for key in raw.keys():
+                    keys.append(key)
+                    y.append(raw[key])
+                
+                return jsonify({"data": {"type": "bar", "x": keys, "y": y}, 
+                                "titleLabel": scenarioRequested, 
+                                "xLabel": "", 
+                                "yLabel": scenarioDict[scenarioRequested][0]["name"]
+                              })
+            else:
+                data_0 = extract_summary(couch, scenarioDict[scenarioRequested][0])
+                data_1 = extract_summary(couch, scenarioDict[scenarioRequested][1])
+                x = []
+                y = []
+                keys = []
+                for key in data_0.keys():
+                    if key in data_1.keys():
+                        x.append(data_0[key])
+                        y.append(data_1[key])
+                        keys.append(key)
+                return jsonify({"data": {"type": "scatter", "mode": "markers", "x": x, "y": y, "text": keys}, 
+                                "titleLabel": scenarioRequested, 
+                                "xLabel": scenarioDict[scenarioRequested][0]["name"]
+                                "yLabel": scenarioDict[scenarioRequested][1]["name"]
+                              })
+
+    except:
+        print("something wrong")
+        return jsonify({"state" : "failed"})
+
+# return_dict = extract_summary(couch, summary_db)
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=3000)
+
+
+

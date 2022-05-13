@@ -1,0 +1,16 @@
+div.plot-selectDiv {
+    position: absolute;
+    margin-top: -95vh;
+    margin-left: 0vw;
+  }
+
+  .plot-container {
+    position: relative;
+    height: 95vh;
+}
+
+button.plot {
+  height: 30px;
+  width: 60px;
+  box-shadow:1px 1px gray;
+}

@@ -106,28 +106,6 @@ const RecursiveComponent = ({
   );
 };
 
-function SubmitTasks (req) {
-  console.log('lalalalalalala')
-  const [res, setRes] = useState([]);
-  useEffect(()=>{
-  fetch("http://127.0.0.1:5000/request/submit", {
-    method: "POST",
-    headers: {'Content-Type': 'application/json' },
-    body: JSON.stringify(req)
-  })
-  .then(response => response.json())
-  .then(response => {
-    setRes(response.state);     // replace with reading standard json
-  });
-  }, []);
-  console.log(res)
-  return(
-    <div>
-      <p>lalalalala</p>
-    </div>
-  )
-};
-
 export default class SubmitWork extends React.Component {
   state = {
     box: { },

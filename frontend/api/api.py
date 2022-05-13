@@ -89,15 +89,37 @@ def submit_communication():
         print("something wrong")
         return jsonify({"state" : "failed"})
         
+# handel requests from page "submit"
+@app.route('/request/plot', methods = ['GET', 'POST'])
+def plot_communication():
+    try:
+        json_data = request.json
+        print(json_data)
+        if json_data["request"] == "plotList":
+            return jsonify({"plotList" : ["a", "abc"]})
+        if json_data["request"] == "getData":
+            scenarioRequested = json_data["scenario"]
+            if len(scenarioRequested) == 1:
+                raw = {"abc": 1, "23bcd4": 2, "def": 3}
+                keys = []
+                y = []
+                for key in raw.keys():
+                    keys.append(key)
+                    y.append(raw[key])
+                return jsonify({"data": {"type": "bar", "x": keys, "y": y}, "titleLabel": "lalala", "xLabel": "xxxx", "yLabel": "yyyyy"})
+            else:
+                data_0 = {"abc": 11, "bcd": 12, "def": 13}
+                data_1 = {"bcd": 222, "def": 333, "efg": 444}
+                x = []
+                y = []
+                keys = []
+                for key in data_0.keys():
+                    if key in data_1.keys():
+                        x.append(data_0[key])
+                        y.append(data_1[key])
+                        keys.append(key)
+                return jsonify({"data": {"type": "scatter", "mode": "markers", "x": x, "y": y, "text": keys}, "titleLabel": "lalala", "xLabel": "xxxx", "yLabel": "yyyyy"})
 
-
-# task = {"name": "aurin_payroll",
-#                 "type": "aurin",
-#                 "keyword": "payroll",
-#                 "level" : "sa3"
-# }
-
-# example_task_2 = {"name": "search_election",
-#                 "type": "search",
-#                 "keyword": "Election",
-# }
+    except:
+        print("something wrong")
+        return jsonify({"state" : "failed"})
