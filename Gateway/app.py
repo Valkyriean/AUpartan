@@ -113,7 +113,8 @@ example_task_6 = {"name": "search_crime",
 example_task_7 = {"name": "historic_crime",
                 "type": "historic",
                 "keyword": "crime",
-                "prerequisite":"historic_preserve"
+                "prerequisite": None
+                #"historic_preserve"
 }
 
 example_task_8 = {"name": "historic_all",
