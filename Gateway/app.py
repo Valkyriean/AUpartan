@@ -102,12 +102,12 @@ example_task_4 = {"name": "aurin_salary",
 
 example_task_5 = {"name": "search_election",
                 "type": "search",
-                "keyword": "Election",
+                "keyword": "Election"
 }
 
 example_task_6 = {"name": "search_crime",
                 "type": "search",
-                "keyword": "crime",
+                "keyword": "crime"
 }
 
 example_task_7 = {"name": "historic_crime",
