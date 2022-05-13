@@ -38,34 +38,10 @@ function useWindowSize() {
   return windowSize;
 }
 
-function PlotBox () {
-  const [ret, setRet] = useState([]);
-  var obj = document.getElementById('scenario-select');
-  if (obj) var scenario = obj.value;
-  useEffect(()=>{
-    fetch("http://127.0.0.1:5000/request/plot", {
-      method: "POST",
-      headers: {'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        'request': 'getData',
-        'scenario': scenario
-      })
-    })
-    .then(response => response.json())
-    .then(response => {
-      setRet(response);     // replace with reading standard json
-    });
-    }, []);
-    
-    return(
-      <p>lalala</p>
-    )
-}
-
 function RenderDataList () {
   const [list, setList] = useState([]);
   useEffect(()=>{
-  fetch("http://127.0.0.1:5000/request/plot", {
+  fetch("http://127.0.0.1:3000/request/plot", {
     method: "POST",
     headers: {'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -131,7 +107,7 @@ export default class PlotPoint extends React.Component {
   getData(){
     var obj = document.getElementById('scenario-select');
     if (obj) var scenario = obj.value;
-    fetch("http://127.0.0.1:5000/request/plot", {
+    fetch("http://127.0.0.1:3000/request/plot", {
       method: "POST",
       headers: {'Content-Type': 'application/json' },
       body: JSON.stringify({
