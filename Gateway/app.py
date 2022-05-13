@@ -250,6 +250,8 @@ def not_found(error):
 # Serve the static file to client's browser
 
 # get all task names with "city" or "sa3" on its second section
+print(scenarioDict.keys())
+
 def getAurinTasksName(scale):
     tasks = []
     for name in couch:
@@ -277,6 +279,7 @@ def getScenarioAvailable():
     for scenario in scenarioDict.keys():
         flag = True
         for task in scenarioDict[scenario]:
+            print(task["name"])
             if testIn(task, finished_task): continue
             flag = False
         if flag: availableScenarios.append(scenario)
@@ -318,8 +321,10 @@ def submit_communication():
         json_data = request.json
         print(json_data)
         if json_data["request"] == "preCalculatedList_SA3":
+            print(getAurinTasksName("sa3"))
             return jsonify({"preCalculatedList" : getAurinTasksName("sa3")})
         if json_data["request"] == "preCalculatedList_City":
+            print(getAurinTasksName("city"))
             return jsonify({"preCalculatedList" : getAurinTasksName("city")})
         if json_data["request"] == "task":
             scenarioName = json_data["name"]
@@ -392,6 +397,7 @@ def plot_communication():
         json_data = request.json
         print(json_data)
         if json_data["request"] == "plotList":
+            print(getScenarioAvailable())
             return jsonify({"plotList" : getScenarioAvailable()})
         if json_data["request"] == "getData":
             scenarioRequested = json_data["scenario"]
@@ -402,7 +408,11 @@ def plot_communication():
                 for key in raw.keys():
                     keys.append(key)
                     y.append(raw[key])
-                
+                print({"data": {"type": "bar", "x": keys, "y": y}, 
+                                "titleLabel": scenarioRequested, 
+                                "xLabel": "", 
+                                "yLabel": scenarioDict[scenarioRequested][0]["name"]
+                              })
                 return jsonify({"data": {"type": "bar", "x": keys, "y": y}, 
                                 "titleLabel": scenarioRequested, 
                                 "xLabel": "", 
@@ -419,6 +429,11 @@ def plot_communication():
                         x.append(data_0[key])
                         y.append(data_1[key])
                         keys.append(key)
+                print({"data": {"type": "scatter", "mode": "markers", "x": x, "y": y, "text": keys}, 
+                                "titleLabel": scenarioRequested, 
+                                "xLabel": scenarioDict[scenarioRequested][0]["name"],
+                                "yLabel": scenarioDict[scenarioRequested][1]["name"]
+                              })
                 return jsonify({"data": {"type": "scatter", "mode": "markers", "x": x, "y": y, "text": keys}, 
                                 "titleLabel": scenarioRequested, 
                                 "xLabel": scenarioDict[scenarioRequested][0]["name"],
