@@ -1,14 +1,13 @@
 import time
 import requests
-import json 
 from couchdb import Server
 from aurindb import preserve_aurin
 from historicdb import preserve_historic
 from aurin import aurin_work
 from historic import historic_work
 from search import search_work
-import os 
 import sys
+from random import uniform
 
 # Initialise
 REQUEST_GAP = 10
@@ -86,9 +85,9 @@ def main():
                     # r = requests.post(("http://"+GATEWAY_IP+":"+str(GATEWAY_PORT)+"/failed_task"), json={"task_name": task_name})
             else:
                 print(res["status"])
-                time.sleep(REQUEST_GAP)
+                time.sleep(uniform(REQUEST_GAP-0.5, REQUEST_GAP+0.5))
         except:
             print("no connection to gateway")
-            time.sleep(REQUEST_GAP)
+            time.sleep(uniform(REQUEST_GAP-0.5, REQUEST_GAP+0.5))
             
 main()

@@ -1,7 +1,7 @@
-import queue, datetime
+import queue
 from flask import Flask, jsonify, request, make_response, send_file
 from flask_cors import CORS
-from datetime import timedelta
+from datetime import timedelta, datetime
 from readSummary import extract_summary
 
 from couchdb import Server
@@ -52,15 +52,6 @@ example for historic json
 }
 
 '''
-
-with open("log.txt", "w") as f:
-    f.write("")
-# @app.route('/check_task/<task_name>')
-# def check_task(task_name):
-
-# for i in range(1,20):
-#     task = {"id":i, "type":"wait", "time":i}
-#     queueing_task.put(task)
 
 preserve_task_1 = {"name": "aurin_preserve", 
                 "type" : "preserve",
@@ -132,72 +123,63 @@ queueing_task.put(example_task_5)
 queueing_task.put(example_task_6)
 queueing_task.put(example_task_7)
 queueing_task.put(example_task_8)
-queueing_task.put(preserve_task_1)
-queueing_task.put(preserve_task_2)
+
 
 scenarioDict["Income (sa3) VS overall sentiment"] = [{"name": "aurin_income", "level": "sa3"}, {"name": "historic_all", "method": "sentiment"}]
 scenarioDict["Income (city) VS attitude toward election"] = [{"name": "aurin_salary", "level": "city"}, {"name": "search_election", "method": "sentiment"}]
 scenarioDict["Income (city) VS count of mentioning crime"] = [{"name": "aurin_salary", "level": "city"}, {"name": "search_crime", "method": "count"}]
 scenarioDict["Crime count (sa3)"] = [{"name": "historic_crime", "method": "count"}]
 # working pool
+app.task_start_time = datetime.now() - timedelta(seconds=1)
+
 
 @app.route('/get_task', methods=['POST'])
-async def get_task():
-    f = open("log.txt","a")
-    f.write(str(queueing_task)+"\n")
-    f.write(str(working_task)+"\n")
-    f.write(str(finished_task)+"\n")
-    print(queueing_task)
-    print(working_task)
-    print(finished_task)
-    json_data = request.json
-    worker_ip = str(json_data.get("worker_ip"))
-    if working_task and working_task[0][0] < datetime.datetime.now():
-        task = working_task.pop()[1]
-        working_task.append((datetime.datetime.now()+timeout,task, worker_ip))
-        f.close()
-        return {"status":"success", "task":task}
-    # take task from task queue
-    if queueing_task.empty():
-        f.write("no work\n")
-        print("no work")
-        f.close()
-        return {"status":"no_work"}
-    task = queueing_task.get()
-    prerequisite = task.get("prerequisite", None)
-    limit = queueing_task.qsize()
-    index = 0
-    while prerequisite not in finished_task and prerequisite != None:
-        if index > limit:
-            f.write("No fulfilled task\n")
-            print("No fulfilled task")
-            f.close()
-            return {"status":"no prerequisite fulfilled task"}
-        f.write(f"prerequisite {prerequisite} not fulfilled for task "+str(task.get("name")))
-        print(f"prerequisite {prerequisite} not fulfilled for task "+str(task.get("name")))
-        queueing_task.put(task)
+def get_task():
+    if datetime.now() - app.task_start_time > timedelta(seconds=1):
+        app.task_start_time = datetime.now()
+        print(queueing_task.qsize())
+        print(working_task)
+        print(finished_task)
+        json_data = request.json
+        worker_ip = str(json_data.get("worker_ip"))
+        if working_task and working_task[0][0] < datetime.now():
+            task = working_task.pop()[1]
+            working_task.append((datetime.now()+timeout,task, worker_ip))
+            return {"status":"success", "task":task}
+        # take task from task queue
+        if queueing_task.empty():
+            print("no work")
+            return {"status":"no_work"}
         task = queueing_task.get()
         prerequisite = task.get("prerequisite", None)
-        index += 1
-    f.write("Task " + str(task["name"]) + " got by worker " + worker_ip+"\n")
-    print("Task " + str(task["name"]) + " got by worker " + worker_ip)
-    working_task.append((datetime.datetime.now()+timeout,task, worker_ip))
-    f.close()
-    return {"status":"success", "task":task}
+        limit = queueing_task.qsize()
+        index = 0
+        while prerequisite not in finished_task and prerequisite != None:
+            if index > limit:
+                print("No fulfilled task")
+                return {"status":"no prerequisite fulfilled task"}
+            print(f"prerequisite {prerequisite} not fulfilled for task "+str(task.get("name")))
+            queueing_task.put(task)
+            task = queueing_task.get()
+            prerequisite = task.get("prerequisite", None)
+            index += 1
+        print("Task " + str(task["name"]) + " got by worker " + worker_ip)
+        working_task.append((datetime.now()+timeout,task, worker_ip))
+        return {"status":"success", "task":task}
+    else:
+        print("busy")
+        return {"status":"busy"}
 
 
 @app.route('/finish_task', methods=['POST'])
-async def finish_task():
-    f = open("log.txt","a")
-    print(str(queueing_task)+"\n")
+def finish_task():    
+    print(str(queueing_task.qsize())+"\n")
     print(str(working_task)+"\n")
     print(str(finished_task)+"\n")
     json_data = request.json
     task_name = json_data.get('task_name', "nameless task")
     if task_name in finished_task:
-        f.close()
         return {"status":"success"}, 200
-    f.write("Finish " + str(task_name)+"\n")
     print("Finish " + str(task_name))
     flag = False
     for t in working_task:
@@ -207,7 +189,6 @@ async def finish_task():
             break
     if flag:
         finished_task.append(task_name)
-    f.close()
     return {"status":"success"}, 200
 
         
@@ -222,7 +203,7 @@ async def failed_task():
         if t[1].get("name", None) == task_name:
             temp = t
             working_task.remove(t)
-            working_task.insert(0, (datetime.datetime.now(), temp[1], temp[2]))
+            working_task.insert(0, (datetime.now(), temp[1], temp[2]))
             break
     return {"status":"success"}, 200
         
