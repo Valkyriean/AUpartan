@@ -136,7 +136,11 @@ queueing_task.put(example_task_8)
 # working pool
 
 @app.route('/get_task', methods=['POST'])
-def get_task():
+async def get_task():
+    f = open("log.txt","a")
+    f.write(str(queueing_task)+"\n")
+    f.write(str(working_task)+"\n")
+    f.write(str(finished_task)+"\n")
     print(queueing_task)
     print(working_task)
     print(finished_task)
@@ -145,10 +149,13 @@ def get_task():
     if working_task and working_task[0][0] < datetime.datetime.now():
         task = working_task.pop()[1]
         working_task.append((datetime.datetime.now()+timeout,task, worker_ip))
+        f.close()
         return {"status":"success", "task":task}
     # take task from task queue
     if queueing_task.empty():
+        f.write("no work\n")
         print("no work")
+        f.close()
         return {"status":"no_work"}
     task = queueing_task.get()
     prerequisite = task.get("prerequisite", None)
@@ -156,27 +163,35 @@ def get_task():
     index = 0
     while prerequisite not in finished_task and prerequisite != None:
         if index > limit:
+            f.write("No fulfilled task\n")
             print("No fulfilled task")
+            f.close()
             return {"status":"no prerequisite fulfilled task"}
+        f.write(f"prerequisite {prerequisite} not fulfilled for task "+str(task.get("name")))
         print(f"prerequisite {prerequisite} not fulfilled for task "+str(task.get("name")))
         queueing_task.put(task)
         task = queueing_task.get()
         prerequisite = task.get("prerequisite", None)
         index += 1
+    f.write("Task " + str(task["name"]) + " got by worker " + worker_ip+"\n")
     print("Task " + str(task["name"]) + " got by worker " + worker_ip)
     working_task.append((datetime.datetime.now()+timeout,task, worker_ip))
+    f.close()
     return {"status":"success", "task":task}
 
 
 @app.route('/finish_task', methods=['POST'])
-def finish_task():
-    print(queueing_task)
-    print(working_task)
-    print(finished_task)
+async def finish_task():
+    f = open("log.txt","a")
+    print(str(queueing_task)+"\n")
+    print(str(working_task)+"\n")
+    print(str(finished_task)+"\n")
     json_data = request.json
     task_name = json_data.get('task_name', "nameless task")
     if task_name in finished_task:
+        f.close()
         return {"status":"success"}, 200
+    f.write("Finish " + str(task_name)+"\n")
     print("Finish " + str(task_name))
     flag = False
     for t in working_task:
@@ -186,11 +201,12 @@ def finish_task():
             break
     if flag:
         finished_task.append(task_name)
+    f.close()
     return {"status":"success"}, 200
 
         
 @app.route('/failed_task', methods=['POST'])
-def failed_task():
+async def failed_task():
     json_data = request.json
     task_name = json_data.get('task_name', "nameless task")
     if task_name in finished_task:
