@@ -144,7 +144,7 @@ app.task_start_time = datetime.now() - timedelta(seconds=1)
 
 
 @app.route('/get_task', methods=['POST'])
-def get_task():
+async def get_task():
     if datetime.now() - app.task_start_time > timedelta(seconds=1):
         app.task_start_time = datetime.now()
         print(queueing_task.qsize())
