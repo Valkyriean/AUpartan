@@ -37,6 +37,7 @@ def preserve_historic(couch):
     dbhr = set_historic_cluster(couch)
     try:
         store_historic('CCCA2/Data/Historic/preprocess_historic.json', dbhr)
+        print('store finish')
         return True
     except:
         return False
