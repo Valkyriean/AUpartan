@@ -350,6 +350,21 @@ def add_task():
     addTask(task)
     return {"status":"success"}, 200
 
+
+@app.route("/add_task_working")
+def add_task():
+    task = request.json
+    task['_id'] = task["name"]
+    working.save(task)
+    return {"status":"success"}, 200
+
+@app.route("/add_task_finished")
+def add_task():
+    task = request.json
+    task['_id'] = task["name"]
+    finished.save(task)
+    return {"status":"success"}, 200
+
 # append task to queueing_task if there's no duplication
 # return true when task successfully added
 def addTask(task):
