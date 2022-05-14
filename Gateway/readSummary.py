@@ -6,7 +6,7 @@ def gateway_aurin(db, key_Search):
     viewName = "aurin" + key_Search + "Target"
     AurinTarget_View = ViewDefinition("aurin", viewName,'''\
             function(doc){
-                emit(doc._id, doc.target_value);
+                emit(doc.code, doc.target_value);
             }''')
     AurinTarget_View.sync(db)
 

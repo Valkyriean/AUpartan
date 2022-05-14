@@ -6,7 +6,7 @@ from couchdb.design import ViewDefinition
 def extractSA3Data(design_doc, request, db):
     requestSA3 = ViewDefinition(design_doc, request,'''\
         function(doc){
-            emit(doc._id, doc.'''+ request +''');
+            emit(doc.code, doc.'''+ request +''');
         }''')
     requestSA3.sync(db)
     return requestSA3
@@ -42,7 +42,7 @@ def import_view(couch, receive_level, receive_keyword):
 manager = CouchDBManager()
 class AurinTarget(Document):
     doc_type = 'aurintarget'
-    _id = TextField()
+    code = TextField()
     target_value = FloatField()
 manager.add_document(AurinTarget)
 
@@ -53,7 +53,7 @@ def store_target(viewData, rawdb, targetdb):
 
     for row in viewData_result:
         if (row.key not in targetdb):
-            newAurinTarget = AurinTarget(_id = row.key, target_value = row.value)
+            newAurinTarget = AurinTarget(code = row.key, target_value = row.value)
             newAurinTarget.store(targetdb)
     
     # Return the mean value of the selected feature in a json format

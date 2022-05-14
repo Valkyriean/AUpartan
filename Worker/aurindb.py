@@ -19,14 +19,14 @@ def set_aurin_cluster(couch):
 manager = CouchDBManager()
 class AurinSA3(Document):
     doc_type = 'AurinSA3'
-    _id = TextField()
+    code = TextField()
     income = FloatField()
     payroll = FloatField()
 manager.add_document(AurinSA3)
 
 class AurinCity(Document):
     doc_type = 'AurinCity'
-    _id = TextField()
+    code = TextField()
     city = TextField()
     immigration = FloatField()
     salary = IntegerField()
@@ -59,7 +59,7 @@ def store_aurin_sa3(file_income, file_payroll, db):
             
             # Store the wealth information in each SA3 regions into couch db
             if (sa3_code) not in db:
-                new_wealth = AurinSA3(_id = sa3_code, income = income_list[sa3_code], payroll = instance[payroll_level_later])
+                new_wealth = AurinSA3(code = sa3_code, income = income_list[sa3_code], payroll = instance[payroll_level_later])
                 new_wealth.store(db)
 
     return ("Load Successful")
@@ -88,11 +88,11 @@ def store_aurin_city(file_immi, file_salary, db):
                 if (i in element["properties"]["gccsa_name_2016"]):
                     if i == "Capital":
                         if element["properties"]["gccsa_code_2016"] not in db:
-                            new_immi = AurinCity(_id = element["properties"]["gccsa_code_2016"], city = "Canberra", immigration = element["properties"]["ctznshp_stts_prsns_brn_ovrss_cnss_astrln_ctzn_pc"], salary = city_salary["Canberra"])
+                            new_immi = AurinCity(code = element["properties"]["gccsa_code_2016"], city = "Canberra", immigration = element["properties"]["ctznshp_stts_prsns_brn_ovrss_cnss_astrln_ctzn_pc"], salary = city_salary["Canberra"])
                             new_immi.store(db)
                     else:
                         if element["properties"]["gccsa_code_2016"] not in db:
-                            new_immi = AurinCity(_id = element["properties"]["gccsa_code_2016"], city = i, immigration = element["properties"]["ctznshp_stts_prsns_brn_ovrss_cnss_astrln_ctzn_pc"], salary = city_salary[i])
+                            new_immi = AurinCity(code = element["properties"]["gccsa_code_2016"], city = i, immigration = element["properties"]["ctznshp_stts_prsns_brn_ovrss_cnss_astrln_ctzn_pc"], salary = city_salary[i])
                             new_immi.store(db)
 
     return ("Load Successful")
