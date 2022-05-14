@@ -2,6 +2,7 @@ import json
 import csv
 from flaskext.couchdb import Document, CouchDBManager
 from couchdb.mapping import TextField, FloatField, IntegerField
+from couchdb.design import ViewDefinition
 
 def set_aurin_cluster(couch):
     # Set up database for preserving aurin data
@@ -46,21 +47,40 @@ def store_aurin_sa3(file_income, file_payroll, db):
             instance = i["properties"]
             if instance[sa3] not in income_list:
                 income_list[str(instance[sa3])] = (float(instance[income_level]))
+    exist_list = []
+    #duplicate check
+    try:
+        code_list = ViewDefinition('AurinSA3', 'code_list','''\
+            function(doc){
+                emit(doc.code, 1 )
+
+            }
+        '''
+        )
+        code_list.sync(db)
+        list_output = code_list(db)
+        for row in list_output:
+            exist_list.append(row.key)
+    except:
+        exist_list = []
+
+
+
 
     # Read in payroll data and store income & payroll data in each SA3 regions into couchdb together
     payroll_level_later = "wk_end_2020_10_03"
     sa3_name = "sa3_code16"
     with open(file_payroll, 'r') as f:
         payroll = json.load(f)
-
         for i in payroll["features"]:
             instance = i["properties"]
             sa3_code = str(instance[sa3_name])
             
             # Store the wealth information in each SA3 regions into couch db
-            if (sa3_code) not in db:
+            if (sa3_code) not in exist_list:#(sa3_code) not in db:
                 new_wealth = AurinSA3(code = sa3_code, income = income_list[sa3_code], payroll = instance[payroll_level_later])
                 new_wealth.store(db)
+                exist_list.append(sa3_code)
 
     return ("Load Successful")
 
@@ -70,6 +90,26 @@ def store_aurin_city(file_immi, file_salary, db):
     city_list = ["Melbourne", "Sydney", "Brisbane", "Adelaide", "Darwin", "Hobart", "Capital", "Perth"]
     city_salary = {}
     head = True
+    exist_list = []
+    try:
+        code_list = ViewDefinition('AurinCity', 'code_list','''\
+            function(doc){
+                emit(doc.code, 1 )
+            }
+        '''
+        )
+        code_list.sync(db)
+        list_output = code_list(db)
+        for row in list_output:
+            exist_list.append(row.key)
+    except:
+        exist_list = []
+
+
+
+
+
+
     with open(file_salary, 'r') as csvfile:
         csvreader = csv.reader(csvfile)
 
@@ -87,13 +127,16 @@ def store_aurin_city(file_immi, file_salary, db):
             for i in city_list:
                 if (i in element["properties"]["gccsa_name_2016"]):
                     if i == "Capital":
-                        if element["properties"]["gccsa_code_2016"] not in db:
+                        if element["properties"]["gccsa_code_2016"] not in exist_list:#element["properties"]["gccsa_code_2016"] not in db:
                             new_immi = AurinCity(code = element["properties"]["gccsa_code_2016"], city = "Canberra", immigration = element["properties"]["ctznshp_stts_prsns_brn_ovrss_cnss_astrln_ctzn_pc"], salary = city_salary["Canberra"])
                             new_immi.store(db)
+                            exist_list.append(element["properties"]["gccsa_code_2016"])
+
                     else:
-                        if element["properties"]["gccsa_code_2016"] not in db:
+                        if element["properties"]["gccsa_code_2016"] not in exist_list:
                             new_immi = AurinCity(code = element["properties"]["gccsa_code_2016"], city = i, immigration = element["properties"]["ctznshp_stts_prsns_brn_ovrss_cnss_astrln_ctzn_pc"], salary = city_salary[i])
                             new_immi.store(db)
+                            exist_list.append(element["properties"]["gccsa_code_2016"])
 
     return ("Load Successful")
 
