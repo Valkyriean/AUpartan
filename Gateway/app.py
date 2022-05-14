@@ -352,14 +352,14 @@ def add_task():
 
 
 @app.route("/add_task_working")
-def add_task():
+def add_task_working():
     task = request.json
     task['_id'] = task["name"]
     working.save(task)
     return {"status":"success"}, 200
 
 @app.route("/add_task_finished")
-def add_task():
+def add_task_finished():
     task = request.json
     task['_id'] = task["name"]
     finished.save(task)
