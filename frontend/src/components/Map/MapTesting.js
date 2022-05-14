@@ -93,7 +93,7 @@ export default class App extends React.Component {
       for (let city of response.cityList){
         var cityCoord = response.cityData[city][0]
         var cityValue = response.cityData[city][1]
-        this.addPopup(this.state.map, (<p>123123</p>), cityCoord[0], cityCoord[1])
+        this.addPopup(this.state.map, (<p>{city + ": " + cityValue}</p>), cityCoord[0], cityCoord[1])
       }
     });
     
