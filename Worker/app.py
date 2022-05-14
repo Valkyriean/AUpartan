@@ -31,24 +31,24 @@ def assign_work(task):
     if task_type == "aurin":
         search_level = task.get("level", None)
         search_keyword = task.get("keyword", None)
-        aurin_work(couch, search_level, search_keyword)
-        return True
+        #aurin_work(couch, search_level, search_keyword)
+        return aurin_work(couch, search_level, search_keyword)
     elif task_type == "search":
         keyword = task["keyword"]
-        search_work(couch, keyword)
-        return True
+        #search_work(couch, keyword)
+        return search_work(couch, keyword)
     elif task_type == "historic":
         keyword = task["keyword"]
-        historic_work(couch, keyword)
-        return True
+        #historic_work(couch, keyword)
+        return historic_work(couch, keyword)
     elif task_type == "preserve":
         preserve_name = task.get("task", None)
         if preserve_name == "aurin":
-            preserve_aurin(couch)
-            return True
+            #preserve_aurin(couch)
+            return preserve_aurin(couch)
         elif preserve_name == "historic":
-            preserve_historic(couch)
-            return True
+            #preserve_historic(couch)
+            return preserve_historic(couch)
     return False
 
 

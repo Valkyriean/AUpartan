@@ -63,5 +63,8 @@ def store_target(viewData, rawdb, targetdb):
 def aurin_work(couch, receive_level, receive_keyword):
     dbrt = create_cluster(couch, receive_level, receive_keyword)
     dbraw, viewData = import_view(couch, receive_level, receive_keyword)
-    store_target(viewData, dbraw, dbrt)
-    return True
+    try:
+        store_target(viewData, dbraw, dbrt)
+        return True
+    except:
+        return False

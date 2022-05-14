@@ -35,5 +35,8 @@ def store_historic(data_filepath, db):
 
 def preserve_historic(couch):
     dbhr = set_historic_cluster(couch)
-    store_historic('CCCA2/Data/Historic/preprocess_historic.json', dbhr)
-    return True
+    try:
+        store_historic('CCCA2/Data/Historic/preprocess_historic.json', dbhr)
+        return True
+    except:
+        return False

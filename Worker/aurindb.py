@@ -99,6 +99,9 @@ def store_aurin_city(file_immi, file_salary, db):
 
 def preserve_aurin(couch):
     dbsa3, dbcity = set_aurin_cluster(couch)
-    store_aurin_sa3("CCCA2/Data/Aurin/SA3/income.json", "CCCA2/Data/Aurin/SA3/payroll.json", dbsa3)
-    store_aurin_city("CCCA2/Data/Aurin/City/immirate.json", "CCCA2/Data/Aurin/City/salary.csv", dbcity)
-    return True 
+    try:
+        store_aurin_sa3("CCCA2/Data/Aurin/SA3/income.json", "CCCA2/Data/Aurin/SA3/payroll.json", dbsa3)
+        store_aurin_city("CCCA2/Data/Aurin/City/immirate.json", "CCCA2/Data/Aurin/City/salary.csv", dbcity)
+        return True
+    except:
+        return False 

@@ -195,5 +195,8 @@ def search_work(couch, input_keyword):
     city_count, city_pos, city_neg, city_emo = summaryView('summary', input_keyword, dbrcity)
     search_store(dbrcity, client, query_rule, city_set)
     dbss = create_summary_cluster(couch, input_keyword)
-    summary_target(city_count, city_pos, city_neg, city_emo, dbrcity, dbss)
-    return True
+    try:
+        summary_target(city_count, city_pos, city_neg, city_emo, dbrcity, dbss)
+        return True
+    except:
+        return False

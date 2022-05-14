@@ -150,5 +150,8 @@ def historic_work(couch, receive_keyword):
     store_target(requestText, requestSA3, dbraw, dbrt)
     sa3_count, sa3_emo = summaryView('summary', receive_keyword, dbrt)
     dbsh = create_summary_cluster(couch, receive_keyword)
-    summary_target(sa3_count, sa3_emo, dbrt, dbsh)
-    return True
+    try:
+        summary_target(sa3_count, sa3_emo, dbrt, dbsh)
+        return True
+    except:
+        return False
