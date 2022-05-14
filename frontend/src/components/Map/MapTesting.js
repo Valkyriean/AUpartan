@@ -16,7 +16,7 @@ const Plot = createPlotlyComponent(Plotly);
 function RenderDataList () {
   const [list, setList] = useState([]);
   useEffect(()=>{
-  fetch("http://127.0.0.1:5000/map", {
+  fetch("http://127.0.0.1:3000/request/map", {
     method: "POST",
     headers: {'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -30,7 +30,7 @@ function RenderDataList () {
   }, []);
   let datas = Array.from(list)
   return (
-    <select class='mapSelect' id={'scale'}>
+    <select class='mapSelect' id={'scenario-select'}>
       <option value="" disabled selected>Select scale</option>
       {datas.map(todo => 
       <option key={todo}>{todo}</option>)}
@@ -42,11 +42,13 @@ export default class App extends React.Component {
   constructor(props){
     super(props);
     this.state = {
-      lng: 144.96,
-      lat: -37.81,
+      lng: 133.5,
+      lat: -27,
       text: '',
-      zoom: 9
+      zoom: 3.7,
+      map: null
     };
+    
     this.mapContainer = React.createRef();
   }
   
@@ -71,68 +73,38 @@ export default class App extends React.Component {
     });
     
     let Markers = [];
-    
-    map.on('click', async (e) => {
-      var data = [
-        {
-          x: [1.5, 2, 3.2, 4.5, 5],
-          y: [3, 3.2, 8, 10, 9],
-          mode: 'markers',
-          type: 'scatter',
-          name: 'Others',
-          text: ['EAST MELBOURNE, VIC', 'MELBOURNE AIRPORT, VIC', 'WEST MELBOURNE, VIC', 'SOUTH YARRA, VIC', 'SPRINGVALE, VIC'],
-          marker: { size: 12 }
-        },
-        {
-          x: [3],
-          y: [6],
-          mode: 'markers',
-          type: 'scatter',
-          name: 'Selected',
-          text: ['MELBOURNE CBD, VIC'],
-          marker: { size: 12 }
-        }
-      ];
-
-      this.addPopup(map, <Plot
-            data={data}
-            layout={ {
-              width: 400, 
-              height: 300, 
-              showlegend: false,
-              title: 'Pay Roll vs Happyness Plot',
-              font: {
-                size: 15,
-              },
-              xaxis: {
-                title: {
-                  text: "Pay Roll (1,000 AUD/Week)",
-                  font: {
-                    size: 10,
-                  }
-                }
-              },
-              yaxis: {
-                title: {
-                  text: "Happyness",
-                  font: {
-                    size: 10,
-                  }
-                }
-              }
-            } }
-        />, e.lngLat["lat"], e.lngLat["lng"])
-    });
+    this.setState({"map" : map})
   }
 
-  
+  renewPopup() {
+    var obj = document.getElementById('scenario-select');
+    if (obj) var scenario = obj.value;
+    console.log(scenario)
+    fetch("http://127.0.0.1:3000/request/map", {
+      method: "POST",
+      headers: {'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        'request': "cityData",
+        'scenario': scenario
+      })
+    })
+    .then(response => response.json())
+    .then(response => {
+      for (let city of response.cityList){
+        var cityCoord = response.cityData[city][0]
+        var cityValue = response.cityData[city][1]
+        this.addPopup(this.state.map, (<p>123123</p>), cityCoord[0], cityCoord[1])
+      }
+    });
+    
+  }
 
   render() {
     return (
       <div>
         <Navbar map={'active'}/>
         <div ref={this.mapContainer} className="map-container" />
-        <div class='mapSelectDiv'>
+        <div class='mapSelectDiv' onChange={(e) => this.renewPopup()}>
           <RenderDataList />
         </div>
       </div>

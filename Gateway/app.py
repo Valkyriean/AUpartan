@@ -282,6 +282,18 @@ def not_found(error):
 # get all task names with "city" or "sa3" on its second section
 print(scenarioDict.keys())
 
+def getCoord(city):
+    cityDict = {
+        "Melbourne": [-37.840935,144.946457],
+        "Sydney": [-33.865143, 151.209900],
+        "Canberra": [-35.282001, 149.128998],
+        "Brisbane": [-27.470125, 153.021072],
+        "Perth": [-31.953512, 115.857048],
+        "Adelaide": [-34.846111, 138.503052],
+        "Hobart": [-42.880554, 147.324997]
+    }
+    return cityDict[city]
+
 def getAurinTasksName(scale):
     tasks = []
     for name in couch:
@@ -494,6 +506,32 @@ def plot_communication():
     except:
         print("something wrong")
         return jsonify({"state" : "failed"})
+
+########################### replace and delete this thing
+def get___get____City_________Data____________________Sets(){
+    pass
+}
+###########################
+
+@app.route('/request/map', methods = ['GET', 'POST'])
+def map_communication():
+    try:
+        json_data = request.json
+        print(json_data)
+        if json_data["request"] == "dataList":
+            return jsonify(get___get____City_________Data____________________Sets())
+        if json_data["request"] == "cityData":
+            print("request data: " + json_data["scenario"])
+            datadict = extract_summary(couch, json_data["scenario"])
+            retDict = dict()
+            for name in datadict.keys():
+                print(name)
+                retDict[name] = [getCoord(name), datadict[name]]
+            citys = list(datadict.keys())
+            print({"cityList" : citys, "cityData": retDict})
+            return jsonify({"cityList" : citys, "cityData": retDict})
+    except:
+        pass
 
 # return_dict = extract_summary(couch, summary_db)
 

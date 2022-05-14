@@ -114,7 +114,8 @@ export default class PlotPoint extends React.Component {
         'request': 'getData',
         'scenario': scenario
       })
-    }).then(response => response.json())
+    })
+    .then(response => response.json())
     .then(response => {
       console.log(response);
       this.setState( {plt : {"data": response.data, "titleLabel": response.titleLabel , "xLabel": response.xLabel, "yLabel": response.yLabel}})
