@@ -6,7 +6,7 @@ from couchdb.design import ViewDefinition
 def extractSA3Data(design_doc, request, db):
     requestSA3 = ViewDefinition(design_doc, request,'''\
         function(doc){
-            emit(doc._id, doc.'''+ request +''');
+            emit(doc.code, doc.'''+ request +''');
         }''')
     requestSA3.sync(db)
     return requestSA3
@@ -41,8 +41,8 @@ def import_view(couch, receive_level, receive_keyword):
 # Store summarised target aurin data for further calling from the Gateway node and render it onto UI
 manager = CouchDBManager()
 class AurinTarget(Document):
-    doc_type = 'aurintarget'
-    _id = TextField()
+    doc_type = 'Aurintarget'
+    code = TextField()
     target_value = FloatField()
 manager.add_document(AurinTarget)
 
@@ -50,11 +50,26 @@ manager.add_document(AurinTarget)
 def store_target(viewData, rawdb, targetdb):
 
     viewData_result = viewData(rawdb)
+    exist_list = []
+    try:
+        code_list = ViewDefinition('Aurintarget', 'code_list','''\
+            function(doc){
+                emit(doc.code, 1 )
+            }
+        '''
+        )
+        code_list.sync(targetdb)
+        list_output = code_list(targetdb)
+        for row in list_output:
+            exist_list.append(row.key)
+    except:
+        exist_list = []
 
     for row in viewData_result:
-        if (row.key not in targetdb):
-            newAurinTarget = AurinTarget(_id = row.key, target_value = row.value)
+        if row.key not in exist_list:#(row.key not in targetdb):
+            newAurinTarget = AurinTarget(code = row.key, target_value = row.value)
             newAurinTarget.store(targetdb)
+            exist_list.append(row.key)
     
     # Return the mean value of the selected feature in a json format
     return ("Mission Accomplished")
@@ -63,5 +78,8 @@ def store_target(viewData, rawdb, targetdb):
 def aurin_work(couch, receive_level, receive_keyword):
     dbrt = create_cluster(couch, receive_level, receive_keyword)
     dbraw, viewData = import_view(couch, receive_level, receive_keyword)
-    store_target(viewData, dbraw, dbrt)
-    return True
+    try:
+        store_target(viewData, dbraw, dbrt)
+        return True
+    except:
+        return False

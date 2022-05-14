@@ -101,7 +101,7 @@ export default class PlotPoint extends React.Component {
   };
   
   componentDidMount(){
-    this.setState( {plt : {data: {x:[1,2,3,4,5,5,5.5,6,5.5,5,5.5,6,7,7], y:[5,0,5,0,5,2,3,1,0,2,3,1,3,0]}}})
+    this.setState( {plt : {data: {x:[1,2,3,4,5,5,5.5,6,5.5,5,5.5,6,7,7], y:[5,0,5,0,5,2,3,1,0,2,3,1,3,0], marker: {size: 15}}}})
   }
 
   getData(){

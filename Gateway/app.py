@@ -139,35 +139,55 @@ scenarioDict["Crime count (sa3)"] = [{"name": "historic_crime", "method": "count
 # finished_task.append(example_task_6)
 # ##### Remove After Front End Testing #####
 
+try:
+    pending = couch['pending']
+except:
+    pending = couch.create('pending')
+    
 
 try:
-    
-    pending = couch.create('pending')
+    working = couch['working']
 except:
-    # pending = couch['pending']
-    couch.delete("pending")
-    pending = couch.create('pending')
-
-try:    
-    working = couch.create('working')
-    # working = couch['working']
-except:
-    couch.delete("working")
     working = couch.create('working')
 
-    
 try:
-    finished = couch.create('finished')
-    # finished = couch['finished']
+    finished = couch['finished']
 except:
-    couch.delete("finished")
     finished = couch.create('finished')
 
-for t in tasks:
-    if t['name'] not in pending:
-        t['_id'] = t['name']
-        t['state'] = 'pending'
-        pending.save(t)
+
+
+
+
+@app.route('/initdb')
+def init_db():
+    try:
+        pending = couch.create('pending')
+    except:
+        # pending = couch['pending']
+        couch.delete("pending")
+        pending = couch.create('pending')
+
+    try:    
+        working = couch.create('working')
+        # working = couch['working']
+    except:
+        couch.delete("working")
+        working = couch.create('working')
+        
+    try:
+        finished = couch.create('finished')
+        # finished = couch['finished']
+    except:
+        couch.delete("finished")
+        finished = couch.create('finished')
+
+    for t in tasks:
+        if t['name'] not in pending:
+            t['_id'] = t['name']
+            t['state'] = 'pending'
+            pending.save(t)
+    return {"status":"success"}, 200
 
 def get_pending():
     return list(pending)
@@ -303,6 +323,16 @@ def getAurinTasksName(scale):
             pass
     return tasks
 
+def translateDBAurin2stdTask(nameDB):
+    items = nameDB.split("_")
+    ret = {"name": "aurin_" + items[2],
+           "type": "aurin",
+           "keyword": items[2],
+           "level" : items[1],
+           "prerequisite":"aurin_preserve"
+          }
+    return ret
+
 # trst if a given task exist in a queue or list
 def check_finished(task_name):
     if task_name in get_finished():
@@ -405,12 +435,7 @@ def submit_communication():
                 }
             elif '0-0-preCal' in json_data.keys():
                 taskType = 'preCalculated'
-                task_0 = {
-                    'name': taskType + '_' + json_data['0-0-preCal'],
-                    'type': taskType,
-                    'keyword': json_data['0-0-preCal'],
-                    'level': json_data['scale']
-                }
+                task_0 = translateDBAurin2stdTask(json_data['0-0-preCal'])
             else:
                 raise IndexError('no valid input')
             
@@ -429,12 +454,7 @@ def submit_communication():
                     }
                 elif '0-1-preCal' in json_data.keys():
                     taskType = 'preCalculated'
-                    task_1 = {
-                        'name': taskType + '_' + json_data['0-1-preCal'],
-                        'type': taskType,
-                        'keyword': json_data['0-1-preCal'],
-                        'level': json_data['scale']
-                    }
+                    task_1 = translateDBAurin2stdTask(json_data['0-1-preCal'])
                 print({scenarioName: [task_0, task_1]})
                 ##### add scenario {scenarioName: [task_0['name'], task_1]} #####
                 scenarioDict[scenarioName] = [task_0, task_1]
@@ -492,12 +512,12 @@ def plot_communication():
                         x.append(data_0[key])
                         y.append(data_1[key])
                         keys.append(key)
-                print({"data": {"type": "scatter", "mode": "markers", "x": x, "y": y, "text": keys}, 
+                print({"data": {"type": "scatter", "mode": "markers", "x": x, "y": y, "text": keys, "marker": {"size": 15}}, 
                                 "titleLabel": scenarioRequested, 
                                 "xLabel": scenarioDict[scenarioRequested][0]["name"],
                                 "yLabel": scenarioDict[scenarioRequested][1]["name"]
                               })
-                return jsonify({"data": {"type": "scatter", "mode": "markers", "x": x, "y": y, "text": keys}, 
+                return jsonify({"data": {"type": "scatter", "mode": "markers", "x": x, "y": y, "text": keys, "marker": {"size": 15}}, 
                                 "titleLabel": scenarioRequested, 
                                 "xLabel": scenarioDict[scenarioRequested][0]["name"],
                                 "yLabel": scenarioDict[scenarioRequested][1]["name"]

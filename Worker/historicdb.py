@@ -31,9 +31,14 @@ def store_historic(data_filepath, db):
             if i not in db:
                 new_historic = HistoricRaw(_id = i, sa3_id = record_dict[i]["sa3_id"], tweet_text = record_dict[i]["tweet_text"])
                 new_historic.store(db)
+    print("Historic Done")
     return ("Done")
 
 def preserve_historic(couch):
     dbhr = set_historic_cluster(couch)
-    store_historic('CCCA2/Data/Historic/preprocess_historic.json', dbhr)
-    return True
+    try:
+        store_historic('CCCA2/Data/Historic/preprocess_historic.json', dbhr)
+        print('store finish')
+        return True
+    except:
+        return False

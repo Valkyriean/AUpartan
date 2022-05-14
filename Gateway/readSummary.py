@@ -3,10 +3,10 @@ from couchdb.design import ViewDefinition
 
 def gateway_aurin(db, key_Search):
 
-    viewName = "aurin" + key_Search + "Target"
-    AurinTarget_View = ViewDefinition("aurin", viewName,'''\
+    viewName = "Aurin" + key_Search + "Target"
+    AurinTarget_View = ViewDefinition('Aurintarget', viewName,'''\
             function(doc){
-                emit(doc._id, doc.target_value);
+                emit(doc.code, doc.target_value);
             }''')
     AurinTarget_View.sync(db)
 
