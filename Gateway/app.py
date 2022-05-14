@@ -53,76 +53,76 @@ example for historic json
 
 '''
 
-tasks = [{"name": "aurin_preserve", 
+preserve_task_1 = {"name": "aurin_preserve", 
                 "type" : "preserve",
                 "task" : "aurin"
-},
+}
 
- {"name": "historic_preserve", 
+preserve_task_2 = {"name": "historic_preserve", 
                 "type" : "preserve",
                 "task" : "historic"
-},
+}
 
-{"name": "aurin_payroll",
+example_task_1 = {"name": "aurin_payroll",
                 "type": "aurin",
                 "keyword": "payroll",
                 "level" : "sa3",
                 "prerequisite":"aurin_preserve"
-},
+}
 
- {"name": "aurin_income",
+example_task_2 = {"name": "aurin_income",
                 "type": "aurin",
                 "keyword": "income",
                 "level" : "sa3",
                 "prerequisite":"aurin_preserve"
-},
+}
 
- {"name": "aurin_immigration",
+example_task_3 = {"name": "aurin_immigration",
                 "type": "aurin",
                 "keyword": "immigration",
                 "level" : "city",
                 "prerequisite":"aurin_preserve"
-},
+}
 
- {"name": "aurin_salary",
+example_task_4 = {"name": "aurin_salary",
                 "type": "aurin",
                 "keyword": "salary",
                 "level" : "city",
                 "prerequisite":"aurin_preserve"
-},
+}
 
- {"name": "search_election",
+example_task_5 = {"name": "search_election",
                 "type": "search",
                 "keyword": "Election"
-},
+}
 
- {"name": "search_crime",
+example_task_6 = {"name": "search_crime",
                 "type": "search",
                 "keyword": "crime"
-},
+}
 
-{"name": "historic_crime",
+example_task_7 = {"name": "historic_crime",
                 "type": "historic",
                 "keyword": "crime",
                 "prerequisite":"historic_preserve"
-},
+}
 
-{"name": "historic_all",
+example_task_8 = {"name": "historic_all",
                 "type": "historic",
                 "keyword": "all",
                 "prerequisite":"historic_preserve"
-}]
+}
 
-# queueing_task.put(preserve_task_1)
-# queueing_task.put(preserve_task_2)
-# queueing_task.put(example_task_1)
-# queueing_task.put(example_task_2)
-# queueing_task.put(example_task_3)
-# queueing_task.put(example_task_4)
-# queueing_task.put(example_task_5)
-# queueing_task.put(example_task_6)
-# queueing_task.put(example_task_7)
-# queueing_task.put(example_task_8)
+queueing_task.put(preserve_task_1)
+queueing_task.put(preserve_task_2)
+queueing_task.put(example_task_1)
+queueing_task.put(example_task_2)
+queueing_task.put(example_task_3)
+queueing_task.put(example_task_4)
+queueing_task.put(example_task_5)
+queueing_task.put(example_task_6)
+queueing_task.put(example_task_7)
+queueing_task.put(example_task_8)
 
 
 scenarioDict["Income (sa3) VS overall sentiment"] = [{"name": "aurin_income", "level": "sa3"}, {"name": "historic_all", "method": "sentiment"}]
@@ -139,122 +139,83 @@ scenarioDict["Crime count (sa3)"] = [{"name": "historic_crime", "method": "count
 # finished_task.append(example_task_6)
 # ##### Remove After Front End Testing #####
 
-
-try:
-    
-    pending = couch.create('pending')
-except:
-    # pending = couch['pending']
-    couch.delete("pending")
-    pending = couch.create('pending')
-
-try:    
-    working = couch.create('working')
-    # working = couch['working']
-except:
-    couch.delete("working")
-    working = couch.create('working')
-
-    
-try:
-    finished = couch.create('finished')
-    # finished = couch['finished']
-except:
-    couch.delete("finished")
-    finished = couch.create('finished')
-
-for t in tasks:
-    if t['name'] not in pending:
-        t['_id'] = t['name']
-        t['state'] = 'pending'
-        pending.save(t)
-
-def get_pending():
-    return list(pending)
-def get_working():
-    return list(working)
-def get_finished():
-    return list(finished)
-
-# print(list(pending))
-# print(len(working))
-# for i in pending:
-#     print(pending[i]["type"])
-
-# for i in pending:
-#    pending[i]["type"] = "new"
-#    pending.save(pending[i])
-# for i in pending:
-#     print(pending[i]["type"])
 # working pool
 app.task_start_time = datetime.now() - timedelta(seconds=1)
 
 
-# @app.route('/get_task', methods=['POST'])
-# async def get_task():
-#     worker_ip = str(request.json.get("worker_ip"))
-#     for t in working:
-#         if working[t]['timeout'] < str(datetime.now()):
-#             working[t]['timeout'] = str(datetime.now()+timeout)
-#             working.save(working[t])
-#             return {"status":"success", "task":task}
-#     # take task from task queue
-#     if len(working) == 0:
-#         print("no work")
-#         return {"status":"no_work"}
-#     task = queueing_task.get()
-#     prerequisite = task.get("prerequisite", None)
-#     limit = queueing_task.qsize()
-#     index = 0
-#     while prerequisite not in finished_task and prerequisite != None:
-#         if index > limit:
-#             print("No fulfilled task")
-#             return {"status":"no prerequisite fulfilled task"}
-#         print(f"prerequisite {prerequisite} not fulfilled for task "+str(task.get("name")))
-#         queueing_task.put(task)
-#         task = queueing_task.get()
-#         prerequisite = task.get("prerequisite", None)
-#         index += 1
-#     print("Task " + str(task["name"]) + " got by worker " + worker_ip)
-#     working_task.append((datetime.now()+timeout,task, worker_ip))
-#     return {"status":"success", "task":task}
+@app.route('/get_task', methods=['POST'])
+async def get_task():
+    if datetime.now() - app.task_start_time > timedelta(seconds=1):
+        app.task_start_time = datetime.now()
+        print(queueing_task.qsize())
+        print(working_task)
+        print(finished_task)
+        json_data = request.json
+        worker_ip = str(json_data.get("worker_ip"))
+        if working_task and working_task[0][0] < datetime.now():
+            task = working_task.pop()[1]
+            working_task.append((datetime.now()+timeout,task, worker_ip))
+            return {"status":"success", "task":task}
+        # take task from task queue
+        if queueing_task.empty():
+            print("no work")
+            return {"status":"no_work"}
+        task = queueing_task.get()
+        prerequisite = task.get("prerequisite", None)
+        limit = queueing_task.qsize()
+        index = 0
+        while prerequisite not in finished_task and prerequisite != None:
+            if index > limit:
+                print("No fulfilled task")
+                return {"status":"no prerequisite fulfilled task"}
+            print(f"prerequisite {prerequisite} not fulfilled for task "+str(task.get("name")))
+            queueing_task.put(task)
+            task = queueing_task.get()
+            prerequisite = task.get("prerequisite", None)
+            index += 1
+        print("Task " + str(task["name"]) + " got by worker " + worker_ip)
+        working_task.append((datetime.now()+timeout,task, worker_ip))
+        return {"status":"success", "task":task}
+    else:
+        print("busy")
+        return {"status":"busy"}
 
 
-# @app.route('/finish_task', methods=['POST'])
-# def finish_task():    
-#     print(str(queueing_task.qsize())+"\n")
-#     print(str(working_task)+"\n")
-#     print(str(finished_task)+"\n")
-#     json_data = request.json
-#     task_name = json_data.get('task_name', "nameless task")
-#     if task_name in finished_task:
-#         return {"status":"success"}, 200
-#     print("Finish " + str(task_name))
-#     flag = False
-#     for t in working_task:
-#         if t[1].get("name", None) == task_name:
-#             working_task.remove(t)
-#             flag = True
-#             break
-#     if flag:
-#         finished_task.append(task_name)
-#     return {"status":"success"}, 200
+@app.route('/finish_task', methods=['POST'])
+def finish_task():    
+    print(str(queueing_task.qsize())+"\n")
+    print(str(working_task)+"\n")
+    print(str(finished_task)+"\n")
+    json_data = request.json
+    task_name = json_data.get('task_name', "nameless task")
+    if task_name in finished_task:
+        return {"status":"success"}, 200
+    print("Finish " + str(task_name))
+    flag = False
+    for t in working_task:
+        if t[1].get("name", None) == task_name:
+            working_task.remove(t)
+            flag = True
+            break
+    if flag:
+        finished_task.append(task_name)
+    return {"status":"success"}, 200
 
         
-# @app.route('/failed_task', methods=['POST'])
-# async def failed_task():
-#     json_data = request.json
-#     task_name = json_data.get('task_name', "nameless task")
-#     if task_name in finished_task:
-#         return {"status":"success"}, 200
-#     print("Failed " + str(task_name))
-#     for t in working_task:
-#         if t[1].get("name", None) == task_name:
-#             temp = t
-#             working_task.remove(t)
-#             working_task.insert(0, (datetime.now(), temp[1], temp[2]))
-#             break
-#     return {"status":"success"}, 200
+@app.route('/failed_task', methods=['POST'])
+async def failed_task():
+    json_data = request.json
+    task_name = json_data.get('task_name', "nameless task")
+    if task_name in finished_task:
+        return {"status":"success"}, 200
+    print("Failed " + str(task_name))
+    for t in working_task:
+        if t[1].get("name", None) == task_name:
+            temp = t
+            working_task.remove(t)
+            working_task.insert(0, (datetime.now(), temp[1], temp[2]))
+            break
+    return {"status":"success"}, 200
         
 # Front end
 @app.route('/queueing_task', methods=['GET'])
