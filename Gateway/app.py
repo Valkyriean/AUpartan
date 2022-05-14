@@ -306,8 +306,10 @@ def getCoord(city):
         "Brisbane": [-27.470125, 153.021072],
         "Perth": [-31.953512, 115.857048],
         "Adelaide": [-34.846111, 138.503052],
-        "Hobart": [-42.880554, 147.324997]
+        "Hobart": [-42.880554, 147.324997],
+        "Darwin": [-12.462827, 130.841782]
     }
+    print("city is ====>" + city)
     return cityDict[city]
 
 def getAurinTasksName(scale):
@@ -319,14 +321,35 @@ def getAurinTasksName(scale):
             pass
     return tasks
 
-def translateDBAurin2stdTask(nameDB):
-    items = nameDB.split("_")
-    ret = {"name": "aurin_" + items[2],
-           "type": "aurin",
-           "keyword": items[2],
-           "level" : items[1],
-           "prerequisite":"aurin_preserve"
-          }
+def translateDBString2stdTask(nameDB):
+    try:
+        items = nameDB.split("_")
+        if items[0] == "aurin":
+            ret = {"name": "aurin_" + items[2],
+                "type": "aurin",
+                "keyword": items[2],
+                "level" : items[1],
+                "prerequisite":"aurin_preserve"
+                }
+        if items[0] == "historic":
+            ret = {"name": "historic_" + items[1],
+                "type": "historic",
+                "keyword": items[1],
+                "level" : "sa3",
+                "prerequisite":"historic_preserve",
+                # force to be count
+                "method": "count"
+                }
+        if items[0] == "search":
+            ret = {"name": "search_" + items[1],
+                "type": "search",
+                "keyword": items[1],
+                "level" : "city",
+                # force to be count
+                "method": "count"
+                }
+    except:
+        ret = None 
     return ret
 
 # trst if a given task exist in a queue or list
@@ -446,7 +469,7 @@ def submit_communication():
                 }
             elif '0-0-preCal' in json_data.keys():
                 taskType = 'preCalculated'
-                task_0 = translateDBAurin2stdTask(json_data['0-0-preCal'])
+                task_0 = translateDBString2stdTask(json_data['0-0-preCal'])
             else:
                 raise IndexError('no valid input')
             
@@ -465,7 +488,7 @@ def submit_communication():
                     }
                 elif '0-1-preCal' in json_data.keys():
                     taskType = 'preCalculated'
-                    task_1 = translateDBAurin2stdTask(json_data['0-1-preCal'])
+                    task_1 = translateDBString2stdTask(json_data['0-1-preCal'])
                 print({scenarioName: [task_0, task_1]})
                 ##### add scenario {scenarioName: [task_0['name'], task_1]} #####
                 scenarioDict[scenarioName] = [task_0, task_1]
@@ -551,28 +574,33 @@ def get_city_db():
 
 @app.route('/request/map', methods = ['GET', 'POST'])
 def map_communication():
-    try:
+    # try:
         json_data = request.json
         print(json_data)
         if json_data["request"] == "dataList":
-            return jsonify(get_city_db())
+            return jsonify({"dataList":list(get_city_db())})
+            # return jsonify({"dataList" : ["kangaroo beat human(count)", "kangaroo beat human(count) VS human beat kangaroo(count)"]})
         if json_data["request"] == "cityData":
             print("request data: " + json_data["scenario"])
-            datadict = extract_summary(couch, json_data["scenario"])
+            datadict = extract_summary(couch, translateDBString2stdTask(json_data["scenario"]))
             retDict = dict()
+            print("datadict ")
+            print(datadict)
             for name in datadict.keys():
                 print(name)
                 retDict[name] = [getCoord(name), datadict[name]]
             citys = list(datadict.keys())
             print({"cityList" : citys, "cityData": retDict})
-            return jsonify({"cityList" : citys, "cityData": retDict})
-    except:
-        pass
+            return jsonify({"cityList" : citys, "cityData": retDict}), 200
+    # except Exception as e:
+    #     print(e)
+    #     pass
+    
 
 # return_dict = extract_summary(couch, summary_db)
 
 if __name__ == '__main__':
-    app.run(debug=True, host="0.0.0.0", port=3000)
+    app.run(debug=True, host="localhost", port=3000)
 
 
 
