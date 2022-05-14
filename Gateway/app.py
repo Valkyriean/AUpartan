@@ -508,9 +508,14 @@ def plot_communication():
         return jsonify({"state" : "failed"})
 
 ########################### replace and delete this thing
-def get___get____City_________Data____________________Sets(){
-    pass
-}
+def get_city_db():
+    res = []
+    for d in couch:
+        d_list = d.split('_')
+        if len(d_list) >=3 and d_list[-1] == 'summary' and d_list[1] == "city":
+            res.append(d)
+    return res
+
 ###########################
 
 @app.route('/request/map', methods = ['GET', 'POST'])
@@ -519,7 +524,7 @@ def map_communication():
         json_data = request.json
         print(json_data)
         if json_data["request"] == "dataList":
-            return jsonify(get___get____City_________Data____________________Sets())
+            return jsonify(get_city_db())
         if json_data["request"] == "cityData":
             print("request data: " + json_data["scenario"])
             datadict = extract_summary(couch, json_data["scenario"])
