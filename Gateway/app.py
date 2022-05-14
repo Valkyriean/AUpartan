@@ -139,35 +139,55 @@ scenarioDict["Crime count (sa3)"] = [{"name": "historic_crime", "method": "count
 # finished_task.append(example_task_6)
 # ##### Remove After Front End Testing #####
 
+try:
+    pending = couch['pending']
+except:
+    pending = couch.create('pending')
+    
 
 try:
-    
-    pending = couch.create('pending')
+    working = couch['working']
 except:
-    # pending = couch['pending']
-    couch.delete("pending")
-    pending = couch.create('pending')
-
-try:    
-    working = couch.create('working')
-    # working = couch['working']
-except:
-    couch.delete("working")
     working = couch.create('working')
 
-    
 try:
-    finished = couch.create('finished')
-    # finished = couch['finished']
+    finished = couch['finished']
 except:
-    couch.delete("finished")
     finished = couch.create('finished')
 
-for t in tasks:
-    if t['name'] not in pending:
-        t['_id'] = t['name']
-        t['state'] = 'pending'
-        pending.save(t)
+
+
+
+
+@app.route('/initdb')
+def init_db():
+    try:
+        pending = couch.create('pending')
+    except:
+        # pending = couch['pending']
+        couch.delete("pending")
+        pending = couch.create('pending')
+
+    try:    
+        working = couch.create('working')
+        # working = couch['working']
+    except:
+        couch.delete("working")
+        working = couch.create('working')
+        
+    try:
+        finished = couch.create('finished')
+        # finished = couch['finished']
+    except:
+        couch.delete("finished")
+        finished = couch.create('finished')
+
+    for t in tasks:
+        if t['name'] not in pending:
+            t['_id'] = t['name']
+            t['state'] = 'pending'
+            pending.save(t)
+    return {"status":"success"}, 200
 
 def get_pending():
     return list(pending)
