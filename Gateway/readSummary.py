@@ -3,8 +3,8 @@ from couchdb.design import ViewDefinition
 
 def gateway_aurin(db, key_Search):
 
-    viewName = "aurin" + key_Search + "Target"
-    AurinTarget_View = ViewDefinition("aurin", viewName,'''\
+    viewName = "Aurin" + key_Search + "Target"
+    AurinTarget_View = ViewDefinition('Aurintarget', viewName,'''\
             function(doc){
                 emit(doc.code, doc.target_value);
             }''')
