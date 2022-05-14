@@ -257,13 +257,13 @@ app.task_start_time = datetime.now() - timedelta(seconds=1)
 #     return {"status":"success"}, 200
         
 # Front end
-@app.route('/queueing_task', methods=['GET'])
-def get_queueing_task():
-    return str(list(queueing_task.queue))
+@app.route('/working_task', methods=['GET'])
+def get_working_task():
+    return str(get_working)
 
 @app.route('/finished_task', methods=['GET'])
 def get_finished_task():
-    return str(finished_task)
+    return str(get_finished())
 
 
 @app.errorhandler(400)
@@ -285,38 +285,46 @@ print(scenarioDict.keys())
 def getAurinTasksName(scale):
     tasks = []
     for name in couch:
-        if (str(name).split('_'))[1] == scale: tasks.append(name)
+        try:
+            if (str(name).split('_'))[1] == scale: tasks.append(name)
+        except:
+            pass
     return tasks
 
 # trst if a given task exist in a queue or list
 def check_finished(task_name):
-    if task_name in finished_task:
+    if task_name in get_finished():
         return True
     return False
 
 def check_global(task_name):
     if check_finished(task_name):
         return True
-    for t in list(queueing_task.queue):
-        if t.get("name",None) == task_name:
-            return True
-    for t in working_task:
-        if t[1].get("name",None) == task_name:
-            return True
+    elif task_name in get_working():
+        return True
+    elif task_name in get_finished():
+        return True
     return False
+
+@app.route("/add_task")
+def add_task():
+    task = request.json
+    addTask(task)
+    return {"status":"success"}, 200
 
 # append task to queueing_task if there's no duplication
 # return true when task successfully added
 def addTask(task):
     if not check_global(task["name"]): 
-        queueing_task.put(task)
+        task['_id'] = task["name"]
+        pending.save(task)
         return True
     return False
 
 # get all scenario ready for ploting
 # "ready" means all tasks involved are completed
 def getScenarioAvailable():
-    print("finished tasks: " + str(finished_task))
+    print("finished tasks: " + str(get_finished()))
     availableScenarios = []
     for scenario in scenarioDict.keys():
         print("testing scenario: " + scenario )

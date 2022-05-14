@@ -95,7 +95,9 @@ def main():
                     task = working[t]
                     if task['timeout'] < str(datetime.now()):
                         print("found timeout task "+ t)
+                        working.delete(task)
                         try_work(task)
+                        time.sleep(uniform(REQUEST_GAP-0.5, REQUEST_GAP+0.5))
                         break
             # take task from pending
             if len(pending) is 0:
@@ -117,7 +119,9 @@ def main():
         except Exception as e: 
             print(repr(e))
             time.sleep(uniform(REQUEST_GAP-0.5, REQUEST_GAP+0.5))
-            
+            continue
+        time.sleep(uniform(REQUEST_GAP-0.5, REQUEST_GAP+0.5))
+    
             
             
             
