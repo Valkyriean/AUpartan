@@ -109,7 +109,8 @@ def main():
                     if pre == None or pre in finished:
                         print("found pending can run "+t)
                         pending.delete(task)
-                        try_work(task)                    
+                        try_work(task)              
+                        break      
                     else:
                         print("pre not ready "+t)
                         time.sleep(uniform(REQUEST_GAP-0.5, REQUEST_GAP+0.5))
