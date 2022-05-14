@@ -1,0 +1,11 @@
+- hosts: instance2
+  roles: 
+  - role: deploy-worker1
+
+- hosts: instance3
+  roles: 
+  - role: deploy-worker2
+
+- hosts: instance4
+  roles: 
+  - role: deploy-worker3

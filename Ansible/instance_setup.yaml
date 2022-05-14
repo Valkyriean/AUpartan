@@ -7,7 +7,7 @@
 
   roles: 
   #- role: install-instance-requirements
-  #- role: clone-github
+  - role: clone-github
   #- role: upload-historic-data 
   #- role: install-docker
 
