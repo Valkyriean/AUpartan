@@ -27,71 +27,34 @@ timeout = timedelta(days=1)
 
 # scenario dictionary
 scenarioDict = dict()
-'''
-example for task json:
-
-{   "name": "aurin_income",
-    "type": "aurin",
-    "keyword": "income",
-    "level" : "sa3" (# another level is "city")
-}
-
-example for search json:
-{
-    "id": "search_Election",
-    "type": "search",
-    "keyword": "Election",
-    "city_set":["Melbourne", "Sydney", "Brisbane"]
-}
-
-example for historic json
-{
-    "id": "historic_Covid",
-    "type": "historic",
-    "keyword": "Covid",
-}
-
-'''
 
 tasks = [{"name": "aurin_preserve", 
                 "type" : "preserve",
-                "task" : "aurin"
-},
-
- {"name": "historic_preserve", 
+                "task" : "aurin"},
+{"name": "historic_preserve", 
                 "type" : "preserve",
-                "task" : "historic"
-},
-
+                "task" : "historic"},
 {"name": "aurin_payroll",
                 "type": "aurin",
                 "keyword": "payroll",
                 "level" : "sa3",
-                "prerequisite":"aurin_preserve"
-},
-
- {"name": "aurin_income",
+                "prerequisite":"aurin_preserve"},
+{"name": "aurin_income",
                 "type": "aurin",
                 "keyword": "income",
                 "level" : "sa3",
-                "prerequisite":"aurin_preserve"
-},
-
- {"name": "aurin_immigration",
+                "prerequisite":"aurin_preserve"},
+{"name": "aurin_immigration",
                 "type": "aurin",
                 "keyword": "immigration",
                 "level" : "city",
-                "prerequisite":"aurin_preserve"
-},
-
- {"name": "aurin_salary",
+                "prerequisite":"aurin_preserve"},
+{"name": "aurin_salary",
                 "type": "aurin",
                 "keyword": "salary",
                 "level" : "city",
-                "prerequisite":"aurin_preserve"
-},
-
- {"name": "search_election",
+                "prerequisite":"aurin_preserve"},
+{"name": "search_election",
                 "type": "search",
                 "keyword": "Election"
 },
@@ -188,6 +151,39 @@ def init_db():
             t['state'] = 'pending'
             pending.save(t)
     return {"status":"success"}, 200
+
+@app.route('/init_finished')
+def init_db_finished():
+    try:
+        pending = couch.create('pending')
+    except:
+        # pending = couch['pending']
+        couch.delete("pending")
+        pending = couch.create('pending')
+
+    try:    
+        working = couch.create('working')
+        # working = couch['working']
+    except:
+        couch.delete("working")
+        working = couch.create('working')
+        
+    try:
+        finished = couch.create('finished')
+        # finished = couch['finished']
+    except:
+        couch.delete("finished")
+        finished = couch.create('finished')
+
+    for t in tasks:
+        if t['name'] not in finished:
+            t['_id'] = t['name']
+            t['state'] = 'pending'
+            finished.save(t)
+    return {"status":"success"}, 200
+
+
+
 
 def get_pending():
     return list(pending)
