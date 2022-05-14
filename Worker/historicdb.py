@@ -31,6 +31,7 @@ def store_historic(data_filepath, db):
             if i not in db:
                 new_historic = HistoricRaw(_id = i, sa3_id = record_dict[i]["sa3_id"], tweet_text = record_dict[i]["tweet_text"])
                 new_historic.store(db)
+    print("Historic Done")
     return ("Done")
 
 def preserve_historic(couch):
