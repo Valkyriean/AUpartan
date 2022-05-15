@@ -337,17 +337,17 @@ def translateDBString2stdTask(nameDB):
                 "keyword": items[1],
                 "level" : "sa3",
                 "prerequisite":"historic_preserve",
-                # force to be count
-                "method": "count"
                 }
+            if len(items) >= 4:
+                ret["method"] = items[3]
         if items[0] == "search":
             ret = {"name": "search_" + items[1],
                 "type": "search",
                 "keyword": items[1],
                 "level" : "city",
-                # force to be count
-                "method": "count"
                 }
+            if len(items) >= 4:
+                ret["method"] = items[3]
     except:
         ret = None 
     return ret
@@ -567,7 +567,8 @@ def get_city_db():
     for d in couch:
         d_list = d.split('_')
         if len(d_list) >=3 and d_list[-1] == 'summary' and d_list[1] == "city":
-            res.append(d)
+            res.append(d+"_count")
+            res.append(d+"_sentiment")
     return res
 
 ###########################
