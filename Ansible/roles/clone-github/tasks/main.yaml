@@ -1,3 +1,9 @@
+# Qianjun Ding 1080391 
+# Zhiyuan Gao 1068184 
+# Jiachen Li 1068299 
+# Yanting Mu 1068314
+# Chi Zhang 1067750
+
 # Modified from https://gist.github.com/devynspencer/effa29af449c46477ac71213210e7043
 - name: places key in path
   become: yes

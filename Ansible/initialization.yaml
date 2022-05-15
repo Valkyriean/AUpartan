@@ -1,3 +1,9 @@
+# Qianjun Ding 1080391 
+# Zhiyuan Gao 1068184 
+# Jiachen Li 1068299 
+# Yanting Mu 1068314
+# Chi Zhang 1067750
+
 - hosts: localhost
   vars_files:
     - host_vars/initialization.yaml
