@@ -92,6 +92,7 @@ scenarioDict["Income (sa3) VS overall sentiment"] = [{"name": "aurin_income", "l
 scenarioDict["Income (city) VS attitude toward election"] = [{"name": "aurin_salary", "level": "city"}, {"name": "search_election", "method": "sentiment"}]
 scenarioDict["Income (city) VS count of mentioning crime"] = [{"name": "aurin_salary", "level": "city"}, {"name": "search_crime", "method": "count"}]
 scenarioDict["Crime count (sa3)"] = [{"name": "historic_crime", "method": "count"}]
+scenarioDict["Income (city) VS election count"] = [{"name": "aurin_salary", "level": "city"}, {"name": "search_election", "method": "count"}]
 
 # ##### For Testing Only #####
 # finished_task.append(example_task_1)
