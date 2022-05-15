@@ -36,7 +36,7 @@ function PreCalculatedWriter_City (id) {
   console.log(id)
   const [list, setList] = useState([]);
   useEffect(()=>{
-  fetch("http://127.0.0.1:3000/request/submit", {
+  fetch("http://172.26.133.167:3000/request/submit", {
     method: "POST",
     headers: {'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -66,7 +66,7 @@ function PreCalculatedWriter_SA3 (id) {
   console.log(id)
   const [list, setList] = useState([]);
   useEffect(()=>{
-  fetch("http://127.0.0.1:3000/request/submit", {
+  fetch("http://172.26.133.167:3000/request/submit", {
     method: "POST",
     headers: {'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -287,7 +287,7 @@ export default class SubmitWork extends React.Component {
     }
     console.log(ret)
     
-    fetch("http://127.0.0.1:3000/request/submit", {
+    fetch("http://172.26.133.167:3000/request/submit", {
     method: "POST",
     headers: {'Content-Type': 'application/json' },
     body: JSON.stringify(ret)

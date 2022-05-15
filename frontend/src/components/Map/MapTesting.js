@@ -16,7 +16,7 @@ const Plot = createPlotlyComponent(Plotly);
 function RenderDataList () {
   const [list, setList] = useState([]);
   useEffect(()=>{
-  fetch("http://127.0.0.1:3000/request/map", {
+  fetch("http://172.26.133.167:3000/request/map", {
     method: "POST",
     headers: {'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -80,7 +80,7 @@ export default class App extends React.Component {
     var obj = document.getElementById('scenario-select');
     if (obj) var scenario = obj.value;
     console.log(scenario)
-    fetch("http://127.0.0.1:3000/request/map", {
+    fetch("http://172.26.133.167:3000/request/map", {
       method: "POST",
       headers: {'Content-Type': 'application/json' },
       body: JSON.stringify({

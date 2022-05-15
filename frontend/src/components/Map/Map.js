@@ -4,7 +4,7 @@ import mapboxgl from 'mapbox-gl';
 import Navbar from '../Navbar/Navbar';
 
 mapboxgl.accessToken = 'pk.eyJ1IjoieWFudGluZ211IiwiYSI6ImNsMmJob2EzczA3ZTMzZGw2bWFvaHRrd2IifQ.qOLO45RtuWppsIRM1pxqiw';
-const baseURL = "http://127.0.0.1:3000"
+const baseURL = "http://172.26.133.167:3000"
 
 export default class App extends React.Component {
   constructor(props){
@@ -28,7 +28,7 @@ export default class App extends React.Component {
     });
     let Markers = [];
     map.on('click', async (e) => {
-      await fetch("http://127.0.0.1:3000/map", {
+      await fetch("http://172.26.133.167:3000/map", {
         method: "POST",
         headers: {'Content-Type': 'application/json' },
         body: JSON.stringify({
