@@ -1,8 +1,5 @@
-# - name: delete previous app process
-#   shell: sudo pkill -f app.py
-  
-- ansible.builtin.debug:
-    msg: "{{ groups['instance3ip'][0] }}"
+- name: delete previous app process
+  ansible.builtin.command: sudo pkill -f app.py
 
 - name: run app from Worker
   become: yes
