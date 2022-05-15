@@ -8,4 +8,4 @@
   become: yes
   # shell: sudo python3 CCCA2/Worker/app.py {{ groups['instance1ip'][0] }} {{ groups['instance2ip'][0] }}
 
-  shell: nohup python3 -u CCCA2/Worker/app.py {{ groups['instance1ip'][0] }} {{ groups['instance2ip'][0] }} >log.txt & 
+  shell: nohup python3 -u CCCA2/Worker/app.py {{ groups['instance2ip'][0] }} >log.txt & 
