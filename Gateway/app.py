@@ -428,11 +428,15 @@ def get_css(filename):
 
 # @app.route('/img/<filename>', methods=["GET"])
 # def get_img(filename):
-#     return send_file('./static/dist/img/{0}'.format(filename))
+#     return send_file('./instance/static/img/{0}'.format(filename))
 
 # @app.route('/media/<filename>', methods=["GET"])
 # def get_media(filename):
-#     return send_file('./static/dist/media/{0}'.format(filename))
+#     return send_file('./instance/static/media/{0}'.format(filename))
+
+@app.route('/static/media/<filename>', methods=["GET"])
+def get_static_media(filename):
+    return send_file('./instance/static/media/{0}'.format(filename))
 
 @app.route('/favicon.ico', methods=["GET"])
 def get_ico():
