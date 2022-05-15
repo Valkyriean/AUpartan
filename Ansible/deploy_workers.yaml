@@ -1,11 +1,23 @@
 - hosts: instance2
+  vars_files: 
+    - host_vars/instance_setup.yaml
+  gather_facts: true 
+
   roles: 
   - role: deploy-worker1
 
 - hosts: instance3
+  vars_files: 
+    - host_vars/instance_setup.yaml
+  gather_facts: true 
+
   roles: 
   - role: deploy-worker2
 
 - hosts: instance4
+  vars_files: 
+    - host_vars/instance_setup.yaml
+  gather_facts: true 
+
   roles: 
   - role: deploy-worker3
