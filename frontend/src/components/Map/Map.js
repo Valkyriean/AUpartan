@@ -39,7 +39,7 @@ function RenderDataList () {
   let datas = Array.from(list)
   return (
     <select class='mapSelect' id={'scenario-select'}>
-      <option value="" disabled selected>Select scale</option>
+      <option value="" disabled selected>Select data to plot...</option>
       {datas.map(todo => 
       <option key={todo}>{todo}</option>)}
     </select>
