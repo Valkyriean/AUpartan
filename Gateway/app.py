@@ -417,7 +417,7 @@ def plot_communication():
                 keys = []
                 y = []
                 for key in raw.keys():
-                    keys.append(key)
+                    keys.append("Area:" + str(key))
                     y.append(raw[key])
                 print({"data": {"type": "bar", "x": keys, "y": y},
                        "titleLabel": scenarioRequested,
