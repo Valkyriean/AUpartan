@@ -26,7 +26,7 @@ def map_communication():
             return jsonify({"dataList" : ["kangaroo beat human(count)", "kangaroo beat human(count) VS human beat kangaroo(count)"]})
         if json_data["request"] == "cityData":
             print("request data: " + json_data["scenario"])
-            datadict = {"Melbourne": 100, "Sydney": 200, "Canberra": 250}
+            datadict = {"Melbourne": 1999, "Canberra": 9990, "Sydney": 2990}
             retDict = dict()
             for name in datadict.keys():
                 print(name)

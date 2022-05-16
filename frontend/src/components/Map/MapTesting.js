@@ -9,14 +9,15 @@ import createPlotlyComponent from "react-plotly.js/factory";
 import {useEffect, useState, useRef} from 'react';
 
 mapboxgl.accessToken = 'pk.eyJ1IjoieWFudGluZ211IiwiYSI6ImNsMmJob2EzczA3ZTMzZGw2bWFvaHRrd2IifQ.qOLO45RtuWppsIRM1pxqiw';
-const baseURL = "http://127.0.0.1:5000"
+// const baseURL = "http://127.0.0.1:5000/request/map"
+const baseURL = "http://172.26.133.167:3000/request/map"
 const Plot = createPlotlyComponent(Plotly);
 
 
 function RenderDataList () {
   const [list, setList] = useState([]);
   useEffect(()=>{
-  fetch("http://172.26.133.167:3000/request/map", {
+  fetch(baseURL, {
     method: "POST",
     headers: {'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -55,7 +56,7 @@ export default class App extends React.Component {
   addPopup(map, el, lat, lng) {
     const placeholder = document.createElement('div');
     ReactDOM.render(el, placeholder);
-
+    console.log("added a popup")
     const marker = new mapboxgl.Popup()
                         .setDOMContent(placeholder)
                         .setLngLat({lng: lng, lat: lat})
@@ -80,7 +81,7 @@ export default class App extends React.Component {
     var obj = document.getElementById('scenario-select');
     if (obj) var scenario = obj.value;
     console.log(scenario)
-    fetch("http://172.26.133.167:3000/request/map", {
+    fetch(baseURL, {
       method: "POST",
       headers: {'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -90,6 +91,9 @@ export default class App extends React.Component {
     })
     .then(response => response.json())
     .then(response => {
+      while (document.getElementsByClassName("mapboxgl-popup").length){
+        document.getElementsByClassName("mapboxgl-popup")[0].remove()
+      }
       for (let city of response.cityList){
         var cityCoord = response.cityData[city][0]
         var cityValue = response.cityData[city][1]

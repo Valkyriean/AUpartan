@@ -20,7 +20,7 @@ export default class Home extends React.PureComponent {
         <h2 class='description1'>Extendable Computing System Focused on City Liveabality Implimented By:</h2>
         <h2 class='description2'>Qianjun Ding --- Zhiyuan Gao --- Jiachen Li --- Yanting Mu --- Chi Zhang</h2>
         <img class='aupartan' src={aupartan} />
-        <p className='author'>Back ground image by: Chuyin Qi</p>
+        <p className='author'>Background Image by: Chuyin Qi</p>
       </div>
     );
   }
