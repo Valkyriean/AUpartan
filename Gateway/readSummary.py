@@ -1,10 +1,16 @@
+# Qianjun Ding 1080391
+# Zhiyuan Gao 1068184
+# Jiachen Li 1068299
+# Yanting Mu 1068314
+# Chi Zhang 1067750
+
 from couchdb.design import ViewDefinition
 
 
 def gateway_aurin(db, key_Search):
 
     viewName = "Aurin" + key_Search + "Target"
-    AurinTarget_View = ViewDefinition('Aurintarget', viewName,'''\
+    AurinTarget_View = ViewDefinition('Aurintarget', viewName, '''\
             function(doc){
                 emit(doc.code, doc.target_value);
             }''')
@@ -12,18 +18,19 @@ def gateway_aurin(db, key_Search):
 
     return AurinTarget_View
 
+
 def gateway_tweet(db, key_Search, harvest_method, level):
 
     viewName = harvest_method + key_Search + level
 
     if level == "count":
-        TweetTarget_View = ViewDefinition(harvest_method, viewName,'''\
+        TweetTarget_View = ViewDefinition(harvest_method, viewName, '''\
             function(doc){
                 emit(doc._id, doc.tweet_count);
             }''')
 
     elif level == "sentiment":
-        TweetTarget_View = ViewDefinition(harvest_method, viewName,'''\
+        TweetTarget_View = ViewDefinition(harvest_method, viewName, '''\
             function(doc){
                 emit(doc._id, doc.nlpemo);
             }''')
@@ -32,12 +39,14 @@ def gateway_tweet(db, key_Search, harvest_method, level):
 
     return TweetTarget_View
 
+
 def extra_data_view(view_function, db):
     view_result = view_function(db)
     result_dict = {}
     for row in view_result:
         result_dict[row.key] = row.value
     return result_dict
+
 
 def extract_summary(couch, summary_db):
 
@@ -51,7 +60,7 @@ def extract_summary(couch, summary_db):
                             required_db = couch[i]
                             break
         gateway_view = gateway_aurin(required_db, search_key)
-    
+
     else:
         search_method = summary_db["name"].split("_")[0]
         search_key = summary_db["name"].split("_")[1]
@@ -62,8 +71,9 @@ def extract_summary(couch, summary_db):
                     if "summary" in i:
                         required_db = couch[i]
                         break
-        gateway_view = gateway_tweet(required_db, search_key, search_method, search_stat)
-    
+        gateway_view = gateway_tweet(
+            required_db, search_key, search_method, search_stat)
+
     result_dict = extra_data_view(gateway_view, required_db)
 
     return result_dict

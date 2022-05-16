@@ -1,5 +1,10 @@
+# Qianjun Ding 1080391
+# Zhiyuan Gao 1068184
+# Jiachen Li 1068299
+# Yanting Mu 1068314
+# Chi Zhang 1067750
+
 import time
-import requests
 from couchdb import Server
 from aurindb import preserve_aurin
 from historicdb import preserve_historic
@@ -14,8 +19,8 @@ from datetime import timedelta, datetime
 # Initialise
 REQUEST_GAP = 15
 WORKER_IP = "localhost"
-DB_USERNAME= "admin"
-DB_PASSWORD= "admin"
+DB_USERNAME = "admin"
+DB_PASSWORD = "admin"
 if len(sys.argv) == 2:
     WORKER_IP = sys.argv[1]
 print(WORKER_IP)
@@ -25,6 +30,7 @@ couch.resource.credentials = (DB_USERNAME, DB_PASSWORD)
 
 print("Initialized")
 # Main loop
+
 
 def assign_work(task):
     task_type = task.get("type", None)
@@ -44,10 +50,10 @@ def assign_work(task):
     elif task_type == "preserve":
         preserve_name = task.get("task", None)
         if preserve_name == "aurin":
-            #preserve_aurin(couch)
+            # preserve_aurin(couch)
             return preserve_aurin(couch)
         elif preserve_name == "historic":
-            #preserve_historic(couch)
+            # preserve_historic(couch)
             return preserve_historic(couch)
     return False
 
@@ -61,12 +67,13 @@ try:
     working = couch['working']
 except:
     working = couch.create('working')
-    
+
 try:
     finished = couch['finished']
 except:
     finished = couch.create('finished')
 timeout = timedelta(days=1)
+
 
 def try_work(task):
     task['timeout'] = str(datetime.now()+timeout)
@@ -84,17 +91,19 @@ def try_work(task):
         pending.save(task)
 
 # use three db
+
+
 def main():
     while True:
         try:
             # Try redo timeouted task
             print("run")
-            if len(working) is not 0: 
-                print("have running")    
+            if len(working) is not 0:
+                print("have running")
                 for t in working:
                     task = working[t]
                     if task['timeout'] < str(datetime.now()):
-                        print("found timeout task "+ t)
+                        print("found timeout task " + t)
                         working.delete(task)
                         try_work(task)
                         time.sleep(uniform(REQUEST_GAP-0.5, REQUEST_GAP+0.5))
@@ -106,117 +115,22 @@ def main():
                 continue
             else:
                 for t in pending:
-                    task = pending[t] 
+                    task = pending[t]
                     pre = task.get('prerequisite', None)
                     if pre == None or pre in finished:
                         print("found pending can run "+t)
                         pending.delete(task)
-                        try_work(task)              
-                        break      
+                        try_work(task)
+                        break
                     else:
                         print("pre not ready "+t)
                         time.sleep(uniform(REQUEST_GAP-0.5, REQUEST_GAP+0.5))
             # time.sleep(uniform(REQUEST_GAP-0.5, REQUEST_GAP+0.5))
-        except Exception as e: 
+        except Exception as e:
             print(repr(e))
             time.sleep(uniform(REQUEST_GAP-0.5, REQUEST_GAP+0.5))
             continue
         time.sleep(uniform(REQUEST_GAP-0.5, REQUEST_GAP+0.5))
-    
-            
-            
-            
-tasks = [{"name": "aurin_preserve", 
-                "type" : "preserve",
-                "task" : "aurin"},
-{"name": "historic_preserve", 
-                "type" : "preserve",
-                "task" : "historic"},
-{"name": "aurin_payroll",
-                "type": "aurin",
-                "keyword": "payroll",
-                "level" : "sa3",
-                "prerequisite":"aurin_preserve"},
-{"name": "aurin_income",
-                "type": "aurin",
-                "keyword": "income",
-                "level" : "sa3",
-                "prerequisite":"aurin_preserve"},
-{"name": "aurin_immigration",
-                "type": "aurin",
-                "keyword": "immigration",
-                "level" : "city",
-                "prerequisite":"aurin_preserve"},
-{"name": "aurin_salary",
-                "type": "aurin",
-                "keyword": "salary",
-                "level" : "city",
-                "prerequisite":"aurin_preserve"},
-{"name": "search_election",
-                "type": "search",
-                "keyword": "Election"},
-{"name": "search_crime",
-                "type": "search",
-                "keyword": "crime"},
-{"name": "historic_crime",
-                "type": "historic",
-                "keyword": "crime",
-                "prerequisite":"historic_preserve"},
-{"name": "historic_all",
-                "type": "historic",
-                "keyword": "all",
-                "prerequisite":"historic_preserve"}]
-# for t in tasks:
-#     # if t['name'] not in pending:
-#         t['_id'] = t['name']
-#         t['state'] = 'pending'
-#         pending.save(t)
 
-# def work(task):
-#     task['timeout'] = str(datetime.now()+timeout)
-#     task['state'] = "working"
-#     print(task)
-#     # time.sleep(1)
-#     pending.save(task)
-#     print("try work on "+ task['name'])
-#     # result = assign_work(task)
-#     result = True
-#     time.sleep(5)
-#     if result:
-#         task['state'] = "finished"
-#         pending.save(task)
-#     else:
-#         task['state'] = "pending"
-#         pending.save(task)
 
-# use one db only 
-
-# def main():
-#     while True:
-#         if len(pending) == 0:
-#             print("no task left, go sleep")
-#             time.sleep(uniform(REQUEST_GAP-0.5, REQUEST_GAP+0.5))
-#             continue
-#         for t in pending:
-#             task = pending[t]
-#             if task['state'] == 'working' and task['timeout'] < str(datetime.now()):
-#                 print("found expired "+t)
-#                 work(task)
-#             if task['state'] == 'pending':
-#                 print("found pending "+t)
-#                 pre = pending[t].get('prerequisite', None)
-#                 if pre == None or pre not in pending or (pre in pending and pending[pre]['state'] == 'finished'):
-#                     print("found pending pre mate"+t)
-#                     work(task)                    
-#                 else:
-#                     print("pre not ready "+t)
-                
-#                 # continue
-#             time.sleep(uniform(REQUEST_GAP-0.5, REQUEST_GAP+0.5))
-
-# try:
-#     main()
-# except Exception as e: 
-#     print(repr(e))
-    
 main()

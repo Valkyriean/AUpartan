@@ -1,3 +1,11 @@
+# Qianjun Ding 1080391
+# Zhiyuan Gao 1068184
+# Jiachen Li 1068299
+# Yanting Mu 1068314
+# Chi Zhang 1067750
+
+from couchdb.design import ViewDefinition
+from couchdb.mapping import TextField, FloatField, IntegerField
 from flaskext.couchdb import Row
 from flaskext.couchdb import Document, CouchDBManager
 from couchdb.mapping import TextField
@@ -5,8 +13,7 @@ import nltk
 from nltk.sentiment import SentimentIntensityAnalyzer
 nltk.download('vader_lexicon')
 sia = SentimentIntensityAnalyzer()
-from couchdb.mapping import TextField, FloatField, IntegerField
-from couchdb.design import ViewDefinition
+
 
 def create_cluster(couch, receive_keyword):
     # Setup raw database for storing target keyword related tweets (dbrt stands for database raw target)
@@ -16,6 +23,7 @@ def create_cluster(couch, receive_keyword):
     except:
         dbrt = couch.create(db_name)
     return dbrt
+
 
 def KeyData(design_doc, request, db):
     if request != 'all':
@@ -49,8 +57,11 @@ def KeyData(design_doc, request, db):
 
     return requestText, requestSA3
 
+
 # Setup class for collecting target historicu information into historic raw database
 manager = CouchDBManager()
+
+
 class Historic(Document):
     doc_type = 'historic'
     _id = TextField()
@@ -58,9 +69,13 @@ class Historic(Document):
     nlppos = FloatField()
     nlpneg = FloatField()
     nlpemo = FloatField()
+
+
 manager.add_document(Historic)
 
 # Function for collecting target data from Aurin preserved database
+
+
 def store_target(viewData, viewSA3, rawdb, targetdb):
 
     viewSA3_result = viewSA3(rawdb)
@@ -68,37 +83,42 @@ def store_target(viewData, viewSA3, rawdb, targetdb):
     list_row = {}
 
     for row in viewData_result:
-        list_row[row.key] = [sia.polarity_scores(row.value)["pos"], sia.polarity_scores(row.value)["neg"], sia.polarity_scores(row.value)["compound"]]
-    
+        list_row[row.key] = [sia.polarity_scores(row.value)["pos"], sia.polarity_scores(
+            row.value)["neg"], sia.polarity_scores(row.value)["compound"]]
+
     for row in viewSA3_result:
         if row.key not in targetdb:
-            newHistoric = Historic(_id = row.key, sa3_id = row.value, nlppos = list_row[row.key][0], nlpneg = list_row[row.key][1], nlpemo = list_row[row.key][2])
+            newHistoric = Historic(_id=row.key, sa3_id=row.value,
+                                   nlppos=list_row[row.key][0], nlpneg=list_row[row.key][1], nlpemo=list_row[row.key][2])
             newHistoric.store(targetdb)
 
     # Return the finished status to Gateway
     return ("Collect Successful")
 
 # Create summarised database of the target information harvested from the historical dataset
+
+
 def summaryView(design_doc, request, db):
 
     sa3_count = ViewDefinition(design_doc, request, '''\
         function(doc){
             emit(doc.sa3_id, 1);
-        }''','''function(keys, values, rereduce){
+        }''', '''function(keys, values, rereduce){
               return sum(values);
-        }''', wrapper = Row, group = True)
+        }''', wrapper=Row, group=True)
     sa3_count.sync(db)
 
     request_sa3 = request + "emo"
     sa3_emo = ViewDefinition(design_doc, request_sa3, '''\
         function(doc){
             emit(doc.sa3_id, doc.nlpemo);
-        }''','''function(keys, values, rereduce){
+        }''', '''function(keys, values, rereduce){
               return sum(values);
-        }''', wrapper = Row, group = True)
+        }''', wrapper=Row, group=True)
     sa3_emo.sync(db)
 
     return sa3_count, sa3_emo
+
 
 def create_summary_cluster(couch, receive_keyword):
     # Create summarised database (dbsh stands for database summary historic)
@@ -109,16 +129,23 @@ def create_summary_cluster(couch, receive_keyword):
         dbsh = couch.create(db_name)
     return dbsh
 
+
 # Create class for generating objects of summaried data
 manager = CouchDBManager()
+
+
 class HistoricSummary(Document):
     doc_type = 'summary'
     _id = TextField()
     tweet_count = IntegerField()
     nlpemo = FloatField()
+
+
 manager.add_document(HistoricSummary)
 
 # Function for collecting target data from Aurin preserved database
+
+
 def summary_target(viewCount, viewEmo, rawtarget, summarydb):
 
     viewCount_result = viewCount(rawtarget)
@@ -135,7 +162,8 @@ def summary_target(viewCount, viewEmo, rawtarget, summarydb):
 
     for i in list_count:
         if i not in summarydb:
-            new_summary = HistoricSummary(_id = i, tweet_count = list_count[i], nlpemo = round(list_emo[i] / list_count[i], 5))
+            new_summary = HistoricSummary(
+                _id=i, tweet_count=list_count[i], nlpemo=round(list_emo[i] / list_count[i], 5))
             new_summary.store(summarydb)
 
     # Return the mean value of the selected feature in a json format
@@ -143,8 +171,9 @@ def summary_target(viewCount, viewEmo, rawtarget, summarydb):
 
 # Activate the harvester of Aurin for the target value in a specified region scale
 
+
 def historic_work(couch, receive_keyword):
-    dbrt =  create_cluster(couch, receive_keyword)
+    dbrt = create_cluster(couch, receive_keyword)
     dbraw = couch["historic_raw"]
     requestText, requestSA3 = KeyData("historic", receive_keyword, dbraw)
     store_target(requestText, requestSA3, dbraw, dbrt)
