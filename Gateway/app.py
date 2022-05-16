@@ -456,14 +456,16 @@ def plot_communication():
         print("something wrong")
         return jsonify({"state": "failed"})
 
-# replace and delete this thing
+# for map only
 def get_city_db():
     res = []
     for d in couch:
         d_list = d.split('_')
-        if len(d_list) >= 3 and d_list[-1] == 'summary' and d_list[1] == "city":
+        if len(d_list) >= 3 and d_list[-1] == 'summary' and d_list[1] == "city" and (d_list[0] == 'search' or d_list[0] == 'historic'):
             res.append(d+"_count")
             res.append(d+"_sentiment")
+        if len(d_list) >= 1 and d_list[-1] == 'summary' and d_list[1] == "city" and d_list[0] == 'aurin':
+            res.append(d)
     return res
 
 ###########################
