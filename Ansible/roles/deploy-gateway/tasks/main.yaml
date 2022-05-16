@@ -1,11 +1,12 @@
+# Group 1 Melbourne
 # Qianjun Ding 1080391 
 # Zhiyuan Gao 1068184 
 # Jiachen Li 1068299 
 # Yanting Mu 1068314
 # Chi Zhang 1067750
 
-- name: delete previous app process
-  ansible.builtin.command: sudo pkill -f gunicorn
+# - name: delete previous app process
+#   ansible.builtin.command: sudo pkill -f gunicorn
 
 - name: run app from Gateway
   shell: cd CCCA2/Gateway; sudo python3 -m gunicorn --bind 0.0.0.0:3000 --workers=1 app:app
