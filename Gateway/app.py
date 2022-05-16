@@ -461,7 +461,7 @@ def get_city_db():
     res = []
     for d in couch:
         d_list = d.split('_')
-        if len(d_list) >= 3 and d_list[-1] == 'summary' and d_list[1] == "city" and (d_list[0] == 'search' or d_list[0] == 'historic'):
+        if len(d_list) >= 3 and d_list[-1] == 'summary' and d_list[0] == 'search':
             res.append(d+"_count")
             res.append(d+"_sentiment")
         if len(d_list) >= 1 and d_list[-1] == 'summary' and d_list[1] == "city" and d_list[0] == 'aurin':
