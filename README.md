@@ -1,17 +1,21 @@
 # Cluster and Cloud Computing Assignment 2 Group 1
 # Melbourne the Most Liveable City...?
 
+## Introduction:
+
+This is a scalable distributed system that gathers data from Twitter API or CSV file, processes the data through MapReduce and presents the visualised data in a graph/map through a web interface.
+
 ## Members:
 
-Qianjun Ding 1080391
+Qianjun Ding
 
-Zhiyuan Gao 1068184
+Zhiyuan Gao
 
-Jiachen Li 1068299
+Jiachen Li
 
-Yanting Mu 1068314
+Yanting Mu
 
-Chi Zhang 1067750
+Chi Zhang
 
 
 ## System Repositories
